@@ -1,6 +1,5 @@
 import pluginVue from 'eslint-plugin-vue'
 import vueTsEslintConfig from '@vue/eslint-config-typescript'
-import pluginVitest from '@vitest/eslint-plugin'
 import pluginCypress from 'eslint-plugin-cypress/flat'
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
 
@@ -19,13 +18,9 @@ export default [
   ...vueTsEslintConfig(),
   
   {
-    ...pluginVitest.configs.recommended,
-    files: ['src/**/__tests__/*'],
-  },
-  
-  {
     ...pluginCypress.configs.recommended,
     files: [
+      ''**/__tests__/*.{cy,spec}.{js,ts,jsx,tsx}',',
       'cypress/e2e/**/*.{cy,spec}.{js,ts,jsx,tsx}',
       'cypress/support/**/*.{js,ts,jsx,tsx}'
     ],

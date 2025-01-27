@@ -8,10 +8,20 @@
       "path": "./tsconfig.app.json"
     },
     {
-      "path": "./tsconfig.vitest.json"
+      "path": "./tsconfig.cypress-ct.json"
     }
   ],
   "compilerOptions": {
-    "module": "NodeNext"
+    "module": "NodeNext",
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": true,
+    "noImplicitAny": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "esModuleInterop": true,
+    "skipLibCheck": true
   }
 }
