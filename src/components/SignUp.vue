@@ -40,24 +40,31 @@ const email = ref('')
 const password = ref('')
 const password2 = ref('')
 const router = useRouter()
-
 const handleLogin = async () => {
   // Simulate authentication
   if (password.value !== password2.value) {
     alert('Passwords do not match!')
     return
   }
+
   try {
-    await axios.post('http://localhost:5000/signup', {
+    const response = await axios.post('http://localhost:5000/signup', {
       email: email.value,
       password: password.value,
     })
+
     alert('New Account Created!')
     router.push('/')
   } catch (error) {
-    alert('Signup failed')
+    if (error.response && error.response.data && error.response.data.error) {
+      alert(error.response.data.error) // Display backend error message
+    } else {
+      alert('Signup failed')
+    }
   }
 }
+
+
 </script>
 
 <style scoped>

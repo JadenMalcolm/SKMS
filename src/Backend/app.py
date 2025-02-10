@@ -1,6 +1,7 @@
+import sqlite3
+import re
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
@@ -46,12 +47,29 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS subscriptions (
 )''')
 conn.commit()
 
+
+def is_strong_password(password):
+    if not password:
+        return False
+
+    has_upper = bool(re.search(r"[A-Z]", password))
+    has_lower = bool(re.search(r"[a-z]", password))
+    has_digit = bool(re.search(r"\d", password))
+
+    return has_upper and has_lower and has_digit
+
 @app.route('/signup', methods=['POST'])
+
 def signup():
     data = request.get_json()
     email = data.get('email')
-    password = data.get('password')
-    hashed_password = generate_password_hash(password)
+    passworder = data.get('password')
+
+    # Check if password is strong
+    if not is_strong_password(passworder):
+        return jsonify({'error': 'Password must contain at least one uppercase letter, one lowercase letter, and one digit'}), 400
+
+    hashed_password = generate_password_hash(passworder)
 
     try:
         cursor.execute("INSERT INTO users (email, password) VALUES (?, ?)", (email, hashed_password))
