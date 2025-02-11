@@ -1,3 +1,4 @@
+from datetime import datetime
 import sqlite3
 import re
 from flask import Flask, request, jsonify
@@ -95,11 +96,12 @@ def save_question():
     data = request.get_json()
     user_id = data.get('userId')
     question = data.get('question')
+    current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M')
 
     if not user_id or not question:
         return jsonify({'error': 'User ID and question are required.'}), 400
 
-    cursor.execute("INSERT INTO questions (user_id, question) VALUES (?, ?)", (user_id, question))
+    cursor.execute("INSERT INTO questions (user_id, question, timestamp) VALUES (?, ?, ?)", (user_id, question, current_timestamp))
     conn.commit()
     return jsonify({'message': 'Question saved successfully!', 'id': cursor.lastrowid}), 201
 
@@ -148,11 +150,12 @@ def save_response():
     question_id = data.get('question_id')
     user_id = data.get('user_id')
     response = data.get('response')
+    current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M')
 
     if not question_id or not user_id or not response:
         return jsonify({'error': 'Question ID, User ID, and response are required.'}), 400
 
-    cursor.execute("INSERT INTO responses (question_id, user_id, response) VALUES (?, ?, ?)", (question_id, user_id, response))
+    cursor.execute("INSERT INTO responses (question_id, user_id, response, timestamp) VALUES (?, ?, ?, ?)", (question_id, user_id, response, current_timestamp))
     conn.commit()
     return jsonify({'message': 'Response saved successfully!', 'id': cursor.lastrowid}), 201
 

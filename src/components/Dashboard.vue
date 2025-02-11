@@ -22,8 +22,17 @@
         <ul>
           <li v-for="(q, index) in filteredQuestions" :key="index">
             <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
-            <small>{{ new Date(q.timestamp).toLocaleString() }}</small>
-            <small>Asked by: {{ q.user_email }}</small> <!-- Display user email -->
+            <small>{{
+              new Date(q.timestamp).toLocaleString([], {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+            }}</small>
+            <small> Asked by: {{ q.user_email }}</small>
+            <!-- Display user email -->
           </li>
         </ul>
         <h3>My Questions</h3>
@@ -31,7 +40,15 @@
           <li v-for="(q, index) in myQuestions" :key="index">
             <div v-if="!q.isEditing">
               <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
-              <small>{{ new Date(q.timestamp).toLocaleString() }}</small>
+              <small>{{
+                new Date(q.timestamp).toLocaleString([], {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })
+              }}</small>
               <button @click="editQuestion(q)">Edit</button>
             </div>
             <div v-else>
@@ -44,8 +61,17 @@
         <ul>
           <li v-for="(q, index) in subscribedQuestions" :key="index">
             <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
-            <small>{{ new Date(q.timestamp).toLocaleString() }}</small>
-            <small>Asked by: {{ q.user_email }}</small> <!-- Display user email -->
+            <small>{{
+              new Date(q.timestamp).toLocaleString([], {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+            }}</small>
+            <small>Asked by: {{ q.user_email }}</small>
+            <!-- Display user email -->
           </li>
         </ul>
       </div>
@@ -75,7 +101,7 @@ const subscribedQuestions = ref<Question[]>([]) // Holds the list of subscribed 
 const user = ref<{ id: number; email: string } | null>(null)
 
 const filteredQuestions = computed(() => {
-  return questions.value.filter(q => q.user_email !== user.value?.email)
+  return questions.value.filter((q) => q.user_email !== user.value?.email)
 })
 
 onMounted(async () => {
@@ -89,10 +115,14 @@ onMounted(async () => {
         questions.value = response.data
 
         // Filter questions asked by the logged-in user
-        myQuestions.value = questions.value.filter(q => q.user_email === user.value?.email).map(q => ({ ...q, isEditing: false, editText: q.question }))
+        myQuestions.value = questions.value
+          .filter((q) => q.user_email === user.value?.email)
+          .map((q) => ({ ...q, isEditing: false, editText: q.question }))
 
         // Fetch subscribed questions
-        const subscribedResponse = await axios.get(`http://localhost:5000/users/${user.value.id}/subscriptions`)
+        const subscribedResponse = await axios.get(
+          `http://localhost:5000/users/${user.value.id}/subscriptions`,
+        )
         subscribedQuestions.value = subscribedResponse.data
       } catch (error) {
         console.error('Error fetching questions:', error)
@@ -128,7 +158,7 @@ const submitQuestion = async () => {
         timestamp: new Date().toISOString(),
         user_email: user.value.email, // Use the current user's email
         isEditing: false,
-        editText: askQuery.value
+        editText: askQuery.value,
       }
       questions.value.unshift(newQuestion)
       myQuestions.value.unshift(newQuestion)
@@ -151,7 +181,7 @@ const editQuestion = (question: Question) => {
 const saveQuestion = async (question: Question) => {
   try {
     await axios.put(`http://localhost:5000/questions/${question.id}`, {
-      question: question.editText
+      question: question.editText,
     })
     if (question.editText !== undefined) {
       question.question = question.editText
@@ -162,7 +192,6 @@ const saveQuestion = async (question: Question) => {
     console.error('Error updating question:', error)
   }
 }
-
 </script>
 
 <style scoped>
@@ -209,7 +238,7 @@ const saveQuestion = async (question: Question) => {
 }
 .ask-button {
   padding: 10px 15px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 5px;
