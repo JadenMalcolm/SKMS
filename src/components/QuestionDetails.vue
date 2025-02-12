@@ -79,19 +79,10 @@ interface User {
   email: string
 }
 const route = useRoute()
-const question = ref<{ question: string; timestamp: string; user_email: string } | null>(null)
+const question = ref<Question | null>(null)
 const responseText = ref('')
-const responses = ref<
-  {
-    id: number
-    response: string
-    timestamp: string
-    user_email: string
-    isEditing?: boolean
-    editText?: string
-  }[]
->([])
-const user = ref<{ id: number; email: string } | null>(null)
+const responses = ref<Response[]>([])
+const user = ref<User | null>(null)
 const isSubscribed = ref(false)
 
 onMounted(async () => {
@@ -102,18 +93,16 @@ onMounted(async () => {
 
   const questionId = route.params.id
   try {
-    const questionResponse = await axios.get<Question>(
-      `http://localhost:5000/questions/${questionId}`,
-    )
-    question.value = questionResponse.data
+    const getQuestion = await axios.get<Question>(`http://localhost:5000/questions/${questionId}`)
+    question.value = getQuestion.data
 
-    const responsesResponse = await axios.get<Response[]>(
+    const getResponses = await axios.get<Response[]>(
       `http://localhost:5000/questions/${questionId}/responses`,
     )
-    responses.value = responsesResponse.data.map((response) => ({
-      ...response,
+    responses.value = getResponses.data.map((r) => ({
+      ...r,
       isEditing: false,
-      editText: response.response,
+      editText: r.response,
     }))
 
     if (user.value) {
@@ -152,27 +141,20 @@ const postResponse = async () => {
   }
 }
 
-const editResponse = async (response: {
-  id: number
-  response: string
-  timestamp: string
-  user_email: string
-  isEditing?: boolean
-  editText?: string
-}) => {
-  if (response.isEditing) {
+const editResponse = async (r: Response) => {
+  if (r.isEditing) {
     try {
-      await axios.put(`http://localhost:5000/responses/${response.id}`, {
-        response: response.editText,
+      await axios.put(`http://localhost:5000/responses/${r.id}`, {
+        response: r.editText,
       })
-      response.response = response.editText || response.response
-      response.isEditing = false
+      r.response = r.editText || r.response
+      r.isEditing = false
       alert('Response updated successfully!')
     } catch (error) {
       console.error('Error updating response:', error)
     }
   } else {
-    response.isEditing = true
+    r.isEditing = true
   }
 }
 

@@ -56,15 +56,17 @@ const handleLogin = async () => {
     alert('New Account Created!')
     router.push('/')
   } catch (error) {
-    if (error.response && error.response.data && error.response.data.error) {
-      alert(error.response.data.error) // Display backend error message
+    if (
+      (error as any).response &&
+      (error as any).response.data &&
+      (error as any).response.data.error
+    ) {
+      alert((error as any).response.data.error) // Display backend error message
     } else {
       alert('Signup failed')
     }
   }
 }
-
-
 </script>
 
 <style scoped>
@@ -107,5 +109,4 @@ const handleLogin = async () => {
 .login-button:hover {
   background-color: #218838;
 }
-
 </style>

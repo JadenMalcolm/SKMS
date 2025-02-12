@@ -2,6 +2,7 @@
   <div class="main-container">
     <div class="dashboard-container">
       <h1>Welcome, {{ user?.email }}!</h1>
+      <h2>You are logged in as: {{ user?.role }}</h2>
       <p>You have successfully logged in.</p>
       <button @click="logout" class="logout-button">Logout</button>
     </div>
@@ -92,13 +93,17 @@ interface Question {
   isEditing?: boolean
   editText?: string
 }
-
+interface User {
+  id: number
+  email: string
+  role: string
+}
 const router = useRouter()
 const askQuery = ref('')
 const questions = ref<Question[]>([]) // Holds the list of questions
 const myQuestions = ref<Question[]>([]) // Holds the list of questions asked by the logged-in user
 const subscribedQuestions = ref<Question[]>([]) // Holds the list of subscribed questions
-const user = ref<{ id: number; email: string } | null>(null)
+const user = ref<User | null>(null)
 
 const filteredQuestions = computed(() => {
   return questions.value.filter((q) => q.user_email !== user.value?.email)

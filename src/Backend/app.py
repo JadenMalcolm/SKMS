@@ -16,7 +16,8 @@ cursor = conn.cursor()
 cursor.execute('''CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL
+    password TEXT NOT NULL,
+    role TEXT CHECK(role IN ('admin', 'expert', 'user')) NOT NULL DEFAULT 'user'
 )''')
 
 cursor.execute('''CREATE TABLE IF NOT EXISTS questions (
@@ -46,7 +47,17 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS subscriptions (
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (question_id) REFERENCES questions (id)
 )''')
-conn.commit()
+
+cursor.execute("SELECT * FROM users WHERE email = ?", ("admin@example.com",))
+admin_user = cursor.fetchone()
+
+if not admin_user:
+    email = "admin@example.com"
+    password = "Admin@123"
+    role = "admin"
+    hashed_password = generate_password_hash(password)
+    cursor.execute("INSERT INTO users (email, password, role) VALUES (?, ?, ?)", (email, hashed_password, role))
+    conn.commit()
 
 
 def is_strong_password(password):
@@ -88,7 +99,14 @@ def login():
     cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
     if user and check_password_hash(user[2], password):
-        return jsonify({'message': 'Login successful', 'user': {'id': user[0], 'email': user[1]}}), 200
+        return jsonify({
+            'message': 'Login successful',
+            'user': {
+                'id': user[0],
+                'email': user[1],
+                'role': user[3] 
+            }
+        }), 200
     return jsonify({'error': 'Invalid email or password'}), 401
 
 @app.route('/questions', methods=['POST'])
