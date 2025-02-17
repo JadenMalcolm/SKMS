@@ -181,6 +181,8 @@ onMounted(async () => {
         userQuestions.value = allQuestions.value
           .filter((q) => q.user_email === currentUser.value?.email)
           .map((q) => ({ ...q, isEditing: false, editText: q.question }))
+
+        await fetchSubscribedQuestions()
       } catch (error) {
         console.error('Error fetching questions:', error)
       }
