@@ -1,12 +1,13 @@
 <template>
   <div class="question-details-container">
     <h1>Question Details</h1>
-    <div v-if="question">
-      <p>{{ question.question }}</p>
+    <div v-if="questionDetails">
+      <p v-if="!isEditing">{{ questionDetails.question }}</p>
+      <textarea v-else v-model="editText" class="edit-input"></textarea>
       <small
         >Asked on:
         {{
-          new Date(question.timestamp).toLocaleString([], {
+          new Date(questionDetails.timestamp).toLocaleString([], {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
@@ -15,19 +16,54 @@
           })
         }}</small
       >
-      <small> Asked by: {{ question.user_email }}</small>
+      <small>Asked by: {{ questionDetails.user_email }}</small>
       <!-- Display user email -->
-      <button v-if="user && !isSubscribed" @click="subscribeToQuestion">Subscribe</button>
-      <button v-if="user && isSubscribed" @click="unsubscribeFromQuestion">Unsubscribe</button>
+      <button
+        v-if="currentUser && !isSubscribedToQuestion"
+        @click="subscribeToQuestion"
+        class="subscribe-button"
+      >
+        Subscribe
+      </button>
+      <button
+        v-if="currentUser && isSubscribedToQuestion"
+        @click="unsubscribeFromQuestion"
+        class="unsubscribe-button"
+      >
+        Unsubscribe
+      </button>
+      <button
+        v-if="currentUser?.role === 'admin' || currentUser?.email === questionDetails.user_email"
+        @click="deleteQuestion"
+        class="delete-button"
+      >
+        Delete Question
+      </button>
+      <button
+        v-if="currentUser?.email === questionDetails.user_email"
+        @click="toggleEdit"
+        class="edit-button"
+      >
+        {{ isEditing ? 'Save' : 'Edit' }}
+      </button>
+      <button @click="upvoteQuestion" class="upvote-button">Upvote ({{ upvoteCount }})</button>
+      <button @click="downvoteQuestion" class="downvote-button">
+        Downvote ({{ downvoteCount }})
+      </button>
+      <button @click="reportQuestion" class="report-button">Report ({{ reportCount }})</button>
       <div class="response-section">
-        <textarea v-model="responseText" placeholder="Type your response here..."></textarea>
-        <button @click="postResponse">Post Response</button>
+        <textarea
+          v-model="newResponseText"
+          placeholder="Type your response here..."
+          class="response-input"
+        ></textarea>
+        <button @click="postResponse" class="post-button">Post Response</button>
       </div>
-      <div class="responses" v-if="responses.length">
+      <div class="responses" v-if="responseList.length">
         <h2>Responses</h2>
-        <div v-for="response in responses" :key="response.id" class="response">
+        <div v-for="response in responseList" :key="response.id" class="response">
           <p v-if="!response.isEditing">{{ response.response }}</p>
-          <textarea v-else v-model="response.editText"></textarea>
+          <textarea v-else v-model="response.editText" class="edit-input"></textarea>
           <small
             >Responded on:
             {{
@@ -40,10 +76,13 @@
               })
             }}</small
           >
-          <small> Responded by: {{ response.user_email }}</small>
+          <small>Responded by: {{ response.user_email }}</small>
           <!-- Display user email -->
-          <button v-if="response.user_email === user?.email" @click="editResponse(response)">
+          <button v-if="response.user_email === currentUser?.email" @click="editResponse(response)">
             {{ response.isEditing ? 'Save' : 'Edit' }}
+          </button>
+          <button v-if="currentUser?.role === 'admin'" @click="deleteResponse(response.id)">
+            Delete
           </button>
         </div>
       </div>
@@ -56,10 +95,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 
 interface Question {
+  id: number
   question: string
   timestamp: string
   user_email: string
@@ -77,97 +117,158 @@ interface Response {
 interface User {
   id: number
   email: string
+  role: string
 }
+
 const route = useRoute()
-const question = ref<Question | null>(null)
-const responseText = ref('')
-const responses = ref<Response[]>([])
-const user = ref<User | null>(null)
-const isSubscribed = ref(false)
+const router = useRouter()
+const questionDetails = ref<Question | null>(null)
+const newResponseText = ref('')
+const responseList = ref<Response[]>([])
+const currentUser = ref<User | null>(null)
+const isSubscribedToQuestion = ref(false)
+const isEditing = ref(false)
+const editText = ref('')
+const upvoteCount = ref(0)
+const downvoteCount = ref(0)
+const reportCount = ref(0)
 
 onMounted(async () => {
   const storedUser = sessionStorage.getItem('user')
   if (storedUser) {
-    user.value = JSON.parse(storedUser)
+    currentUser.value = JSON.parse(storedUser)
   }
 
   const questionId = route.params.id
   try {
-    const getQuestion = await axios.get<Question>(`http://localhost:5000/questions/${questionId}`)
-    question.value = getQuestion.data
+    const questionResponse = await axios.get<Question>(
+      `http://localhost:5000/questions/${questionId}`,
+    )
+    questionDetails.value = questionResponse.data
+    editText.value = questionDetails.value.question
 
-    const getResponses = await axios.get<Response[]>(
+    const responsesResponse = await axios.get<Response[]>(
       `http://localhost:5000/questions/${questionId}/responses`,
     )
-    responses.value = getResponses.data.map((r) => ({
-      ...r,
+    responseList.value = responsesResponse.data.map((response) => ({
+      ...response,
       isEditing: false,
-      editText: r.response,
+      editText: response.response,
     }))
 
-    if (user.value) {
+    if (currentUser.value) {
       const subscriptionResponse = await axios.get<boolean>(
-        `http://localhost:5000/subscriptions/${user.value.id}/${questionId}`,
+        `http://localhost:5000/subscriptions/${currentUser.value.id}/${questionId}`,
       )
-      isSubscribed.value = subscriptionResponse.data
+      isSubscribedToQuestion.value = subscriptionResponse.data
     }
+
+    const upvoteResponse = await axios.get<{ count: number }>(
+      `http://localhost:5000/upvotes/count/${route.params.id}`,
+    )
+    upvoteCount.value = upvoteResponse.data.count
+
+    const downvoteResponse = await axios.get<{ count: number }>(
+      `http://localhost:5000/downvotes/count/${route.params.id}`,
+    )
+    downvoteCount.value = downvoteResponse.data.count
+
+    const reportResponse = await axios.get<{ count: number }>(
+      `http://localhost:5000/reports/count/${route.params.id}`,
+    )
+    reportCount.value = reportResponse.data.count
   } catch (error) {
     console.error('Error fetching question details or responses:', error)
   }
 })
 
 const postResponse = async () => {
-  if (!responseText.value.trim()) return
+  if (!newResponseText.value.trim()) return
   try {
-    if (!user.value) throw new Error('User not logged in.')
+    if (!currentUser.value) throw new Error('User not logged in.')
 
     const response = await axios.post(`http://localhost:5000/responses`, {
       question_id: route.params.id,
-      user_id: user.value.id,
-      response: responseText.value,
+      user_id: currentUser.value.id,
+      response: newResponseText.value,
     })
-    responses.value.unshift({
+    responseList.value.unshift({
       id: response.data.id,
-      response: responseText.value,
+      response: newResponseText.value,
       timestamp: new Date().toISOString(),
-      user_email: user.value.email, // Use the current user's email
+      user_email: currentUser.value.email,
       isEditing: false,
-      editText: responseText.value,
-    }) // Add the new response to the top of the list
-    responseText.value = ''
+      editText: newResponseText.value,
+    })
+    newResponseText.value = ''
     alert('Response posted successfully!')
   } catch (error) {
     console.error('Error posting response:', error)
   }
 }
 
-const editResponse = async (r: Response) => {
-  if (r.isEditing) {
+const editResponse = async (response: Response) => {
+  if (response.isEditing) {
     try {
-      await axios.put(`http://localhost:5000/responses/${r.id}`, {
-        response: r.editText,
+      await axios.put(`http://localhost:5000/responses/${response.id}`, {
+        response: response.editText,
       })
-      r.response = r.editText || r.response
-      r.isEditing = false
+      response.response = response.editText || response.response
+      response.isEditing = false
       alert('Response updated successfully!')
     } catch (error) {
       console.error('Error updating response:', error)
     }
   } else {
-    r.isEditing = true
+    response.isEditing = true
   }
+}
+
+const deleteResponse = async (responseId: number) => {
+  try {
+    await axios.delete(`http://localhost:5000/responses/${responseId}`)
+    responseList.value = responseList.value.filter((response) => response.id !== responseId)
+    alert('Response deleted successfully!')
+  } catch (error) {
+    console.error('Error deleting response:', error)
+  }
+}
+
+const deleteQuestion = async () => {
+  try {
+    await axios.delete(`http://localhost:5000/questions/${route.params.id}`)
+    alert('Question deleted successfully!')
+    router.push('/dashboard')
+  } catch (error) {
+    console.error('Error deleting question:', error)
+  }
+}
+
+const toggleEdit = async () => {
+  if (isEditing.value) {
+    try {
+      await axios.put(`http://localhost:5000/questions/${route.params.id}`, {
+        question: editText.value,
+      })
+      questionDetails.value!.question = editText.value
+      alert('Question updated successfully!')
+    } catch (error) {
+      console.error('Error updating question:', error)
+    }
+  }
+  isEditing.value = !isEditing.value
 }
 
 const subscribeToQuestion = async () => {
   try {
-    if (!user.value) throw new Error('User not logged in.')
+    if (!currentUser.value) throw new Error('User not logged in.')
 
     await axios.post(`http://localhost:5000/subscriptions`, {
-      user_id: user.value.id,
+      user_id: currentUser.value.id,
       question_id: route.params.id,
     })
 
-    isSubscribed.value = true
+    isSubscribedToQuestion.value = true
     alert('Subscribed to question successfully!')
   } catch (error) {
     console.error('Error subscribing to question:', error)
@@ -176,19 +277,79 @@ const subscribeToQuestion = async () => {
 
 const unsubscribeFromQuestion = async () => {
   try {
-    if (!user.value) throw new Error('User not logged in.')
+    if (!currentUser.value) throw new Error('User not logged in.')
 
     await axios.delete(`http://localhost:5000/subscriptions`, {
       data: {
-        user_id: user.value.id,
+        user_id: currentUser.value.id,
         question_id: route.params.id,
       },
     })
 
-    isSubscribed.value = false
+    isSubscribedToQuestion.value = false
     alert('Unsubscribed from question successfully!')
   } catch (error) {
     console.error('Error unsubscribing from question:', error)
+  }
+}
+
+const upvoteQuestion = async () => {
+  try {
+    if (!currentUser.value) throw new Error('User not logged in.')
+
+    await axios.post(`http://localhost:5000/questions/${route.params.id}/upvote`, {
+      user_id: currentUser.value.id,
+    })
+
+    // Re-fetch the upvote count after upvoting
+    const upvoteResponse = await axios.get<{ count: number }>(
+      `http://localhost:5000/upvotes/count/${route.params.id}`,
+    )
+    upvoteCount.value = upvoteResponse.data.count
+
+    alert('Question upvoted successfully!')
+  } catch (error) {
+    console.error('Error upvoting question:', error)
+  }
+}
+
+const downvoteQuestion = async () => {
+  try {
+    if (!currentUser.value) throw new Error('User not logged in.')
+
+    await axios.post(`http://localhost:5000/questions/${route.params.id}/downvote`, {
+      user_id: currentUser.value.id,
+    })
+
+    // Re-fetch the downvote count after downvoting
+    const downvoteResponse = await axios.get<{ count: number }>(
+      `http://localhost:5000/downvotes/count/${route.params.id}`,
+    )
+    downvoteCount.value = downvoteResponse.data.count
+
+    alert('Question downvoted successfully!')
+  } catch (error) {
+    console.error('Error downvoting question:', error)
+  }
+}
+
+const reportQuestion = async () => {
+  try {
+    if (!currentUser.value) throw new Error('User not logged in.')
+
+    await axios.post(`http://localhost:5000/questions/${route.params.id}/report`, {
+      user_id: currentUser.value.id,
+    })
+
+    // Re-fetch the report count after reporting
+    const reportResponse = await axios.get<{ count: number }>(
+      `http://localhost:5000/reports/count/${route.params.id}`,
+    )
+    reportCount.value = reportResponse.data.count
+
+    alert('Question reported successfully!')
+  } catch (error) {
+    console.error('Error reporting question:', error)
   }
 }
 </script>
@@ -198,14 +359,86 @@ const unsubscribeFromQuestion = async () => {
   padding: 20px;
   max-width: 800px;
   margin: auto;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+small {
+  display: block;
+  margin-top: 5px;
+  color: #666;
+}
+button {
+  margin-top: 10px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+.subscribe-button {
+  background-color: #4caf50;
+  color: white;
+}
+.unsubscribe-button {
+  background-color: #f44336;
+  color: white;
+}
+.delete-button {
+  background-color: #ff9800;
+  color: white;
+}
+.edit-button {
+  background-color: #007bff;
+  color: white;
+}
+.upvote-button {
+  background-color: #4caf50;
+  color: white;
+}
+.downvote-button {
+  background-color: #f44336;
+  color: white;
+}
+.report-button {
+  background-color: #ff9800;
+  color: white;
 }
 .response-section {
+  margin-top: 20px;
+}
+.response-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+.post-button {
+  background-color: #2196f3;
+  color: white;
+}
+.responses {
   margin-top: 20px;
 }
 .response {
   border: 1px solid #ccc;
   padding: 10px;
   margin-top: 10px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+.edit-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px;
 }
 .loading {
   text-align: center;

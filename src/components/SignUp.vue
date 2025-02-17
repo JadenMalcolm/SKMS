@@ -1,27 +1,35 @@
 <template>
+  <div class="header">Create Account</div>
   <div class="login-container">
     <div class="login-box">
-      <form @submit.prevent="handleLogin">
+      <form @submit.prevent="handleSignUp">
         <div class="form-group">
           <label for="email">Email</label>
-          <input type="email" id="email" v-model="email" placeholder="Enter your email" required />
+          <input
+            type="email"
+            id="email"
+            v-model="emailInput"
+            placeholder="Enter your email"
+            required
+          />
         </div>
         <div class="form-group">
           <label for="password">Password</label>
           <input
             type="password"
             id="password"
-            v-model="password"
+            v-model="passwordInput"
             placeholder="Enter your password"
             required
           />
         </div>
         <div class="form-group">
+          <label for="password2">Confirm Password</label>
           <input
             type="password"
-            id="password"
-            v-model="password2"
-            placeholder="Re-Enter your password"
+            id="password2"
+            v-model="confirmPasswordInput"
+            placeholder="Re-enter your password"
             required
           />
         </div>
@@ -36,21 +44,22 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
-const email = ref('')
-const password = ref('')
-const password2 = ref('')
+const emailInput = ref('')
+const passwordInput = ref('')
+const confirmPasswordInput = ref('')
 const router = useRouter()
-const handleLogin = async () => {
+
+const handleSignUp = async () => {
   // Simulate authentication
-  if (password.value !== password2.value) {
+  if (passwordInput.value !== confirmPasswordInput.value) {
     alert('Passwords do not match!')
     return
   }
 
   try {
     const response = await axios.post('http://localhost:5000/signup', {
-      email: email.value,
-      password: password.value,
+      email: emailInput.value,
+      password: passwordInput.value,
     })
 
     alert('New Account Created!')
@@ -70,43 +79,67 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
+.header {
+  font-size: 2rem;
+  text-align: center;
+  margin-top: 30px;
+  color: #333;
+  background-color: #f0f0f0;
+}
 .login-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   height: 100vh;
+  padding-top: 30px;
   background-color: #f0f0f0;
 }
 .login-box {
-  width: 300px;
-  padding: 20px;
+  width: 350px;
+  padding: 30px;
   background-color: #fff;
-  border-radius: 5px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  text-align: left;
 }
 .form-group label {
   display: block;
   margin-bottom: 5px;
+  color: #555;
 }
 .form-group input {
-  width: 100%;
-  padding: 8px;
+  width: 95%;
+  padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 5px;
 }
 .login-button {
   width: 100%;
-  padding: 10px;
-  background-color: #28a745;
-  color: #fff;
+  padding: 12px;
+  background-color: #4caf50;
+  color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
+  font-size: 16px;
 }
 .login-button:hover {
-  background-color: #218838;
+  background-color: #45a049;
+}
+.signup-link {
+  text-align: center;
+  margin-top: 10px;
+  color: #555;
+}
+.signup-link a {
+  color: #007bff;
+  text-decoration: none;
+}
+.signup-link a:hover {
+  text-decoration: underline;
 }
 </style>

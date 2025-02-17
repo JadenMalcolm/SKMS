@@ -61,44 +61,64 @@ const navigateToSignup = () => {
 .header {
   font-size: 2rem;
   text-align: center;
-  margin-top: 20px;
+  margin-top: 30px;
+  color: #333;
+  background-color: #f0f0f0;
 }
 .login-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   height: 100vh;
+  padding-top: 30px;
+  background-color: #f0f0f0;
 }
 .login-box {
-  width: 300px;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  width: 350px;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  text-align: left;
 }
 .form-group label {
   display: block;
   margin-bottom: 5px;
+  color: #555;
 }
 .form-group input {
-  width: 100%;
-  padding: 8px;
-  box-sizing: border-box;
+  width: 95%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 .login-button {
   width: 100%;
-  padding: 10px;
-  background-color: #4CAF50;
+  padding: 12px;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 16px;
+}
+.login-button:hover {
+  background-color: #45a049;
 }
 .signup-link {
   text-align: center;
   margin-top: 10px;
+  color: #555;
 }
-
+.signup-link a {
+  color: #007bff;
+  text-decoration: none;
+}
+.signup-link a:hover {
+  text-decoration: underline;
+}
 </style>
