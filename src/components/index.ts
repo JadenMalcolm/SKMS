@@ -14,7 +14,7 @@ const routes = [
   { path: '/recover', component: Recover }, // Recover route
   { path: '/question/:id', component: QuestionDetails }, // Question details route
   { path: '/reset', component: Reset }, // Reset password route
-  { path: '/PasswordReset', component: PasswordReset }, // Password reset route
+  { path: '/passwordreset', component: PasswordReset }, // Password reset route
 ]
 
 const router = createRouter({

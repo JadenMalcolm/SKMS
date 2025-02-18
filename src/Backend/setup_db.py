@@ -76,13 +76,15 @@ admin_password = 'Admin@123'
 admin_role = 'admin'
 hashed_password = generate_password_hash(admin_password)
 securityQuestion = 'Admin Security Question'
-securityQuestionAnswer = 'Admin Security Answer'
+securityQuestionAnswer = 'adminsecurityanswer'
+
+hashed_security_answer = generate_password_hash(securityQuestionAnswer)
 
 cursor.execute("SELECT COUNT(*) FROM users WHERE email = ?", (admin_email,))
 user_exists = cursor.fetchone()[0]
 
 if user_exists == 0:
-    cursor.execute("INSERT INTO users (email, password,securityQuestion, securityQuestionAnswer, role) VALUES (?, ?, ?, ?, ?)", (admin_email, hashed_password, securityQuestion, securityQuestionAnswer, admin_role))
+    cursor.execute("INSERT INTO users (email, password, securityQuestion, securityQuestionAnswer, role) VALUES (?, ?, ?, ?, ?)", (admin_email, hashed_password, securityQuestion, hashed_security_answer, admin_role))
     conn.commit()
     print("Admin user inserted successfully.")
 else:

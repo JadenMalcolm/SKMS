@@ -1,29 +1,31 @@
 <template>
-  <div>
-    <h1>Reset Your Password</h1>
-    <p>Email: {{ email }}</p>
-    <div class="form-group">
-      <label for="newPassword">New Password</label>
-      <input
-        type="password"
-        id="newPassword"
-        v-model="newPassword"
-        placeholder="Enter new password"
-        required
-      />
+  <div class="reset-container">
+    <div class="reset-box">
+      <h1 class="header">Reset Your Password</h1>
+      <p>Email: {{ email }}</p>
+      <div class="form-group">
+        <label for="newPassword">New Password</label>
+        <input
+          type="password"
+          id="newPassword"
+          v-model="newPassword"
+          placeholder="Enter new password"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          v-model="confirmPassword"
+          placeholder="Confirm new password"
+          required
+        />
+      </div>
+      <button class="reset-button" @click="resetPassword">Reset Password</button>
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
     </div>
-    <div class="form-group">
-      <label for="confirmPassword">Confirm Password</label>
-      <input
-        type="password"
-        id="confirmPassword"
-        v-model="confirmPassword"
-        placeholder="Confirm new password"
-        required
-      />
-    </div>
-    <button @click="resetPassword">Reset Password</button>
-    <p v-if="errorMessage">{{ errorMessage }}</p>
   </div>
 </template>
 
@@ -52,11 +54,70 @@ const resetPassword = async () => {
     alert('Password reset successfully!')
     router.push('/')
   } catch (error) {
-    errorMessage.value = 'Failed to reset password.'
+
+    if ((error as any).response && (error as any).response.data && (error as any).response.data.error) {
+      errorMessage.value = (error as any).response.data.error
+    } else {
+      errorMessage.value = 'Failed to reset password.'
+    }
   }
 }
 </script>
 
 <style scoped>
-/* Add your styles here */
+.header {
+  font-size: 2rem;
+  text-align: center;
+  margin-top: 30px;
+  color: #333;
+  background-color: #f0f0f0;
+}
+.reset-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100vh;
+  padding-top: 30px;
+  background-color: #f0f0f0;
+}
+.reset-box {
+  width: 350px;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #555;
+}
+.form-group input {
+  width: 95%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+.reset-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+.reset-button:hover {
+  background-color: #45a049;
+}
+.error-message {
+  color: red;
+  margin-top: 10px;
+}
 </style>

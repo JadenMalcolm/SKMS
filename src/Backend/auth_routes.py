@@ -24,17 +24,18 @@ def signup():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
-    securityQuestion = data.get('securityQuestion')
-    securityQuestionAnswer = data.get('securityQuestionAnswer')
+    security_question = data.get('securityQuestion')
+    security_question_answer = data.get('securityQuestionAnswer').replace(" ", "").lower()
 
     # Check if password is strong
     if not is_strong_password(password):
         return jsonify({'error': 'Password must contain at least one uppercase letter, one lowercase letter, and one digit'}), 400
 
     hashed_password = generate_password_hash(password)
+    hashed_security_answer = generate_password_hash(security_question_answer)
 
     try:
-        cursor.execute("INSERT INTO users (email, password, securityQuestion, securityQuestionAnswer) VALUES (?, ?, ?, ?)", (email, hashed_password, securityQuestion, securityQuestionAnswer))
+        cursor.execute("INSERT INTO users (email, password, securityQuestion, securityQuestionAnswer) VALUES (?, ?, ?, ?)", (email, hashed_password, security_question, hashed_security_answer))
         conn.commit()
         return jsonify({'message': 'User created successfully'}), 201
     except sqlite3.IntegrityError:
@@ -67,11 +68,11 @@ def recover():
 def verify_answer():
     data = request.get_json()
     email = data.get('email')
-    securityQuestionAnswer = data.get('securityQuestionAnswer')
+    security_question_answer = data.get('securityQuestionAnswer').replace(" ", "").lower()
 
     cursor.execute("SELECT securityQuestionAnswer FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
-    if user and user[0] == securityQuestionAnswer:
+    if user and check_password_hash(user[0], security_question_answer):
         return jsonify({'message': 'Answer is correct'}), 200
     return jsonify({'error': 'Incorrect answer'}), 401
 
@@ -79,12 +80,17 @@ def verify_answer():
 def reset_password():
     data = request.get_json()
     email = data.get('email')
-    newPassword = data.get('newPassword')
+    new_password = data.get('newPassword')
 
-    if not is_strong_password(newPassword):
+    if not is_strong_password(new_password):
         return jsonify({'error': 'Password must contain at least one uppercase letter, one lowercase letter, and one digit'}), 400
 
-    hashed_password = generate_password_hash(newPassword)
+    cursor.execute("SELECT password FROM users WHERE email = ?", (email,))
+    user = cursor.fetchone()
+    if user and check_password_hash(user[0], new_password):
+        return jsonify({'error': 'New password must be different from the old password'}), 400
+
+    hashed_password = generate_password_hash(new_password)
 
     cursor.execute("UPDATE users SET password = ? WHERE email = ?", (hashed_password, email))
     conn.commit()
