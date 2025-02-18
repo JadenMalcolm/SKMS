@@ -7,16 +7,6 @@
           <label for="email">Email</label>
           <input type="email" id="email" v-model="email" placeholder="Enter your email" required />
         </div>
-        <div class="form-group">
-          <label for="recoveryQuestion">Where did you grow up</label>
-          <input
-            type="securityAnswer"
-            id="securityAnswer"
-            v-model="securityQuestionAnswer"
-            placeholder="Enter your Answer"
-            required
-          />
-        </div>
         <button type="submit" class="recover-button">Submit</button>
       </form>
     </div>
@@ -29,20 +19,20 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 const email = ref('')
-const securityQuestionAnswer = ref('')
 const router = useRouter()
 
 const handleRecover = async () => {
   try {
     const response = await axios.post('http://localhost:5000/recover', {
       email: email.value,
-      securityQuestionAnswer: securityQuestionAnswer.value,
     })
 
-    const user = response.data.user
-    sessionStorage.setItem('user', JSON.stringify(user))
-    alert('Authentication successful!')
-    router.push('/Reset')
+    if (response.data.securityQuestion) {
+      sessionStorage.setItem('recoverEmail', email.value)
+      router.push('/Reset')
+    } else {
+      alert('Recovery failed')
+    }
   } catch (error) {
     alert('Recovery failed')
   }

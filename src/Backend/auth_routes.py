@@ -51,3 +51,42 @@ def login():
     if user and check_password_hash(user[2], password):
         return jsonify({'message': 'Login successful', 'user': {'id': user[0], 'email': user[1], 'role': user[3]}}), 200
     return jsonify({'error': 'Invalid email or password'}), 401
+
+@auth_routes.route('/recover', methods=['POST'])
+def recover():
+    data = request.get_json()
+    email = data.get('email')
+
+    cursor.execute("SELECT securityQuestion FROM users WHERE email = ?", (email,))
+    user = cursor.fetchone()
+    if user:
+        return jsonify({'securityQuestion': user[0]}), 200
+    return jsonify({'error': 'Email not found'}), 404
+
+@auth_routes.route('/verify_answer', methods=['POST'])
+def verify_answer():
+    data = request.get_json()
+    email = data.get('email')
+    securityQuestionAnswer = data.get('securityQuestionAnswer')
+
+    cursor.execute("SELECT securityQuestionAnswer FROM users WHERE email = ?", (email,))
+    user = cursor.fetchone()
+    if user and user[0] == securityQuestionAnswer:
+        return jsonify({'message': 'Answer is correct'}), 200
+    return jsonify({'error': 'Incorrect answer'}), 401
+
+@auth_routes.route('/reset_password', methods=['POST'])
+def reset_password():
+    data = request.get_json()
+    email = data.get('email')
+    newPassword = data.get('newPassword')
+
+    if not is_strong_password(newPassword):
+        return jsonify({'error': 'Password must contain at least one uppercase letter, one lowercase letter, and one digit'}), 400
+
+    hashed_password = generate_password_hash(newPassword)
+
+    cursor.execute("UPDATE users SET password = ? WHERE email = ?", (hashed_password, email))
+    conn.commit()
+
+    return jsonify({'message': 'Password reset successfully'}), 200
