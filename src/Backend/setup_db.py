@@ -10,9 +10,10 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
+    role TEXT NOT NULL CHECK(role IN ('admin','expert','employee')) DEFAULT 'employee',
     securityQuestion TEXT NOT NULL,
-    securityQuestionAnswer TEXT NOT NULL,
-    role TEXT NOT NULL CHECK(role IN ('admin','expert','employee')) DEFAULT 'employee'
+    securityQuestionAnswer TEXT NOT NULL
+    
 )''')
 
 cursor.execute('''CREATE TABLE IF NOT EXISTS questions (
@@ -75,16 +76,16 @@ admin_email = 'admin@example.com'
 admin_password = 'Admin@123'
 admin_role = 'admin'
 hashed_password = generate_password_hash(admin_password)
-securityQuestion = 'Admin Security Question'
-securityQuestionAnswer = 'adminsecurityanswer'
+security_question = 'Admin Security Question'
+security_question_answer = 'adminsecurityanswer'
 
-hashed_security_answer = generate_password_hash(securityQuestionAnswer)
+hashed_security_answer = generate_password_hash(security_question_answer)
 
 cursor.execute("SELECT COUNT(*) FROM users WHERE email = ?", (admin_email,))
 user_exists = cursor.fetchone()[0]
 
 if user_exists == 0:
-    cursor.execute("INSERT INTO users (email, password, securityQuestion, securityQuestionAnswer, role) VALUES (?, ?, ?, ?, ?)", (admin_email, hashed_password, securityQuestion, hashed_security_answer, admin_role))
+    cursor.execute("INSERT INTO users (email, password, role, securityQuestion, securityQuestionAnswer) VALUES (?, ?, ?, ?, ?)", (admin_email, hashed_password, admin_role, security_question, hashed_security_answer))
     conn.commit()
     print("Admin user inserted successfully.")
 else:
