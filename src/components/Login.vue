@@ -23,6 +23,9 @@
       <p class="signup-link">
         Don’t have an account? <a href="/signup" @click.prevent="navigateToSignup">Sign up</a>
       </p>
+      <p class="recover-link">
+        Forgot Password? <a herf="/recover" @click.prevent="navigateToRecover">Reset Password</a>
+      </p>
     </div>
   </div>
 </template>
@@ -43,17 +46,21 @@ const handleLogin = async () => {
       password: password.value,
     })
 
-    const user = response.data.user // Extract user data from the server response
-    sessionStorage.setItem('user', JSON.stringify(user)) // Store user data temporarily
+    const user = response.data.user
+    sessionStorage.setItem('user', JSON.stringify(user))
     alert('Login successful!')
-    router.push('/dashboard') // Navigate to the dashboard
+    router.push('/dashboard')
   } catch (error) {
     alert('Login failed')
   }
 }
 
 const navigateToSignup = () => {
-  router.push('/signup') // Navigate to the Sign-up page
+  router.push('/signup')
+}
+
+const navigateToRecover = () => {
+  router.push('/recover')
 }
 </script>
 
@@ -119,6 +126,19 @@ const navigateToSignup = () => {
   text-decoration: none;
 }
 .signup-link a:hover {
+  text-decoration: underline;
+}
+
+.recover-link {
+  text-align: center;
+  margin-top: 10px;
+  color: #555;
+}
+.recover-link a {
+  color: #007bff;
+  text-decoration: none;
+}
+.recover-link a:hover {
   text-decoration: underline;
 }
 </style>

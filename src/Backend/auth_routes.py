@@ -23,16 +23,18 @@ def is_strong_password(password):
 def signup():
     data = request.get_json()
     email = data.get('email')
-    passworder = data.get('password')
+    password = data.get('password')
+    securityQuestion = data.get('securityQuestion')
+    securityQuestionAnswer = data.get('securityQuestionAnswer')
 
     # Check if password is strong
-    if not is_strong_password(passworder):
+    if not is_strong_password(password):
         return jsonify({'error': 'Password must contain at least one uppercase letter, one lowercase letter, and one digit'}), 400
 
-    hashed_password = generate_password_hash(passworder)
+    hashed_password = generate_password_hash(password)
 
     try:
-        cursor.execute("INSERT INTO users (email, password) VALUES (?, ?)", (email, hashed_password))
+        cursor.execute("INSERT INTO users (email, password, securityQuestion, securityQuestionAnswer) VALUES (?, ?, ?, ?)", (email, hashed_password, securityQuestion, securityQuestionAnswer))
         conn.commit()
         return jsonify({'message': 'User created successfully'}), 201
     except sqlite3.IntegrityError:

@@ -33,6 +33,26 @@
             required
           />
         </div>
+        <div class="form-group">
+          <label for="securityQuestion">Select a Security Question</label>
+          <select id="securityQuestion" v-model="securityChoice" required>
+            <option value="" disabled>Select a Security Question</option>
+            <option value="Where did you grow up?">Where did you grow up?</option>
+            <option value="What was the name of your childhood pet?">
+              What was the name of your childhood pet?
+            </option>
+          </select>
+        </div>
+        <div class="form-group" v-if="securityChoice">
+          <label for="securityAnswer">Answer</label>
+          <input
+            type="text"
+            id="securityAnswer"
+            v-model="securityQuestionAnswer"
+            placeholder="Enter your answer"
+            required
+          />
+        </div>
         <button type="submit" class="login-button">Create Account</button>
       </form>
     </div>
@@ -48,6 +68,8 @@ const emailInput = ref('')
 const passwordInput = ref('')
 const confirmPasswordInput = ref('')
 const router = useRouter()
+const securityChoice = ref('')
+const securityQuestionAnswer = ref('')
 
 const handleSignUp = async () => {
   // Simulate authentication
@@ -60,6 +82,8 @@ const handleSignUp = async () => {
     const response = await axios.post('http://localhost:5000/signup', {
       email: emailInput.value,
       password: passwordInput.value,
+      securityQuestion: securityChoice.value,
+      securityQuestionAnswer: securityQuestionAnswer.value,
     })
 
     alert('New Account Created!')
@@ -116,6 +140,13 @@ const handleSignUp = async () => {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
+}
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 20px;
 }
 .login-button {
   width: 100%;
