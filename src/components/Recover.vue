@@ -29,6 +29,7 @@ const handleRecover = async () => {
 
     if (response.data.securityQuestion) {
       sessionStorage.setItem('recoverEmail', email.value)
+      sessionStorage.setItem('user', JSON.stringify({ email: email.value })) // Store user session
       router.push('/reset')
     } else {
       alert('Recovery failed')

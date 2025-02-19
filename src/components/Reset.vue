@@ -1,7 +1,7 @@
 <template>
+  <div class="header">Reset Password</div>
   <div class="reset-container">
     <div class="reset-box">
-      <h1 class="header">Reset Password</h1>
       <p>Email: {{ email }}</p>
       <p>Security Question: {{ securityQuestion }}</p>
       <div class="form-group">
@@ -51,7 +51,8 @@ const checkAnswer = async () => {
     })
     if (response.data.message === 'Answer is correct') {
       alert('Answer is correct. You can reset your password.')
-      router.push('/passwordreset') // Redirect to password reset page
+      sessionStorage.setItem('user', JSON.stringify({ email: email.value })) // Store user session
+      router.replace('/passwordreset') // Redirect to password reset page
     } else {
       errorMessage.value = 'Incorrect answer. Please try again.'
     }
@@ -60,12 +61,41 @@ const checkAnswer = async () => {
   }
 }
 
-onMounted(fetchSecurityQuestion)
+const logout = () => {
+  sessionStorage.removeItem('user')
+  alert('Session expired. Please log in again.')
+  router.replace('/')
+}
+
+onMounted(() => {
+  const storedUser = sessionStorage.getItem('user')
+  if (!storedUser) {
+    logout()
+  } else {
+    fetchSecurityQuestion()
+  }
+})
 </script>
 
 <style scoped>
 .header {
   font-size: 2rem;
+  text-align: center;
+  margin-top: 30px;
+  color: #333;
+  background-color: #f0f0f0;
+}
+.reset-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100vh;
+  padding-top: 30px;
+  background-color: #f0f0f0;
+}
+.reset-box {
+  width: 350px;
+  padding: 30px;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -74,11 +104,6 @@ onMounted(fetchSecurityQuestion)
 .form-group {
   margin-bottom: 20px;
   text-align: left;
-}
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  color: #555;
 }
 .form-group input {
   width: 95%;
@@ -98,20 +123,5 @@ onMounted(fetchSecurityQuestion)
 }
 .reset-button:hover {
   background-color: #45a049;
-}
-.reset-container {
-  display: flex;
-  justify-content: center;
-  align-items: flex start;
-  height: 100vh;
-  background-color: #f0f0f0;
-}
-.reset-box {
-  width: 350px;
-  padding: 30px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  text-align: center;
 }
 </style>

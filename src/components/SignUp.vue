@@ -37,10 +37,35 @@
           <label for="securityQuestion">Select a Security Question</label>
           <select id="securityQuestion" v-model="securityChoice" required>
             <option value="" disabled>Select a Security Question</option>
-            <option value="Where did you grow up?">Where did you grow up?</option>
             <option value="What was the name of your childhood pet?">
               What was the name of your childhood pet?
             </option>
+            <option value="What is your mother's maiden name?">
+              What is your mother's maiden name?
+            </option>
+            <option value="What was the name of your first school?">
+              What was the name of your first school?
+            </option>
+            <option value="What is your favorite book?">What is your favorite book?</option>
+            <option value="What is your favorite movie?">What is your favorite movie?</option>
+            <option value="What is your favorite food?">What is your favorite food?</option>
+            <option value="What city were you born in?">What city were you born in?</option>
+            <option value="What is your father's middle name?">
+              What is your father's middle name?
+            </option>
+            <option value="What was the make and model of your first car?">
+              What was the make and model of your first car?
+            </option>
+            <option value="What was the name of your first employer?">
+              What was the name of your first employer?
+            </option>
+            <option value="What is your favorite color?">What is your favorite color?</option>
+            <option value="What is your favorite sport?">What is your favorite sport?</option>
+            <option value="What is your favorite hobby?">What is your favorite hobby?</option>
+            <option value="What is your favorite vacation destination?">
+              What is your favorite vacation destination?
+            </option>
+            <option value="What is your favorite animal?">What is your favorite animal?</option>
           </select>
         </div>
         <div class="form-group" v-if="securityChoice">

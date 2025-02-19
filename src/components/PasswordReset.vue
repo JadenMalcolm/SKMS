@@ -1,7 +1,7 @@
 <template>
+  <div class="header">Reset Your Password</div>
   <div class="reset-container">
     <div class="reset-box">
-      <h1 class="header">Reset Your Password</h1>
       <p>Email: {{ email }}</p>
       <div class="form-group">
         <label for="newPassword">New Password</label>
@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 
@@ -52,16 +52,33 @@ const resetPassword = async () => {
       newPassword: newPassword.value,
     })
     alert('Password reset successfully!')
-    router.push('/')
+    sessionStorage.removeItem('user') // Manually log out the user
+    router.replace('/')
   } catch (error) {
-
-    if ((error as any).response && (error as any).response.data && (error as any).response.data.error) {
+    if (
+      (error as any).response &&
+      (error as any).response.data &&
+      (error as any).response.data.error
+    ) {
       errorMessage.value = (error as any).response.data.error
     } else {
       errorMessage.value = 'Failed to reset password.'
     }
   }
 }
+
+const logout = () => {
+  sessionStorage.removeItem('user')
+  alert('Session expired. Please log in again.')
+  router.replace('/')
+}
+
+onMounted(() => {
+  const storedUser = sessionStorage.getItem('user')
+  if (!storedUser) {
+    logout()
+  }
+})
 </script>
 
 <style scoped>
