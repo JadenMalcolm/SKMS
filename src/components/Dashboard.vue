@@ -1,76 +1,106 @@
 <template>
   <div class="main-container">
-    <div class="dashboardSearch-container">
-      <h1>Welcome, {{ currentUser?.email }}!</h1>
-
-      <p>You are logged in as an {{ currentUser?.role }}</p>
-      <button @click="logout" class="logout-button">Logout</button>
-
-      <div class="search-container">
-        <h2>Search Questions</h2>
-        <input
-          type="text"
-          v-model="searchQuery"
-          placeholder="Search questions..."
-          class="search-input"
-        />
-        <button @click="searchQuestions" class="search-button">Search</button>
-
-        <div class="questions-box">
-          <h3>Search Results</h3>
-          <ul>
-            <li v-for="(q, index) in searchResults" :key="index">
-              <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
-              <small>{{
-                new Date(q.timestamp).toLocaleString([], {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })
-              }}</small>
-              <small>Asked by: {{ q.user_email }}</small>
-              <!-- Display user email -->
-            </li>
-          </ul>
-        </div>
-      </div>
+    <div class="categories-container">
+      <button class="category-button">Asset</button>
+      <button class="category-button">Threat</button>
+      <button class="category-button">Security Goal</button>
+      <button class="category-button">Countermeasure</button>
+      <button class="category-button">Defense Strategy</button>
+      <button class="category-button">Vulnerability</button>
     </div>
+    <div class="content-container">
+      <div class="dashboardSearch-container">
+        <h1>Welcome, {{ currentUser?.email }}!</h1>
 
-    <div class="browse-container">
-      <div class="ask-container">
-        <h2>Ask a Question</h2>
-        <input
-          type="text"
-          v-model="newQuestionText"
-          placeholder="Type your question here..."
-          class="ask-input"
-        />
-        <button @click="submitQuestion" class="ask-button">Submit Question</button>
+        <p>You are logged in as an {{ currentUser?.role }}</p>
+        <button @click="logout" class="logout-button">Logout</button>
 
-        <div class="questions-box">
-          <h3>My Questions</h3>
-          <ul>
-            <li v-for="(q, index) in userQuestions" :key="index">
-              <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
-              <small>{{
-                new Date(q.timestamp).toLocaleString([], {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })
-              }}</small>
-            </li>
-          </ul>
+        <div class="search-container">
+          <h2>Search Questions</h2>
+          <input
+            type="text"
+            v-model="searchQuery"
+            placeholder="Search questions..."
+            class="search-input"
+          />
+          <button @click="searchQuestions" class="search-button">Search</button>
+
+          <div class="questions-box">
+            <h3>Search Results</h3>
+            <ul>
+              <li v-for="(q, index) in searchResults" :key="index">
+                <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
+                <small>{{
+                  new Date(q.timestamp).toLocaleString([], {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                }}</small>
+                <small>Asked by: {{ q.user_email }}</small>
+                <!-- Display user email -->
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="browse-container">
+        <div class="ask-container">
+          <h2>Ask a Question</h2>
+          <input
+            type="text"
+            v-model="newQuestionText"
+            placeholder="Type your question here..."
+            class="ask-input"
+          />
+          <button @click="submitQuestion" class="ask-button">Submit Question</button>
+
+          <div class="questions-box">
+            <h3>My Questions</h3>
+            <ul>
+              <li v-for="(q, index) in userQuestions" :key="index">
+                <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
+                <small>{{
+                  new Date(q.timestamp).toLocaleString([], {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                }}</small>
+              </li>
+            </ul>
+          </div>
+
+          <div class="questions-box">
+            <h3>Subscribed Questions</h3>
+            <ul>
+              <li v-for="(q, index) in subscribedQuestions" :key="index">
+                <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
+                <small>{{
+                  new Date(q.timestamp).toLocaleString([], {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                }}</small>
+                <small>Asked by: {{ q.user_email }}</small>
+                <!-- Display user email -->
+              </li>
+            </ul>
+          </div>
         </div>
 
         <div class="questions-box">
-          <h3>Subscribed Questions</h3>
+          <h2>Browse All Questions</h2>
           <ul>
-            <li v-for="(q, index) in subscribedQuestions" :key="index">
+            <li v-for="(q, index) in filteredQuestions" :key="index">
               <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
               <small>{{
                 new Date(q.timestamp).toLocaleString([], {
@@ -86,26 +116,6 @@
             </li>
           </ul>
         </div>
-      </div>
-
-      <div class="questions-box">
-        <h2>Browse All Questions</h2>
-        <ul>
-          <li v-for="(q, index) in filteredQuestions" :key="index">
-            <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
-            <small>{{
-              new Date(q.timestamp).toLocaleString([], {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-              })
-            }}</small>
-            <small>Asked by: {{ q.user_email }}</small>
-            <!-- Display user email -->
-          </li>
-        </ul>
       </div>
     </div>
   </div>
@@ -235,8 +245,34 @@ const submitQuestion = async () => {
 <style scoped>
 .main-container {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   padding: 10px;
+  background-color: #f0f0f0;
+}
+.categories-container {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px;
+  background-color: #fff;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1)
+}
+.category-button {
+  padding: 10px 15px;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.category-button:hover {
+  background-color: #1976d2;
+}
+.content-container {
+  display: flex;
+  justify-content: space-between;
   background-color: #f0f0f0;
 }
 .dashboardSearch-container {
