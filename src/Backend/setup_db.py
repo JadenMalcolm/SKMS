@@ -13,13 +13,13 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS users (
     role TEXT NOT NULL CHECK(role IN ('admin','expert','employee')) DEFAULT 'employee',
     securityQuestion TEXT NOT NULL,
     securityQuestionAnswer TEXT NOT NULL
-    
 )''')
 
 cursor.execute('''CREATE TABLE IF NOT EXISTS questions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     question TEXT NOT NULL,
+    category TEXT NOT NULL CHECK(category IN ('Asset', 'Threat', 'Security Goal', 'Countermeasure', 'Defense Strategy', 'Vulnerability')),
     timestamp DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP,'LOCALTIME')),
     FOREIGN KEY (user_id) REFERENCES users (id)
 )''')

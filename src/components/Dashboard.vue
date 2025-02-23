@@ -1,12 +1,12 @@
 <template>
   <div class="main-container">
     <div class="categories-container">
-      <button class="category-button">Asset</button>
-      <button class="category-button">Threat</button>
-      <button class="category-button">Security Goal</button>
-      <button class="category-button">Countermeasure</button>
-      <button class="category-button">Defense Strategy</button>
-      <button class="category-button">Vulnerability</button>
+      <button @click="navigateToAsset" class="category-button">Asset</button>
+      <button @click="navigateToThreat"class="category-button">Threat</button>
+      <button @click="navigateToSecurityGoal"class="category-button">Security Goal</button>
+      <button @click="navigateToCountermeasure"class="category-button">Countermeasure</button>
+      <button @click="navigateToDefenseStrategy"class="category-button">Defense Strategy</button>
+      <button @click="navigateToVulnerability"class="category-button">Vulnerability</button>
     </div>
     <div class="content-container">
       <div class="dashboardSearch-container">
@@ -29,7 +29,7 @@
             <h3>Search Results</h3>
             <ul>
               <li v-for="(q, index) in searchResults" :key="index">
-                <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
+                <router-link :to="'/question/${q.id}'">{{ q.question }}</router-link>
                 <small>{{
                   new Date(q.timestamp).toLocaleString([], {
                     year: 'numeric',
@@ -39,6 +39,7 @@
                     minute: '2-digit',
                   })
                 }}</small>
+                <small>Category: {{ q.category }}</small>
                 <small>Asked by: {{ q.user_email }}</small>
                 <!-- Display user email -->
               </li>
@@ -48,16 +49,7 @@
       </div>
 
       <div class="browse-container">
-        <div class="ask-container">
-          <h2>Ask a Question</h2>
-          <input
-            type="text"
-            v-model="newQuestionText"
-            placeholder="Type your question here..."
-            class="ask-input"
-          />
-          <button @click="submitQuestion" class="ask-button">Submit Question</button>
-
+        <div class="questions-container">
           <div class="questions-box">
             <h3>My Questions</h3>
             <ul>
@@ -72,6 +64,7 @@
                     minute: '2-digit',
                   })
                 }}</small>
+                <small>Category: {{ q.category }}</small>
               </li>
             </ul>
           </div>
@@ -90,6 +83,7 @@
                     minute: '2-digit',
                   })
                 }}</small>
+                <small>Category: {{ q.category }}</small>
                 <small>Asked by: {{ q.user_email }}</small>
                 <!-- Display user email -->
               </li>
@@ -111,6 +105,7 @@
                   minute: '2-digit',
                 })
               }}</small>
+              <small>Category: {{ q.category }}</small>
               <small>Asked by: {{ q.user_email }}</small>
               <!-- Display user email -->
             </li>
@@ -129,6 +124,7 @@ import { useRouter } from 'vue-router'
 interface Question {
   id: number
   question: string
+  category: string
   timestamp: string
   user_email: string
   isEditing?: boolean
@@ -209,37 +205,29 @@ const logout = () => {
   router.push('/')
 }
 
-const submitQuestion = async () => {
-  if (newQuestionText.value.trim()) {
-    try {
-      if (!currentUser.value) throw new Error('User not logged in.')
-
-      const response = await axios.post('http://localhost:5000/questions', {
-        userId: currentUser.value.id,
-        question: newQuestionText.value,
-      })
-
-      const newQuestion = {
-        id: response.data.id,
-        question: newQuestionText.value,
-        timestamp: new Date().toLocaleString(),
-        user_email: currentUser.value.email,
-        isEditing: false,
-        editText: newQuestionText.value,
-      }
-      allQuestions.value.unshift(newQuestion)
-      userQuestions.value.unshift(newQuestion)
-
-      alert(`Your question was saved: ${newQuestionText.value}`)
-      newQuestionText.value = ''
-    } catch (error) {
-      console.error('Error submitting question:', error)
-      alert('Failed to save the question.')
-    }
-  } else {
-    alert('Please enter a question to ask.')
-  }
+const navigateToAsset = () => {
+  router.push('/asset')
 }
+const navigateToThreat = () => {
+  router.push('/threat')
+}
+
+const navigateToSecurityGoal = () => {
+  router.push('/security-goal')
+}
+
+const navigateToCountermeasure = () => {
+  router.push('/countermeasure')
+}
+
+const navigateToDefenseStrategy = () => {
+  router.push('/defense-strategy')
+}
+
+const navigateToVulnerability = () => {
+  router.push('/vulnerability')
+}
+
 </script>
 
 <style scoped>
@@ -338,7 +326,6 @@ const submitQuestion = async () => {
   cursor: pointer;
   font-size: 14px;
 }
-.ask-button:hover,
 .search-button:hover {
   background-color: #45a049;
 }

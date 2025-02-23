@@ -12,25 +12,26 @@ def save_question():
     data = request.get_json()
     user_id = data.get('userId')
     question_text = data.get('question')
+    category = data.get('category')
 
-    if not user_id or not question_text:
-        return jsonify({'error': 'User ID and question are required.'}), 400
+    if not user_id or not question_text or not category:
+        return jsonify({'error': 'User ID, question, and category are required.'}), 400
 
-    cursor.execute("INSERT INTO questions (user_id, question) VALUES (?, ?)", (user_id, question_text))
+    cursor.execute("INSERT INTO questions (user_id, question, category) VALUES (?, ?, ?)", (user_id, question_text, category))
     conn.commit()
     return jsonify({'message': 'Question saved successfully!', 'id': cursor.lastrowid}), 201
 
 @question_routes.route('/questions', methods=['GET'])
 def get_all_questions():
     cursor.execute('''
-        SELECT q.id, q.question, q.timestamp, u.email
+        SELECT q.id, q.question, q.category, q.timestamp, u.email
         FROM questions q
         JOIN users u ON q.user_id = u.id
         ORDER BY q.timestamp DESC
     ''')
     questions = cursor.fetchall()
     return jsonify([
-        {'id': q[0], 'question': q[1], 'timestamp': q[2], 'user_email': q[3]}
+        {'id': q[0], 'question': q[1], 'category': q[2], 'timestamp': q[3], 'user_email': q[4]}
         for q in questions
     ]), 200
 
@@ -40,7 +41,7 @@ def search_questions():
     query = data.get('query', '')
     keywords = query.split()
     sql_query = '''
-        SELECT q.id, q.question, q.timestamp, u.email,
+        SELECT q.id, q.question, q.category, q.timestamp, u.email,
                CASE WHEN q.question LIKE ? THEN 1 ELSE 0 END AS relevance
         FROM questions q
         JOIN users u ON q.user_id = u.id
@@ -51,7 +52,7 @@ def search_questions():
     cursor.execute(sql_query, params)
     questions = cursor.fetchall()
     return jsonify([
-        {'id': q[0], 'question': q[1], 'timestamp': q[2], 'user_email': q[3]}
+        {'id': q[0], 'question': q[1], 'category': q[2], 'timestamp': q[3], 'user_email': q[4]}
         for q in questions
     ]), 200
 
@@ -59,24 +60,25 @@ def search_questions():
 def question(id):
     if request.method == 'GET':
         cursor.execute('''
-            SELECT q.question, q.timestamp, u.email
+            SELECT q.question, q.category, q.timestamp, u.email
             FROM questions q
             JOIN users u ON q.user_id = u.id
             WHERE q.id = ?
         ''', (id,))
         question = cursor.fetchone()
         if question:
-            return jsonify({'question': question[0], 'timestamp': question[1], 'user_email': question[2]}), 200
+            return jsonify({'question': question[0], 'category': question[1], 'timestamp': question[2], 'user_email': question[3]}), 200
         return jsonify({'error': 'Question not found'}), 404
 
     if request.method == 'PUT':
         data = request.get_json()
         question_text = data.get('question')
+        category = data.get('category')
 
-        if not question_text:
-            return jsonify({'error': 'Question text is required.'}), 400
+        if not question_text or not category:
+            return jsonify({'error': 'Question text and category are required.'}), 400
 
-        cursor.execute("UPDATE questions SET question = ? WHERE id = ?", (question_text, id))
+        cursor.execute("UPDATE questions SET question = ?, category = ? WHERE id = ?", (question_text, category, id))
         conn.commit()
         return jsonify({'message': 'Question updated successfully!'}), 200
 
@@ -88,7 +90,7 @@ def question(id):
 @question_routes.route('/questions/most-reported', methods=['GET'])
 def get_most_reported_questions():
     cursor.execute('''
-        SELECT q.id, q.question, q.timestamp, u.email, COUNT(r.id) as report_count
+        SELECT q.id, q.question, q.category, q.timestamp, u.email, COUNT(r.id) as report_count
         FROM questions q
         JOIN users u ON q.user_id = u.id
         LEFT JOIN reports r ON q.id = r.question_id
@@ -99,6 +101,6 @@ def get_most_reported_questions():
     ''')
     questions = cursor.fetchall()
     return jsonify([
-        {'id': q[0], 'question': q[1], 'timestamp': q[2], 'user_email': q[3], 'report_count': q[4]}
+        {'id': q[0], 'question': q[1], 'category': q[2], 'timestamp': q[3], 'user_email': q[4], 'report_count': q[5]}
         for q in questions
     ]), 200

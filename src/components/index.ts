@@ -6,6 +6,12 @@ import QuestionDetails from '../components/QuestionDetails.vue'
 import Recover from '../components/Recover.vue'
 import Reset from '../components/Reset.vue'
 import PasswordReset from '../components/PasswordReset.vue'
+import Asset from '../components/Asset.vue'
+import Threat from '../components/Threat.vue'
+import SecurityGoal from '../components/SecurityGoal.vue'
+import Countermeasure from '../components/Countermeasure.vue'
+import DefenseStrategy from '../components/DefenseStrategy.vue'
+import Vulnerability from '../components/Vulnerability.vue'
 
 const routes = [
   { path: '/', component: Login }, // Default route
@@ -14,7 +20,13 @@ const routes = [
   { path: '/recover', component: Recover }, // Recover route
   { path: '/question/:id', component: QuestionDetails }, // Question details route
   { path: '/reset', component: Reset }, // Reset password route
-  { path: '/passwordreset', component: PasswordReset }, // Password reset route
+  { path: '/password-reset', component: PasswordReset }, // Password reset route
+  { path: '/asset', component: Asset }, // Asset route
+  { path: '/threat', component: Threat }, // Threat route
+  { path: '/security-goal', component: SecurityGoal }, // Security Goal route
+  { path: '/countermeasure', component: Countermeasure }, // Countermeasure route
+  { path: '/defense-strategy', component: DefenseStrategy }, // Defense Strategy route
+  { path: '/vulnerability', component: Vulnerability }, // Vulnerability route
 ]
 
 const router = createRouter({
