@@ -1,18 +1,48 @@
 <template>
-  <div class="ask-container">
-    <h2>Ask a Question</h2>
-    <input
-      type="text"
-      v-model="newQuestionText"
-      placeholder="Type your question here..."
-      class="ask-input"
-    />
-    <button @click="submitQuestion" class="ask-button">Submit Question</button>
+  <div class="main-container">
+    <div class="ask-container">
+      <h2>Ask a Question</h2>
+      <input
+        type="text"
+        v-model="newQuestionText"
+        placeholder="Type your question here..."
+        class="ask-input"
+      />
+      <button @click="submitQuestion" class="ask-button">Submit Question</button>
+      <div class="search-container">
+        <h2>Search Security Goal Questions</h2>
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="Search security goal questions..."
+          class="search-input"
+        />
+        <button @click="searchQuestions" class="search-button">Search</button>
+      </div>
+    </div>
+    <div class="questions-box">
+      <h3>Security Goal Questions</h3>
+      <ul>
+        <li v-for="(q, index) in filteredSecurityGoalQuestions" :key="index">
+          <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
+          <small>{{
+            new Date(q.timestamp).toLocaleString([], {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+          }}</small>
+          <small>Asked by: {{ q.user_email }}</small>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 
@@ -35,9 +65,14 @@ interface User {
 
 const router = useRouter()
 const newQuestionText = ref('')
+const searchQuery = ref('')
 const allQuestions = ref<Question[]>([])
-const userQuestions = ref<Question[]>([])
+const securityGoalQuestions = ref<Question[]>([])
 const currentUser = ref<User | null>(null)
+
+const filteredSecurityGoalQuestions = computed(() => {
+  return securityGoalQuestions.value.filter(q => q.question.toLowerCase().includes(searchQuery.value.toLowerCase()))
+})
 
 onMounted(async () => {
   const storedUser = sessionStorage.getItem('user')
@@ -46,6 +81,14 @@ onMounted(async () => {
   } else {
     alert('Session expired. Please log in again.')
     router.push('/')
+  }
+
+  try {
+    const response = await axios.get('http://localhost:5000/questions')
+    allQuestions.value = response.data
+    securityGoalQuestions.value = allQuestions.value.filter(q => q.category === 'Security Goal')
+  } catch (error) {
+    console.error('Error fetching questions:', error)
   }
 })
 
@@ -70,7 +113,7 @@ const submitQuestion = async () => {
         editText: newQuestionText.value,
       }
       allQuestions.value.unshift(newQuestion)
-      userQuestions.value.unshift(newQuestion)
+      securityGoalQuestions.value.unshift(newQuestion)
 
       alert(`Your question was saved: ${newQuestionText.value}`)
       newQuestionText.value = ''
@@ -82,24 +125,49 @@ const submitQuestion = async () => {
     alert('Please enter a question to ask.')
   }
 }
+
+const searchQuestions = async () => {
+  try {
+    const response = await axios.post('http://localhost:5000/questions/search', {
+      query: searchQuery.value,
+    })
+    securityGoalQuestions.value = response.data.filter((q: { category: string }) => q.category === 'Security Goal')
+  } catch (error) {
+    console.error('Error searching questions:', error)
+  }
+}
 </script>
 
 <style scoped>
+.main-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #f0f0f0;
+}
 .ask-container {
+  width: 40%;
   padding: 15px;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   text-align: center;
+  margin-right: 10px;
 }
-.ask-input {
+.ask-container h2 {
+  font-size: 1rem;
+  color: #333;
+}
+.ask-input,
+.search-input {
   width: 98%;
   padding: 8px;
   margin-bottom: 8px;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
-.ask-button {
+.ask-button,
+.search-button {
   padding: 8px 12px;
   background-color: #4caf50;
   color: white;
@@ -108,7 +176,43 @@ const submitQuestion = async () => {
   cursor: pointer;
   font-size: 14px;
 }
-.ask-button:hover {
+.ask-button:hover,
+.search-button:hover {
   background-color: #45a049;
+}
+.questions-box {
+  width: 65%;
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding-right: 20px;
+}
+.questions-box h3 {
+  font-size: 1rem;
+  color: #333;
+}
+.questions-box ul {
+  list-style: none;
+  padding: 0;
+}
+.questions-box li {
+  margin-bottom: 8px;
+  padding: 8px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.questions-box li small {
+  display: block;
+  font-size: 0.7rem;
+  color: #666;
+}
+.questions-box li a {
+  text-decoration: none;
+  color: #007bff;
+}
+.questions-box li a:hover {
+  text-decoration: underline;
 }
 </style>
