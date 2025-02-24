@@ -8,7 +8,8 @@
         <input v-model="answer" placeholder="Enter your answer" />
       </div>
       <button class="reset-button" @click="checkAnswer">Submit</button>
-      <p v-if="errorMessage">{{ errorMessage }}</p>
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+      <p v-if="successMessage" class="success-message">{{ successMessage }}</p>
     </div>
   </div>
 </template>
@@ -24,6 +25,7 @@ const email = ref<string>(sessionStorage.getItem('recoverEmail') || '')
 const securityQuestion = ref<string>('')
 const answer = ref<string>('')
 const errorMessage = ref<string>('')
+const successMessage = ref<string>('')
 const router = useRouter()
 
 // function to fetch security question
@@ -57,7 +59,7 @@ const checkAnswer = async () => {
     })
     // Push user to password reset if answer is correct
     if (response.data.message === 'Answer is correct') {
-      alert('Answer is correct. You can reset your password.')
+      successMessage.value = 'Answer is correct. You can reset your password.'
       sessionStorage.setItem('user', JSON.stringify({ email: email.value })) // Store user session
       router.replace('/passwordreset') // Redirect to password reset page
     } else {
@@ -71,7 +73,7 @@ const checkAnswer = async () => {
 // function to log out user
 const logout = () => {
   sessionStorage.removeItem('user')
-  alert('Session expired. Please log in again.')
+  successMessage.value = 'Session expired. Please log in again.'
   router.replace('/')
 }
 
@@ -131,5 +133,17 @@ onMounted(() => {
 }
 .reset-button:hover {
   background-color: #45a049;
+}
+.error-message {
+  color: #d8000c;
+  background-color: #ffcccb;
+  padding: 10px;
+  border-radius: 5px;
+}
+.success-message {
+  color: #4caf50;
+  background-color: #d4edda;
+  padding: 10px;
+  border-radius: 5px;
 }
 </style>
