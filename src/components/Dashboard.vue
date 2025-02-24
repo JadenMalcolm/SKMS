@@ -85,7 +85,6 @@
                 }}</small>
                 <small>Category: {{ q.category }}</small>
                 <small>Asked by: {{ q.user_email }}</small>
-                <!-- Display user email -->
               </li>
             </ul>
           </div>
@@ -107,7 +106,6 @@
               }}</small>
               <small>Category: {{ q.category }}</small>
               <small>Asked by: {{ q.user_email }}</small>
-              <!-- Display user email -->
             </li>
           </ul>
         </div>
@@ -117,10 +115,12 @@
 </template>
 
 <script setup lang="ts">
+// imports
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 
+// interfaces for Question and User
 interface Question {
   id: number
   question: string
@@ -138,8 +138,8 @@ interface User {
   role: string
 }
 
+// Variables
 const router = useRouter()
-const newQuestionText = ref('')
 const searchQuery = ref('')
 const allQuestions = ref<Question[]>([])
 const searchResults = ref<Question[]>([])
@@ -147,10 +147,12 @@ const userQuestions = ref<Question[]>([])
 const subscribedQuestions = ref<Question[]>([])
 const currentUser = ref<User | null>(null)
 
+// filter function to get questions not asked by the current user
 const filteredQuestions = computed(() => {
   return allQuestions.value.filter((q) => q.user_email !== currentUser.value?.email)
 })
 
+// function to get subscribed questions
 const fetchSubscribedQuestions = async () => {
   if (currentUser.value) {
     try {
@@ -163,7 +165,7 @@ const fetchSubscribedQuestions = async () => {
     }
   }
 }
-
+// function to handle question search
 const searchQuestions = async () => {
   try {
     const response = await axios.post(`http://localhost:5000/questions/search`, {
@@ -176,10 +178,14 @@ const searchQuestions = async () => {
 }
 
 onMounted(async () => {
+  // Check if user session exists
   const storedUser = sessionStorage.getItem('user')
   if (storedUser) {
+    // Parse the stored user data
     currentUser.value = JSON.parse(storedUser)
     if (currentUser.value) {
+      // Fetch all questions and filter them
+      // based on the current user's email
       try {
         const response = await axios.get(`http://localhost:5000/questions`)
         allQuestions.value = response.data
@@ -199,12 +205,14 @@ onMounted(async () => {
   }
 })
 
+// function to handle logout
 const logout = () => {
   sessionStorage.removeItem('user')
   alert('Logging out...')
   router.push('/')
 }
 
+// navigate to different pages
 const navigateToAsset = () => {
   router.push('/asset')
 }

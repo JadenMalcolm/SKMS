@@ -14,21 +14,25 @@
 </template>
 
 <script setup lang="ts">
+// imports
 import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
+// variables
 const email = ref<string>(sessionStorage.getItem('recoverEmail') || '')
 const securityQuestion = ref<string>('')
 const answer = ref<string>('')
 const errorMessage = ref<string>('')
 const router = useRouter()
 
+// function to fetch security question
 const fetchSecurityQuestion = async () => {
   try {
     const response = await axios.post('http://localhost:5000/recover', {
       email: email.value,
     })
+    // Check if the response contains a security question
     securityQuestion.value = response.data.securityQuestion
   } catch (error) {
     if (
@@ -43,12 +47,15 @@ const fetchSecurityQuestion = async () => {
   }
 }
 
+// function to check answer of security question
 const checkAnswer = async () => {
   try {
+    // Check if the answer is correct
     const response = await axios.post('http://localhost:5000/verify_answer', {
       email: email.value,
       securityQuestionAnswer: answer.value,
     })
+    // Push user to password reset if answer is correct
     if (response.data.message === 'Answer is correct') {
       alert('Answer is correct. You can reset your password.')
       sessionStorage.setItem('user', JSON.stringify({ email: email.value })) // Store user session
@@ -61,6 +68,7 @@ const checkAnswer = async () => {
   }
 }
 
+// function to log out user
 const logout = () => {
   sessionStorage.removeItem('user')
   alert('Session expired. Please log in again.')
