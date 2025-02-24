@@ -30,16 +30,19 @@
 </template>
 
 <script setup lang="ts">
+// imports
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 
+// variables
 const email = ref<string>(sessionStorage.getItem('recoverEmail') || '')
 const newPassword = ref<string>('')
 const confirmPassword = ref<string>('')
 const errorMessage = ref<string>('')
 const router = useRouter()
 
+// function to reset password
 const resetPassword = async () => {
   if (newPassword.value !== confirmPassword.value) {
     errorMessage.value = 'Passwords do not match!'
@@ -52,9 +55,11 @@ const resetPassword = async () => {
       newPassword: newPassword.value,
     })
     alert('Password reset successfully!')
-    sessionStorage.removeItem('user') // Manually log out the user
+    // Clear session storage
+    sessionStorage.removeItem('user')
     router.replace('/')
   } catch (error) {
+    // Handle error response from the backend
     if (
       (error as any).response &&
       (error as any).response.data &&
@@ -67,6 +72,7 @@ const resetPassword = async () => {
   }
 }
 
+// function to log out user
 const logout = () => {
   sessionStorage.removeItem('user')
   alert('Session expired. Please log in again.')
@@ -74,6 +80,7 @@ const logout = () => {
 }
 
 onMounted(() => {
+  // Check if user session exists
   const storedUser = sessionStorage.getItem('user')
   if (!storedUser) {
     logout()

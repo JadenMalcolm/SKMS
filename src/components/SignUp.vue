@@ -85,10 +85,12 @@
 </template>
 
 <script setup lang="ts">
+// imports
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
+// variables
 const emailInput = ref('')
 const passwordInput = ref('')
 const confirmPasswordInput = ref('')
@@ -96,15 +98,14 @@ const router = useRouter()
 const securityChoice = ref('')
 const securityQuestionAnswer = ref('')
 
+// function to handle sign up
 const handleSignUp = async () => {
-  // Simulate authentication
   if (passwordInput.value !== confirmPasswordInput.value) {
     alert('Passwords do not match!')
     return
   }
-
   try {
-    const response = await axios.post('http://localhost:5000/signup', {
+    await axios.post('http://localhost:5000/signup', {
       email: emailInput.value,
       password: passwordInput.value,
       securityQuestion: securityChoice.value,
@@ -114,12 +115,13 @@ const handleSignUp = async () => {
     alert('New Account Created!')
     router.push('/')
   } catch (error) {
+    // Handle error response from the backend
     if (
       (error as any).response &&
       (error as any).response.data &&
       (error as any).response.data.error
     ) {
-      alert((error as any).response.data.error) // Display backend error message
+      alert((error as any).response.data.error)
     } else {
       alert('Signup failed')
     }

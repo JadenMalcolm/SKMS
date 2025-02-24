@@ -31,14 +31,17 @@
 </template>
 
 <script setup lang="ts">
+// imports
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
+// variables
 const email = ref('')
 const password = ref('')
 const router = useRouter()
 
+// function to handle login
 const handleLogin = async () => {
   try {
     const response = await axios.post('http://localhost:5000/login', {
@@ -47,6 +50,7 @@ const handleLogin = async () => {
     })
 
     const user = response.data.user
+    // storing user session
     sessionStorage.setItem('user', JSON.stringify(user))
     alert('Login successful!')
     router.push('/dashboard')
@@ -55,10 +59,12 @@ const handleLogin = async () => {
   }
 }
 
+// function to navigate to signup page
 const navigateToSignup = () => {
   router.push('/signup')
 }
 
+// function to navigate to recover password page
 const navigateToRecover = () => {
   router.push('/recover')
 }

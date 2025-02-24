@@ -77,7 +77,6 @@
             }}</small
           >
           <small>Responded by: {{ response.user_email }}</small>
-          <!-- Display user email -->
           <button v-if="response.user_email === currentUser?.email" @click="editResponse(response)">
             {{ response.isEditing ? 'Save' : 'Edit' }}
           </button>
@@ -98,6 +97,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 
+// Define interfaces for Question, Response, and User
 interface Question {
   id: number
   question: string
@@ -120,6 +120,7 @@ interface User {
   role: string
 }
 
+// Variables
 const route = useRoute()
 const router = useRouter()
 const questionDetails = ref<Question | null>(null)
@@ -134,11 +135,13 @@ const downvoteCount = ref(0)
 const reportCount = ref(0)
 
 onMounted(async () => {
+  // Fetch the current user from session storage
   const storedUser = sessionStorage.getItem('user')
   if (storedUser) {
     currentUser.value = JSON.parse(storedUser)
   }
 
+  // Fetch question details and responses by the question id using vue router
   const questionId = route.params.id
   try {
     const questionResponse = await axios.get<Question>(
@@ -150,31 +153,32 @@ onMounted(async () => {
     const responsesResponse = await axios.get<Response[]>(
       `http://localhost:5000/questions/${questionId}/responses`,
     )
+    // Map the responses to include editing state
     responseList.value = responsesResponse.data.map((response) => ({
       ...response,
       isEditing: false,
       editText: response.response,
     }))
-
+    // Check if the current user is subscribed to the question
     if (currentUser.value) {
       const subscriptionResponse = await axios.get<boolean>(
         `http://localhost:5000/subscriptions/${currentUser.value.id}/${questionId}`,
       )
       isSubscribedToQuestion.value = subscriptionResponse.data
     }
-
+    // Fetch upvote, downvote, and report counts
     const upvoteResponse = await axios.get<{ count: number }>(
-      `http://localhost:5000/upvotes/count/${route.params.id}`,
+      `http://localhost:5000/upvotes/count/${questionId}`,
     )
     upvoteCount.value = upvoteResponse.data.count
 
     const downvoteResponse = await axios.get<{ count: number }>(
-      `http://localhost:5000/downvotes/count/${route.params.id}`,
+      `http://localhost:5000/downvotes/count/${questionId}`,
     )
     downvoteCount.value = downvoteResponse.data.count
 
     const reportResponse = await axios.get<{ count: number }>(
-      `http://localhost:5000/reports/count/${route.params.id}`,
+      `http://localhost:5000/reports/count/${questionId}`,
     )
     reportCount.value = reportResponse.data.count
   } catch (error) {
@@ -182,16 +186,20 @@ onMounted(async () => {
   }
 })
 
+// Function to post a new response
 const postResponse = async () => {
+  // ensures there is no leading or trailing whitespace
   if (!newResponseText.value.trim()) return
   try {
+    // Check if the user is logged in
     if (!currentUser.value) throw new Error('User not logged in.')
-
+    // Post the new response to the server
     const response = await axios.post(`http://localhost:5000/responses`, {
       question_id: route.params.id,
       user_id: currentUser.value.id,
       response: newResponseText.value,
     })
+    // Add the new response to the response list
     responseList.value.unshift({
       id: response.data.id,
       response: newResponseText.value,
@@ -200,20 +208,24 @@ const postResponse = async () => {
       isEditing: false,
       editText: newResponseText.value,
     })
+    // Reset the response text input
     newResponseText.value = ''
     alert('Response posted successfully!')
   } catch (error) {
     console.error('Error posting response:', error)
   }
 }
-
+// Function to edit a response
 const editResponse = async (response: Response) => {
+  // Check if the response is currently being edited
   if (response.isEditing) {
     try {
       await axios.put(`http://localhost:5000/responses/${response.id}`, {
         response: response.editText,
       })
+      // Update the response text with the edited text or keep the original if editText is empty
       response.response = response.editText || response.response
+      // Reset the editing state
       response.isEditing = false
       alert('Response updated successfully!')
     } catch (error) {
@@ -223,17 +235,18 @@ const editResponse = async (response: Response) => {
     response.isEditing = true
   }
 }
-
+// Function to delete a response
 const deleteResponse = async (responseId: number) => {
   try {
     await axios.delete(`http://localhost:5000/responses/${responseId}`)
+    // Remove the deleted response from the response list
     responseList.value = responseList.value.filter((response) => response.id !== responseId)
     alert('Response deleted successfully!')
   } catch (error) {
     console.error('Error deleting response:', error)
   }
 }
-
+// Function to delete a question
 const deleteQuestion = async () => {
   try {
     await axios.delete(`http://localhost:5000/questions/${route.params.id}`)
@@ -243,13 +256,15 @@ const deleteQuestion = async () => {
     console.error('Error deleting question:', error)
   }
 }
-
+// Function to toggle edit mode for the question
 const toggleEdit = async () => {
+  // Check if question is being edited
   if (isEditing.value) {
     try {
       await axios.put(`http://localhost:5000/questions/${route.params.id}`, {
         question: editText.value,
       })
+      // Update the question text with the edited text or keep the original if editText is empty
       questionDetails.value!.question = editText.value
       alert('Question updated successfully!')
     } catch (error) {
@@ -259,15 +274,17 @@ const toggleEdit = async () => {
   isEditing.value = !isEditing.value
 }
 
+// Function to subscribe to a question
 const subscribeToQuestion = async () => {
   try {
+    // Check if the user is logged in
     if (!currentUser.value) throw new Error('User not logged in.')
-
+    // Post the subscription to the server
     await axios.post(`http://localhost:5000/subscriptions`, {
       user_id: currentUser.value.id,
       question_id: route.params.id,
     })
-
+    // Update the subscription state
     isSubscribedToQuestion.value = true
     alert('Subscribed to question successfully!')
   } catch (error) {
@@ -275,28 +292,30 @@ const subscribeToQuestion = async () => {
   }
 }
 
+// Function to unsubscribe from a question
 const unsubscribeFromQuestion = async () => {
   try {
     if (!currentUser.value) throw new Error('User not logged in.')
-
+    // Delete the subscription from the server
     await axios.delete(`http://localhost:5000/subscriptions`, {
       data: {
         user_id: currentUser.value.id,
         question_id: route.params.id,
       },
     })
-
+    // Update the subscription state
     isSubscribedToQuestion.value = false
     alert('Unsubscribed from question successfully!')
   } catch (error) {
     console.error('Error unsubscribing from question:', error)
   }
 }
-
+// Function to upvote a question
 const upvoteQuestion = async () => {
   try {
+    // Check if the user is logged in
     if (!currentUser.value) throw new Error('User not logged in.')
-
+    // Post the upvote to the server
     await axios.post(`http://localhost:5000/questions/${route.params.id}/upvote`, {
       user_id: currentUser.value.id,
     })
@@ -305,6 +324,7 @@ const upvoteQuestion = async () => {
     const upvoteResponse = await axios.get<{ count: number }>(
       `http://localhost:5000/upvotes/count/${route.params.id}`,
     )
+    // Update the upvote count
     upvoteCount.value = upvoteResponse.data.count
 
     alert('Question upvoted successfully!')
@@ -316,7 +336,7 @@ const upvoteQuestion = async () => {
 const downvoteQuestion = async () => {
   try {
     if (!currentUser.value) throw new Error('User not logged in.')
-
+    // Post the downvote to the server
     await axios.post(`http://localhost:5000/questions/${route.params.id}/downvote`, {
       user_id: currentUser.value.id,
     })
@@ -325,6 +345,7 @@ const downvoteQuestion = async () => {
     const downvoteResponse = await axios.get<{ count: number }>(
       `http://localhost:5000/downvotes/count/${route.params.id}`,
     )
+    // Update the downvote count
     downvoteCount.value = downvoteResponse.data.count
 
     alert('Question downvoted successfully!')
@@ -336,7 +357,7 @@ const downvoteQuestion = async () => {
 const reportQuestion = async () => {
   try {
     if (!currentUser.value) throw new Error('User not logged in.')
-
+    // Post the report to the server
     await axios.post(`http://localhost:5000/questions/${route.params.id}/report`, {
       user_id: currentUser.value.id,
     })
@@ -345,6 +366,7 @@ const reportQuestion = async () => {
     const reportResponse = await axios.get<{ count: number }>(
       `http://localhost:5000/reports/count/${route.params.id}`,
     )
+    // Update the report count
     reportCount.value = reportResponse.data.count
 
     alert('Question reported successfully!')
