@@ -113,9 +113,6 @@
       </div>
 
       <!-- Message Box -->
-      <div v-if="messageText" class="message-box">
-        <p>{{ messageText }}</p>
-      </div>
     </div>
   </div>
 </template>
@@ -158,8 +155,6 @@ const filteredQuestions = computed(() => {
   return allQuestions.value.filter((q) => q.user_email !== currentUser.value?.email)
 })
 
-const messageText = ref('') // Added message text for feedback
-
 // function to get subscribed questions
 const fetchSubscribedQuestions = async () => {
   if (currentUser.value) {
@@ -182,7 +177,6 @@ const searchQuestions = async () => {
     searchResults.value = response.data
   } catch (error) {
     console.error('Error searching questions:', error)
-    messageText.value = 'Error searching questions.' // Show error message
   }
 }
 
@@ -206,11 +200,9 @@ onMounted(async () => {
         await fetchSubscribedQuestions()
       } catch (error) {
         console.error('Error fetching questions:', error)
-        messageText.value = 'Error fetching questions.' // Show error message
       }
     }
   } else {
-    messageText.value = 'Session expired. Please log in again.' // Show session expired message
     router.push('/')
   }
 })
