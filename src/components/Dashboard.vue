@@ -2,11 +2,11 @@
   <div class="main-container">
     <div class="categories-container">
       <button @click="navigateToAsset" class="category-button">Asset</button>
-      <button @click="navigateToThreat"class="category-button">Threat</button>
-      <button @click="navigateToSecurityGoal"class="category-button">Security Goal</button>
-      <button @click="navigateToCountermeasure"class="category-button">Countermeasure</button>
-      <button @click="navigateToDefenseStrategy"class="category-button">Defense Strategy</button>
-      <button @click="navigateToVulnerability"class="category-button">Vulnerability</button>
+      <button @click="navigateToThreat" class="category-button">Threat</button>
+      <button @click="navigateToSecurityGoal" class="category-button">Security Goal</button>
+      <button @click="navigateToCountermeasure" class="category-button">Countermeasure</button>
+      <button @click="navigateToDefenseStrategy" class="category-button">Defense Strategy</button>
+      <button @click="navigateToVulnerability" class="category-button">Vulnerability</button>
     </div>
     <div class="content-container">
       <div class="dashboardSearch-container">
@@ -227,7 +227,6 @@ const navigateToDefenseStrategy = () => {
 const navigateToVulnerability = () => {
   router.push('/vulnerability')
 }
-
 </script>
 
 <style scoped>
@@ -244,7 +243,7 @@ const navigateToVulnerability = () => {
   background-color: #fff;
   margin-bottom: 10px;
   border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1)
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 .category-button {
   padding: 10px 15px;
