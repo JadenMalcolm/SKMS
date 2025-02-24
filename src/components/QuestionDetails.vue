@@ -111,6 +111,7 @@ import axios from 'axios'
 interface Question {
   id: number
   question: string
+  category: string
   timestamp: string
   user_email: string
 }
@@ -275,7 +276,7 @@ const toggleEdit = async () => {
     try {
       await axios.put(`http://localhost:5000/questions/${route.params.id}`, {
         question: editText.value,
-        category: 'Threat',
+        category: questionDetails.value!.category,
         user_id: currentUser.value!.id,
       })
       questionDetails.value!.question = editText.value
