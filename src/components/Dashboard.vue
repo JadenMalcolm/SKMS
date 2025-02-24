@@ -1,5 +1,6 @@
 <template>
   <div class="main-container">
+    <div class="header">Security Knowledge Management System</div>
     <div class="categories-container">
       <button @click="navigateToAsset" class="category-button">Asset</button>
       <button @click="navigateToThreat" class="category-button">Threat</button>
@@ -243,6 +244,14 @@ const navigateToVulnerability = () => {
   flex-direction: column;
   padding: 10px;
   background-color: #f0f0f0;
+}
+.header {
+  font-size: 2rem;
+  text-align: center;
+  margin-top: 20px;
+  color: #333;
+  background-color: #f0f0f0;
+  padding-bottom: 20px;
 }
 .categories-container {
   display: flex;

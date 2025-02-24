@@ -1,7 +1,10 @@
 <template>
-  <div class="header">Log In</div>
+  <div class="header">Security Knowledge Management System</div>
   <div class="login-container">
     <div class="login-box">
+      <div class="login-header">
+        <h1>Login</h1>
+      </div>
       <form @submit.prevent="handleLogin">
         <div class="form-group">
           <label for="email">Email</label>
@@ -92,6 +95,12 @@ const navigateToRecover = () => {
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+.login-header {
+  font-size: 1rem;
+  color: #333;
+  font-weight: bold;
   text-align: center;
 }
 .form-group {
