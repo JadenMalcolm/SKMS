@@ -23,14 +23,22 @@ def save_question():
 @question_routes.route('/questions', methods=['GET'])
 def get_all_questions():
     cursor.execute('''
-        SELECT q.id, q.question, q.timestamp, u.email
+        SELECT q.id, q.question, q.timestamp, u.email, q.upvotes, q.downvotes, q.reports
         FROM questions q
         JOIN users u ON q.user_id = u.id
         ORDER BY q.timestamp DESC
     ''')
     questions = cursor.fetchall()
     return jsonify([
-        {'id': q[0], 'question': q[1], 'timestamp': q[2], 'user_email': q[3]}
+        {
+            'id': q[0],
+            'question': q[1],
+            'timestamp': q[2],
+            'user_email': q[3],
+            'upvotes': q[4],
+            'downvotes': q[5],
+            'reports': q[6]
+        }
         for q in questions
     ]), 200
 
@@ -88,13 +96,11 @@ def question(id):
 @question_routes.route('/questions/most-reported', methods=['GET'])
 def get_most_reported_questions():
     cursor.execute('''
-        SELECT q.id, q.question, q.timestamp, u.email, COUNT(r.id) as report_count
+        SELECT q.id, q.question, q.timestamp, u.email, q.reports AS report_count
         FROM questions q
         JOIN users u ON q.user_id = u.id
-        LEFT JOIN reports r ON q.id = r.question_id
-        GROUP BY q.id
-        HAVING report_count > 1
-        ORDER BY report_count DESC
+        WHERE q.reports > 1
+        ORDER BY q.reports DESC
         LIMIT 10
     ''')
     questions = cursor.fetchall()

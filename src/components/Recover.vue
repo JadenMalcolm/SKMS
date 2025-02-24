@@ -9,6 +9,11 @@
         </div>
         <button type="submit" class="recover-button">Submit</button>
       </form>
+
+      <!-- Message Display -->
+      <p v-if="message" :class="{ 'error-message': isError, 'success-message': !isError }">
+        {{ message }}
+      </p>
     </div>
   </div>
 </template>
@@ -19,6 +24,8 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 const email = ref('')
+const message = ref('')
+const isError = ref(false)
 const router = useRouter()
 
 const handleRecover = async () => {
@@ -30,12 +37,20 @@ const handleRecover = async () => {
     if (response.data.securityQuestion) {
       sessionStorage.setItem('recoverEmail', email.value)
       sessionStorage.setItem('user', JSON.stringify({ email: email.value })) // Store user session
-      router.push('/reset')
+
+      message.value = 'Recovery email sent. Redirecting...'
+      isError.value = false
+
+      setTimeout(() => {
+        router.push('/reset')
+      }, 1500)
     } else {
-      alert('Recovery failed')
+      message.value = 'Recovery failed. Please check your email.'
+      isError.value = true
     }
   } catch (error) {
-    alert('Recovery failed')
+    message.value = 'Error: Unable to process recovery request.'
+    isError.value = true
   }
 }
 </script>
@@ -48,6 +63,7 @@ const handleRecover = async () => {
   color: #333;
   background-color: #f0f0f0;
 }
+
 .recover-container {
   display: flex;
   justify-content: center;
@@ -56,6 +72,7 @@ const handleRecover = async () => {
   padding-top: 30px;
   background-color: #f0f0f0;
 }
+
 .recover-box {
   width: 350px;
   padding: 30px;
@@ -64,21 +81,25 @@ const handleRecover = async () => {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
+
 .form-group {
   margin-bottom: 20px;
   text-align: left;
 }
+
 .form-group label {
   display: block;
   margin-bottom: 5px;
   color: #555;
 }
+
 .form-group input {
   width: 95%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
+
 .recover-button {
   width: 100%;
   padding: 12px;
@@ -89,7 +110,29 @@ const handleRecover = async () => {
   cursor: pointer;
   font-size: 16px;
 }
+
 .recover-button:hover {
   background-color: #45a049;
+}
+
+/* Message Box Styles */
+.success-message, .error-message {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
 }
 </style>

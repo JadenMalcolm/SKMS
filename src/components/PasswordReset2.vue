@@ -3,7 +3,6 @@
   <div class="reset-container">
     <div class="reset-box">
       <p>Email: {{ email }}</p>
-
       <div class="form-group">
         <label for="newPassword">New Password</label>
         <input
@@ -14,7 +13,6 @@
           required
         />
       </div>
-
       <div class="form-group">
         <label for="confirmPassword">Confirm Password</label>
         <input
@@ -25,13 +23,8 @@
           required
         />
       </div>
-
       <button class="reset-button" @click="resetPassword">Reset Password</button>
-
-      <!-- Display Messages -->
-      <p v-if="message" :class="{ 'error-message': isError, 'success-message': !isError }">
-        {{ message }}
-      </p>
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
     </div>
   </div>
 </template>
@@ -44,14 +37,12 @@ import { useRouter } from 'vue-router'
 const email = ref<string>(sessionStorage.getItem('recoverEmail') || '')
 const newPassword = ref<string>('')
 const confirmPassword = ref<string>('')
-const message = ref<string>('')
-const isError = ref<boolean>(false)
+const errorMessage = ref<string>('')
 const router = useRouter()
 
 const resetPassword = async () => {
   if (newPassword.value !== confirmPassword.value) {
-    message.value = 'Passwords do not match!'
-    isError.value = true
+    errorMessage.value = 'Passwords do not match!'
     return
   }
 
@@ -60,33 +51,26 @@ const resetPassword = async () => {
       email: email.value,
       newPassword: newPassword.value,
     })
-
-    // Show success message
-    message.value = 'Password reset successfully! Redirecting...'
-    isError.value = false
-
-    setTimeout(() => {
-      sessionStorage.removeItem('user') // Log out the user
-      router.replace('/')
-    }, 1500)
+    alert('Password reset successfully!')
+    sessionStorage.removeItem('user') // Manually log out the user
+    router.replace('/')
   } catch (error) {
-    if ((error as any).response?.data?.error) {
-      message.value = (error as any).response.data.error
+    if (
+      (error as any).response &&
+      (error as any).response.data &&
+      (error as any).response.data.error
+    ) {
+      errorMessage.value = (error as any).response.data.error
     } else {
-      message.value = 'Failed to reset password.'
+      errorMessage.value = 'Failed to reset password.'
     }
-    isError.value = true
   }
 }
 
 const logout = () => {
   sessionStorage.removeItem('user')
-  message.value = 'Session expired. Please log in again.'
-  isError.value = true
-
-  setTimeout(() => {
-    router.replace('/')
-  }, 1500)
+  alert('Session expired. Please log in again.')
+  router.replace('/')
 }
 
 onMounted(() => {
@@ -105,7 +89,6 @@ onMounted(() => {
   color: #333;
   background-color: #f0f0f0;
 }
-
 .reset-container {
   display: flex;
   justify-content: center;
@@ -114,7 +97,6 @@ onMounted(() => {
   padding-top: 30px;
   background-color: #f0f0f0;
 }
-
 .reset-box {
   width: 350px;
   padding: 30px;
@@ -123,25 +105,21 @@ onMounted(() => {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
-
 .form-group {
   margin-bottom: 20px;
   text-align: left;
 }
-
 .form-group label {
   display: block;
   margin-bottom: 5px;
   color: #555;
 }
-
 .form-group input {
   width: 95%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
-
 .reset-button {
   width: 100%;
   padding: 12px;
@@ -152,29 +130,11 @@ onMounted(() => {
   cursor: pointer;
   font-size: 16px;
 }
-
 .reset-button:hover {
   background-color: #45a049;
 }
-
-/* Message Box Styles */
-.success-message, .error-message {
-  margin-top: 15px;
-  padding: 10px;
-  border-radius: 5px;
-  text-align: center;
-  font-size: 14px;
-}
-
-.success-message {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
 .error-message {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  color: red;
+  margin-top: 10px;
 }
 </style>
