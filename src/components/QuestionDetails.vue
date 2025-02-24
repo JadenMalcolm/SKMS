@@ -4,8 +4,8 @@
     <div v-if="questionDetails">
       <p v-if="!isEditing">{{ questionDetails.question }}</p>
       <textarea v-else v-model="editText" class="edit-input"></textarea>
-      <small
-        >Asked on:
+      <small>
+        Asked on:
         {{
           new Date(questionDetails.timestamp).toLocaleString([], {
             year: 'numeric',
@@ -14,10 +14,11 @@
             hour: '2-digit',
             minute: '2-digit',
           })
-        }}</small
-      >
+        }}
+      </small>
       <small>Asked by: {{ questionDetails.user_email }}</small>
-      <!-- Display user email -->
+
+      <!-- Display buttons and actions -->
       <button
         v-if="currentUser && !isSubscribedToQuestion"
         @click="subscribeToQuestion"
@@ -51,6 +52,8 @@
         Downvote ({{ downvoteCount }})
       </button>
       <button @click="reportQuestion" class="report-button">Report ({{ reportCount }})</button>
+
+      <!-- Response Section -->
       <div class="response-section">
         <textarea
           v-model="newResponseText"
@@ -59,13 +62,15 @@
         ></textarea>
         <button @click="postResponse" class="post-button">Post Response</button>
       </div>
+
+      <!-- Responses List -->
       <div class="responses" v-if="responseList.length">
         <h2>Responses</h2>
         <div v-for="response in responseList" :key="response.id" class="response">
           <p v-if="!response.isEditing">{{ response.response }}</p>
           <textarea v-else v-model="response.editText" class="edit-input"></textarea>
-          <small
-            >Responded on:
+          <small>
+            Responded on:
             {{
               new Date(response.timestamp).toLocaleString([], {
                 year: 'numeric',
@@ -74,8 +79,8 @@
                 hour: '2-digit',
                 minute: '2-digit',
               })
-            }}</small
-          >
+            }}
+          </small>
           <small>Responded by: {{ response.user_email }}</small>
           <button v-if="response.user_email === currentUser?.email" @click="editResponse(response)">
             {{ response.isEditing ? 'Save' : 'Edit' }}
@@ -84,6 +89,11 @@
             Delete
           </button>
         </div>
+      </div>
+
+      <!-- Feedback message box -->
+      <div v-if="feedbackMessage" class="feedback-box">
+        <p>{{ feedbackMessage }}</p>
       </div>
     </div>
     <div v-else>
@@ -120,7 +130,6 @@ interface User {
   role: string
 }
 
-// Variables
 const route = useRoute()
 const router = useRouter()
 const questionDetails = ref<Question | null>(null)
@@ -133,6 +142,7 @@ const editText = ref('')
 const upvoteCount = ref(0)
 const downvoteCount = ref(0)
 const reportCount = ref(0)
+const feedbackMessage = ref('') // Variable to hold feedback messages
 
 onMounted(async () => {
   // Fetch the current user from session storage
@@ -186,7 +196,7 @@ onMounted(async () => {
   }
 })
 
-// Function to post a new response
+// Functions that now use feedbackMessage instead of alert
 const postResponse = async () => {
   // ensures there is no leading or trailing whitespace
   if (!newResponseText.value.trim()) return
@@ -208,11 +218,11 @@ const postResponse = async () => {
       isEditing: false,
       editText: newResponseText.value,
     })
-    // Reset the response text input
     newResponseText.value = ''
-    alert('Response posted successfully!')
+    feedbackMessage.value = 'Response posted successfully!'
   } catch (error) {
     console.error('Error posting response:', error)
+    feedbackMessage.value = 'Error posting response.'
   }
 }
 // Function to edit a response
@@ -230,6 +240,7 @@ const editResponse = async (response: Response) => {
       alert('Response updated successfully!')
     } catch (error) {
       console.error('Error updating response:', error)
+      feedbackMessage.value = 'Error updating response.'
     }
   } else {
     response.isEditing = true
@@ -239,21 +250,22 @@ const editResponse = async (response: Response) => {
 const deleteResponse = async (responseId: number) => {
   try {
     await axios.delete(`http://localhost:5000/responses/${responseId}`)
-    // Remove the deleted response from the response list
     responseList.value = responseList.value.filter((response) => response.id !== responseId)
-    alert('Response deleted successfully!')
+    feedbackMessage.value = 'Response deleted successfully!'
   } catch (error) {
     console.error('Error deleting response:', error)
+    feedbackMessage.value = 'Error deleting response.'
   }
 }
 // Function to delete a question
 const deleteQuestion = async () => {
   try {
     await axios.delete(`http://localhost:5000/questions/${route.params.id}`)
-    alert('Question deleted successfully!')
+    feedbackMessage.value = 'Question deleted successfully!'
     router.push('/dashboard')
   } catch (error) {
     console.error('Error deleting question:', error)
+    feedbackMessage.value = 'Error deleting question.'
   }
 }
 // Function to toggle edit mode for the question
@@ -264,11 +276,11 @@ const toggleEdit = async () => {
       await axios.put(`http://localhost:5000/questions/${route.params.id}`, {
         question: editText.value,
       })
-      // Update the question text with the edited text or keep the original if editText is empty
       questionDetails.value!.question = editText.value
-      alert('Question updated successfully!')
+      feedbackMessage.value = 'Question updated successfully!'
     } catch (error) {
       console.error('Error updating question:', error)
+      feedbackMessage.value = 'Error updating question.'
     }
   }
   isEditing.value = !isEditing.value
@@ -284,11 +296,12 @@ const subscribeToQuestion = async () => {
       user_id: currentUser.value.id,
       question_id: route.params.id,
     })
-    // Update the subscription state
+
     isSubscribedToQuestion.value = true
-    alert('Subscribed to question successfully!')
+    feedbackMessage.value = 'Subscribed to question successfully!'
   } catch (error) {
     console.error('Error subscribing to question:', error)
+    feedbackMessage.value = 'Error subscribing to question.'
   }
 }
 
@@ -303,11 +316,12 @@ const unsubscribeFromQuestion = async () => {
         question_id: route.params.id,
       },
     })
-    // Update the subscription state
+
     isSubscribedToQuestion.value = false
-    alert('Unsubscribed from question successfully!')
+    feedbackMessage.value = 'Unsubscribed from question successfully!'
   } catch (error) {
     console.error('Error unsubscribing from question:', error)
+    feedbackMessage.value = 'Error unsubscribing from question.'
   }
 }
 // Function to upvote a question
@@ -320,16 +334,16 @@ const upvoteQuestion = async () => {
       user_id: currentUser.value.id,
     })
 
-    // Re-fetch the upvote count after upvoting
     const upvoteResponse = await axios.get<{ count: number }>(
       `http://localhost:5000/upvotes/count/${route.params.id}`,
     )
     // Update the upvote count
     upvoteCount.value = upvoteResponse.data.count
 
-    alert('Question upvoted successfully!')
+    feedbackMessage.value = 'Question upvoted successfully!'
   } catch (error) {
     console.error('Error upvoting question:', error)
+    feedbackMessage.value = 'Error upvoting question.'
   }
 }
 
@@ -341,16 +355,16 @@ const downvoteQuestion = async () => {
       user_id: currentUser.value.id,
     })
 
-    // Re-fetch the downvote count after downvoting
     const downvoteResponse = await axios.get<{ count: number }>(
       `http://localhost:5000/downvotes/count/${route.params.id}`,
     )
     // Update the downvote count
     downvoteCount.value = downvoteResponse.data.count
 
-    alert('Question downvoted successfully!')
+    feedbackMessage.value = 'Question downvoted successfully!'
   } catch (error) {
     console.error('Error downvoting question:', error)
+    feedbackMessage.value = 'Error downvoting question.'
   }
 }
 
@@ -362,21 +376,35 @@ const reportQuestion = async () => {
       user_id: currentUser.value.id,
     })
 
-    // Re-fetch the report count after reporting
     const reportResponse = await axios.get<{ count: number }>(
       `http://localhost:5000/reports/count/${route.params.id}`,
     )
     // Update the report count
     reportCount.value = reportResponse.data.count
 
-    alert('Question reported successfully!')
+    feedbackMessage.value = 'Question reported successfully!'
   } catch (error) {
     console.error('Error reporting question:', error)
+    feedbackMessage.value = 'Error reporting question.'
   }
 }
 </script>
 
 <style scoped>
+.feedback-box {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+.feedback-box p {
+  margin: 0;
+  font-size: 14px;
+}
+
 .question-details-container {
   padding: 20px;
   max-width: 800px;
@@ -385,16 +413,19 @@ const reportQuestion = async () => {
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
+
 h1 {
   font-size: 2rem;
   margin-bottom: 20px;
   color: #333;
 }
+
 small {
   display: block;
   margin-top: 5px;
   color: #666;
 }
+
 button {
   margin-top: 10px;
   padding: 10px 15px;
@@ -403,37 +434,46 @@ button {
   cursor: pointer;
   font-size: 16px;
 }
+
 .subscribe-button {
   background-color: #4caf50;
   color: white;
 }
+
 .unsubscribe-button {
   background-color: #f44336;
   color: white;
 }
+
 .delete-button {
   background-color: #ff9800;
   color: white;
 }
+
 .edit-button {
   background-color: #007bff;
   color: white;
 }
+
 .upvote-button {
   background-color: #4caf50;
   color: white;
 }
+
 .downvote-button {
   background-color: #f44336;
   color: white;
 }
+
 .report-button {
   background-color: #ff9800;
   color: white;
 }
+
 .response-section {
   margin-top: 20px;
 }
+
 .response-input {
   width: 100%;
   padding: 10px;
@@ -441,13 +481,16 @@ button {
   border-radius: 5px;
   margin-bottom: 10px;
 }
+
 .post-button {
   background-color: #2196f3;
   color: white;
 }
+
 .responses {
   margin-top: 20px;
 }
+
 .response {
   border: 1px solid #ccc;
   padding: 10px;
@@ -455,6 +498,7 @@ button {
   border-radius: 5px;
   background-color: #f9f9f9;
 }
+
 .edit-input {
   width: 100%;
   padding: 10px;
@@ -462,6 +506,7 @@ button {
   border-radius: 5px;
   margin-bottom: 10px;
 }
+
 .loading {
   text-align: center;
   font-size: 1.5rem;

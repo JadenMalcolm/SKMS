@@ -111,6 +111,11 @@
           </ul>
         </div>
       </div>
+
+      <!-- Message Box -->
+      <div v-if="messageText" class="message-box">
+        <p>{{ messageText }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -153,6 +158,8 @@ const filteredQuestions = computed(() => {
   return allQuestions.value.filter((q) => q.user_email !== currentUser.value?.email)
 })
 
+const messageText = ref('') // Added message text for feedback
+
 // function to get subscribed questions
 const fetchSubscribedQuestions = async () => {
   if (currentUser.value) {
@@ -175,6 +182,7 @@ const searchQuestions = async () => {
     searchResults.value = response.data
   } catch (error) {
     console.error('Error searching questions:', error)
+    messageText.value = 'Error searching questions.' // Show error message
   }
 }
 
@@ -198,10 +206,11 @@ onMounted(async () => {
         await fetchSubscribedQuestions()
       } catch (error) {
         console.error('Error fetching questions:', error)
+        messageText.value = 'Error fetching questions.' // Show error message
       }
     }
   } else {
-    alert('Session expired. Please log in again.')
+    messageText.value = 'Session expired. Please log in again.' // Show session expired message
     router.push('/')
   }
 })
@@ -209,7 +218,6 @@ onMounted(async () => {
 // function to handle logout
 const logout = () => {
   sessionStorage.removeItem('user')
-  alert('Logging out...')
   router.push('/')
 }
 
@@ -288,18 +296,22 @@ const navigateToVulnerability = () => {
   text-align: center;
   margin-right: 10px;
 }
+
 .dashboardSearch-container h1 {
   font-size: 1.5rem;
   color: #333;
 }
+
 .dashboardSearch-container h2 {
   font-size: 1rem;
   color: #666;
 }
+
 .dashboardSearch-container p {
   font-size: 0.9rem;
   color: #555;
 }
+
 .logout-button {
   padding: 8px 12px;
   background-color: #f44336;
@@ -309,9 +321,11 @@ const navigateToVulnerability = () => {
   cursor: pointer;
   font-size: 14px;
 }
+
 .logout-button:hover {
   background-color: #d32f2f;
 }
+
 .browse-container {
   width: 65%;
   padding: 15px;
@@ -320,10 +334,12 @@ const navigateToVulnerability = () => {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   padding-right: 20px;
 }
+
 .browse-container h2 {
   font-size: 1rem;
   color: #333;
 }
+
 .ask-input,
 .search-input {
   width: 98%;
@@ -332,6 +348,7 @@ const navigateToVulnerability = () => {
   border: 1px solid #ccc;
   border-radius: 5px;
 }
+
 .ask-button,
 .search-button {
   padding: 8px 12px;
@@ -345,19 +362,23 @@ const navigateToVulnerability = () => {
 .search-button:hover {
   background-color: #45a049;
 }
+
 .questions-box {
   max-height: 500px;
   overflow-y: auto;
   margin-top: 15px;
 }
+
 .questions-box h3 {
   font-size: 1rem;
   color: #333;
 }
+
 .questions-box ul {
   list-style: none;
   padding: 0;
 }
+
 .questions-box li {
   margin-bottom: 8px;
   padding: 8px;
@@ -365,18 +386,22 @@ const navigateToVulnerability = () => {
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
+
 .questions-box li small {
   display: block;
   font-size: 0.7rem;
   color: #666;
 }
+
 .questions-box li a {
   text-decoration: none;
   color: #007bff;
 }
+
 .questions-box li a:hover {
   text-decoration: underline;
 }
+
 .edit-input {
   width: 80%;
   padding: 8px;
@@ -384,6 +409,7 @@ const navigateToVulnerability = () => {
   border: 1px solid #ccc;
   border-radius: 5px;
 }
+
 .delete-button {
   margin-top: 5px;
   padding: 5px 10px;
@@ -394,7 +420,18 @@ const navigateToVulnerability = () => {
   cursor: pointer;
   font-size: 14px;
 }
+
 .delete-button:hover {
   background-color: #d32f2f;
+}
+
+/* Message Box */
+.message-box {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: bold;
 }
 </style>
