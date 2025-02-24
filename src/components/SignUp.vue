@@ -46,10 +46,18 @@
             <option value="What was the name of your first school?">
               What was the name of your first school?
             </option>
-            <option value="What is your favorite book?">What is your favorite book?</option>
-            <option value="What is your favorite movie?">What is your favorite movie?</option>
-            <option value="What is your favorite food?">What is your favorite food?</option>
-            <option value="What city were you born in?">What city were you born in?</option>
+            <option value="What is your favorite book?">
+              What is your favorite book?
+            </option>
+            <option value="What is your favorite movie?">
+              What is your favorite movie?
+            </option>
+            <option value="What is your favorite food?">
+              What is your favorite food?
+            </option>
+            <option value="What city were you born in?">
+              What city were you born in?
+            </option>
             <option value="What is your father's middle name?">
               What is your father's middle name?
             </option>
@@ -59,13 +67,21 @@
             <option value="What was the name of your first employer?">
               What was the name of your first employer?
             </option>
-            <option value="What is your favorite color?">What is your favorite color?</option>
-            <option value="What is your favorite sport?">What is your favorite sport?</option>
-            <option value="What is your favorite hobby?">What is your favorite hobby?</option>
+            <option value="What is your favorite color?">
+              What is your favorite color?
+            </option>
+            <option value="What is your favorite sport?">
+              What is your favorite sport?
+            </option>
+            <option value="What is your favorite hobby?">
+              What is your favorite hobby?
+            </option>
             <option value="What is your favorite vacation destination?">
               What is your favorite vacation destination?
             </option>
-            <option value="What is your favorite animal?">What is your favorite animal?</option>
+            <option value="What is your favorite animal?">
+              What is your favorite animal?
+            </option>
           </select>
         </div>
         <div class="form-group" v-if="securityChoice">
@@ -80,6 +96,7 @@
         </div>
         <button type="submit" class="login-button">Create Account</button>
       </form>
+      <div v-if="message" class="message-box">{{ message }}</div>
     </div>
   </div>
 </template>
@@ -95,11 +112,12 @@ const confirmPasswordInput = ref('')
 const router = useRouter()
 const securityChoice = ref('')
 const securityQuestionAnswer = ref('')
+const message = ref('')
 
 const handleSignUp = async () => {
   // Simulate authentication
   if (passwordInput.value !== confirmPasswordInput.value) {
-    alert('Passwords do not match!')
+    message.value = 'Passwords do not match!'
     return
   }
 
@@ -111,7 +129,7 @@ const handleSignUp = async () => {
       securityQuestionAnswer: securityQuestionAnswer.value,
     })
 
-    alert('New Account Created!')
+    message.value = 'New Account Created!'
     router.push('/')
   } catch (error) {
     if (
@@ -119,9 +137,9 @@ const handleSignUp = async () => {
       (error as any).response.data &&
       (error as any).response.data.error
     ) {
-      alert((error as any).response.data.error) // Display backend error message
+      message.value = (error as any).response.data.error // Display backend error message
     } else {
-      alert('Signup failed')
+      message.value = 'Signup failed'
     }
   }
 }
@@ -186,16 +204,11 @@ const handleSignUp = async () => {
 .login-button:hover {
   background-color: #45a049;
 }
-.signup-link {
-  text-align: center;
-  margin-top: 10px;
-  color: #555;
-}
-.signup-link a {
-  color: #007bff;
-  text-decoration: none;
-}
-.signup-link a:hover {
-  text-decoration: underline;
+.message-box {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #ffcccb;
+  color: #d8000c;
+  border-radius: 5px;
 }
 </style>
