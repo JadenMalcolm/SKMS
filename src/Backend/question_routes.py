@@ -14,7 +14,7 @@ def save_question():
     question_text = data.get('question')
     category = data.get('category')
 
-    if not user_id or not question_text or not category:
+    if not user_id or not question_text:
         return jsonify({'error': 'User ID, question, and category are required.'}), 400
 
     cursor.execute("INSERT INTO questions (user_id, question, category) VALUES (?, ?, ?)", (user_id, question_text, category))
@@ -66,20 +66,27 @@ def question(id):
             WHERE q.id = ?
         ''', (id,))
         question = cursor.fetchone()
+        
         if question:
             return jsonify({'question': question[0], 'category': question[1], 'timestamp': question[2], 'user_email': question[3]}), 200
         return jsonify({'error': 'Question not found'}), 404
 
     if request.method == 'PUT':
         data = request.get_json()
+        print(f"Received data: {data}")  # Debugging log
+
+        user_id = data.get('user_id')  # Fix: Get user_id properly
         question_text = data.get('question')
         category = data.get('category')
 
-        if not question_text or not category:
-            return jsonify({'error': 'Question text and category are required.'}), 400
+        if not user_id or not question_text or category is None:  # Allow empty category but not None
+            print(f"Validation failed: {data}")  # Debugging log
+            return jsonify({'error': 'User ID, question text, and category are required.'}), 400
 
+        # Fix: Update question using `id` (question ID), not `user_id`
         cursor.execute("UPDATE questions SET question = ?, category = ? WHERE id = ?", (question_text, category, id))
         conn.commit()
+        
         return jsonify({'message': 'Question updated successfully!'}), 200
 
     if request.method == 'DELETE':
