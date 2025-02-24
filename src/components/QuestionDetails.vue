@@ -275,9 +275,8 @@ const toggleEdit = async () => {
     try {
       await axios.put(`http://localhost:5000/questions/${route.params.id}`, {
         question: editText.value,
-        category: "Treat",
-        user_id: currentUser.value.id,
-
+        category: 'Threat',
+        user_id: currentUser.value!.id,
       })
       questionDetails.value!.question = editText.value
       feedbackMessage.value = 'Question updated successfully!'
