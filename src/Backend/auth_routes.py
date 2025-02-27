@@ -16,8 +16,9 @@ def is_strong_password(password):
     has_upper = bool(re.search(r"[A-Z]", password))
     has_lower = bool(re.search(r"[a-z]", password))
     has_digit = bool(re.search(r"\d", password))
+    long = len(password) >= 8
 
-    return has_upper and has_lower and has_digit
+    return has_upper and has_lower and has_digit and long
 
 @auth_routes.route('/signup', methods=['POST'])
 def signup():
@@ -29,7 +30,7 @@ def signup():
 
     # Check if password is strong
     if not is_strong_password(password):
-        return jsonify({'error': 'Password must contain at least one uppercase letter, one lowercase letter, and one digit'}), 400
+        return jsonify({'error': 'Password must contain at least one uppercase letter, one lowercase letter, and one digit and be longer than 8 characters'}), 400
 
     hashed_password = generate_password_hash(password)
     hashed_security_answer = generate_password_hash(security_question_answer)

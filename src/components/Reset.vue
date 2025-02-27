@@ -61,7 +61,7 @@ const checkAnswer = async () => {
     if (response.data.message === 'Answer is correct') {
       successMessage.value = 'Answer is correct. You can reset your password.'
       sessionStorage.setItem('user', JSON.stringify({ email: email.value })) // Store user session
-      router.replace('/passwordreset') // Redirect to password reset page
+      router.replace('/password-reset') // Redirect to password reset page
     } else {
       errorMessage.value = 'Incorrect answer. Please try again.'
     }
