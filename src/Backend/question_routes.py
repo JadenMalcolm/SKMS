@@ -94,18 +94,6 @@ def question(id):
         conn.commit()
         return jsonify({'message': 'Question deleted successfully!'}), 200
 
-@question_routes.route('/questions/most-reported', methods=['GET'])
-def get_most_reported_questions():
-    cursor.execute('''
-        SELECT q.id, q.question, q.category, q.timestamp, u.email, COUNT(r.id) as report_count
-        FROM questions q
-        JOIN users u ON q.user_id = u.id
-        LEFT JOIN reports r ON q.id = r.question_id
-        GROUP BY q.id
-        HAVING report_count > 1
-        ORDER BY report_count DESC
-        LIMIT 10
-    ''')
     questions = cursor.fetchall()
     return jsonify([
         {'id': q[0], 'question': q[1], 'category': q[2], 'timestamp': q[3], 'user_email': q[4], 'report_count': q[5]}

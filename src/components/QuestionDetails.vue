@@ -3,7 +3,7 @@
     <h1>Question Details</h1>
     <div v-if="questionDetails">
       <p v-if="!isEditing">{{ questionDetails.question }}</p>
-      <textarea v-else v-model="editText" class="edit-input"></textarea>
+      <textarea v-else v-model="editText" class="edit-input" maxlength="500"></textarea>
       <small>
         Asked on:
         {{
@@ -68,7 +68,12 @@
         <h2>Responses</h2>
         <div v-for="response in responseList" :key="response.id" class="response">
           <p v-if="!response.isEditing">{{ response.response }}</p>
-          <textarea v-else v-model="response.editText" class="edit-input"></textarea>
+          <textarea
+            v-else
+            v-model="response.editText"
+            class="edit-input"
+            maxlength="500"
+          ></textarea>
           <small>
             Responded on:
             {{
@@ -200,7 +205,7 @@ onMounted(async () => {
 // Functions that now use feedbackMessage instead of alert
 const postResponse = async () => {
   // ensures there is no leading or trailing whitespace
-  if (!newResponseText.value.trim()) return
+  if (!newResponseText.value.trim() || newResponseText.value.length > 500) return
   try {
     // Check if the user is logged in
     if (!currentUser.value) throw new Error('User not logged in.')
@@ -230,6 +235,10 @@ const postResponse = async () => {
 const editResponse = async (response: Response) => {
   // Check if the response is currently being edited
   if (response.isEditing) {
+    if (response.editText && response.editText.length > 500) {
+      feedbackMessage.value = 'Response text exceeds the character limit of 500.'
+      return
+    }
     try {
       await axios.put(`http://localhost:5000/responses/${response.id}`, {
         response: response.editText,
@@ -273,6 +282,10 @@ const deleteQuestion = async () => {
 const toggleEdit = async () => {
   // Check if question is being edited
   if (isEditing.value) {
+    if (editText.value.length > 500) {
+      feedbackMessage.value = 'Question text exceeds the character limit of 500.'
+      return
+    }
     try {
       await axios.put(`http://localhost:5000/questions/${route.params.id}`, {
         question: editText.value,

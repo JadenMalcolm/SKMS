@@ -6,12 +6,7 @@ import QuestionDetails from '../components/QuestionDetails.vue'
 import Recover from '../components/Recover.vue'
 import Reset from '../components/Reset.vue'
 import PasswordReset from '../components/PasswordReset.vue'
-import Asset from '../components/Asset.vue'
-import Threat from '../components/Threat.vue'
-import SecurityGoal from '../components/SecurityGoal.vue'
-import Countermeasure from '../components/Countermeasure.vue'
-import DefenseStrategy from '../components/DefenseStrategy.vue'
-import Vulnerability from '../components/Vulnerability.vue'
+import QuestionComponent from './QuestionCategory.vue'
 
 const routes = [
   { path: '/', component: Login }, // Default route
@@ -21,12 +16,12 @@ const routes = [
   { path: '/question/:id', component: QuestionDetails }, // Question details route
   { path: '/reset', component: Reset }, // Reset password route
   { path: '/password-reset', component: PasswordReset }, // Password reset route
-  { path: '/asset', component: Asset }, // Asset route
-  { path: '/threat', component: Threat }, // Threat route
-  { path: '/security-goal', component: SecurityGoal }, // Security Goal route
-  { path: '/countermeasure', component: Countermeasure }, // Countermeasure route
-  { path: '/defense-strategy', component: DefenseStrategy }, // Defense Strategy route
-  { path: '/vulnerability', component: Vulnerability }, // Vulnerability route
+  { path: '/asset', component: QuestionComponent, props: { category: 'Asset' } }, // Asset route
+  { path: '/threat', component: QuestionComponent, props: { category: 'Threat' } }, // Threat route
+  { path: '/security-goal', component: QuestionComponent, props: { category: 'Security Goal' } }, // Security Goal route
+  { path: '/countermeasure', component: QuestionComponent, props: { category: 'Countermeasure' } }, // Countermeasure route
+  {path: '/defense-strategy',component: QuestionComponent,props: { category: 'Defense Strategy' },}, // Defense Strategy route
+  { path: '/vulnerability', component: QuestionComponent, props: { category: 'Vulnerability' } }, // Vulnerability route
 ]
 
 const router = createRouter({

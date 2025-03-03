@@ -10,20 +10,20 @@
       />
       <button @click="submitQuestion" class="ask-button">Submit Question</button>
       <div class="search-container">
-        <h2>Search Asset Questions</h2>
+        <h2>Search {{ category }} Questions</h2>
         <input
           type="text"
           v-model="searchQuery"
-          placeholder="Search asset questions..."
+          :placeholder="searchPlaceholder"
           class="search-input"
         />
         <button @click="searchQuestions" class="search-button">Search</button>
       </div>
     </div>
     <div class="questions-box">
-      <h3>Asset Questions</h3>
+      <h3>{{ category }} Questions</h3>
       <ul>
-        <li v-for="(q, index) in filteredAssetQuestions" :key="index">
+        <li v-for="(q, index) in filteredQuestions" :key="index">
           <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
           <small>{{
             new Date(q.timestamp).toLocaleString([], {
@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, defineProps } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 
@@ -63,15 +63,18 @@ interface User {
   role: string
 }
 
+const props = defineProps<{ category: string }>()
 const router = useRouter()
 const newQuestionText = ref('')
 const searchQuery = ref('')
 const allQuestions = ref<Question[]>([])
-const assetQuestions = ref<Question[]>([])
+const categoryQuestions = ref<Question[]>([])
 const currentUser = ref<User | null>(null)
-
-const filteredAssetQuestions = computed(() => {
-  return assetQuestions.value.filter(q => q.question.toLowerCase().includes(searchQuery.value.toLowerCase()))
+const searchPlaceholder = computed(() => `Search ${props.category.toLowerCase()} questions...`)
+const filteredQuestions = computed(() => {
+  return categoryQuestions.value.filter((q) =>
+    q.question.toLowerCase().includes(searchQuery.value.toLowerCase()),
+  )
 })
 
 onMounted(async () => {
@@ -86,7 +89,7 @@ onMounted(async () => {
   try {
     const response = await axios.get('http://localhost:5000/questions')
     allQuestions.value = response.data
-    assetQuestions.value = allQuestions.value.filter(q => q.category === 'Asset')
+    categoryQuestions.value = allQuestions.value.filter((q) => q.category === props.category)
   } catch (error) {
     console.error('Error fetching questions:', error)
   }
@@ -100,20 +103,20 @@ const submitQuestion = async () => {
       const response = await axios.post('http://localhost:5000/questions', {
         userId: currentUser.value.id,
         question: newQuestionText.value,
-        category: 'Asset'
+        category: props.category,
       })
 
       const newQuestion = {
         id: response.data.id,
         question: newQuestionText.value,
-        category: 'Asset',
+        category: props.category,
         timestamp: new Date().toLocaleString(),
         user_email: currentUser.value.email,
         isEditing: false,
         editText: newQuestionText.value,
       }
       allQuestions.value.unshift(newQuestion)
-      assetQuestions.value.unshift(newQuestion)
+      categoryQuestions.value.unshift(newQuestion)
 
       alert(`Your question was saved: ${newQuestionText.value}`)
       newQuestionText.value = ''
@@ -131,7 +134,9 @@ const searchQuestions = async () => {
     const response = await axios.post('http://localhost:5000/questions/search', {
       query: searchQuery.value,
     })
-    assetQuestions.value = response.data.filter((q: { category: string }) => q.category === 'Asset')
+    categoryQuestions.value = response.data.filter(
+      (q: { category: string }) => q.category === props.category,
+    )
   } catch (error) {
     console.error('Error searching questions:', error)
   }
