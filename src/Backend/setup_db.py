@@ -10,7 +10,7 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    role TEXT NOT NULL CHECK(role IN ('admin','expert','employee')) DEFAULT 'employee',
+    role TEXT NOT NULL CHECK(role IN ('admin','expert-Asset','expert-Countermeasure','expert-SecurityGoal','employee')) DEFAULT 'employee',
     securityQuestion TEXT NOT NULL,
     securityQuestionAnswer TEXT NOT NULL
 )''')
@@ -72,12 +72,20 @@ hashed_security_answer = generate_password_hash(security_question_answer)
 
 cursor.execute("SELECT COUNT(*) FROM users WHERE email = ?", (admin_email,))
 user_exists = cursor.fetchone()[0]
+cursor.execute("INSERT INTO users (email, password, role, securityQuestion, securityQuestionAnswer) VALUES (?, ?, ?, ?, ?)", (admin_email, hashed_password, admin_role, security_question, hashed_security_answer))
+conn.commit()
 
-if user_exists == 0:
-    cursor.execute("INSERT INTO users (email, password, role, securityQuestion, securityQuestionAnswer) VALUES (?, ?, ?, ?, ?)", (admin_email, hashed_password, admin_role, security_question, hashed_security_answer))
-    conn.commit()
-    print("Admin user inserted successfully.")
-else:
-    print("Admin user already exists.")
+# Create asset-expert user if not exists
+asset_email = 'asset@email.com'
+asset_password = 'Admin@123'
+asset_role = 'expert-Asset'
+hashed_password = generate_password_hash(asset_password)
+security_question = 'Admin Security Question'
+security_question_answer = 'adminsecurityanswer'
 
+hashed_security_answer = generate_password_hash(security_question_answer)
+
+cursor.execute("SELECT COUNT(*) FROM users WHERE email = ?", (asset_email,))
+cursor.execute("INSERT INTO users (email, password, role, securityQuestion, securityQuestionAnswer) VALUES (?, ?, ?, ?, ?)", (asset_email, hashed_password, asset_role, security_question, hashed_security_answer))
+conn.commit()
 conn.close()

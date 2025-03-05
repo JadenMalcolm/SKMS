@@ -105,23 +105,19 @@ def downvote_report_question(id):
     result, status_code = execute_vote_action(user_id, id, ['downvote', 'report'])
     return jsonify(result), status_code
 
-# Get upvote count
-@vote_routes.route('/upvotes/count/<int:question_id>', methods=['GET'])
-def count_upvotes(question_id):
-    cursor.execute('SELECT upvotes FROM questions WHERE id = ?', (question_id,))
-    count = cursor.fetchone()[0]
-    return jsonify(count=count)
-
-# Get downvote count
-@vote_routes.route('/downvotes/count/<int:question_id>', methods=['GET'])
-def count_downvotes(question_id):
-    cursor.execute('SELECT downvotes FROM questions WHERE id = ?', (question_id,))
-    count = cursor.fetchone()[0]
-    return jsonify(count=count)
-
-# Get report count
-@vote_routes.route('/reports/count/<int:question_id>', methods=['GET'])
-def count_reports(question_id):
-    cursor.execute('SELECT reports FROM questions WHERE id = ?', (question_id,))
-    count = cursor.fetchone()[0]
-    return jsonify(count=count)
+# New route to get all counts (upvotes, downvotes, reports)
+@vote_routes.route('/questions/<int:question_id>/counts', methods=['GET'])
+def get_all_counts(question_id):
+    try:
+        cursor.execute('SELECT upvotes, downvotes, reports FROM questions WHERE id = ?', (question_id,))
+        counts = cursor.fetchone()
+        if counts:
+            return jsonify({
+                'upvotes': counts[0],
+                'downvotes': counts[1],
+                'reports': counts[2]
+            })
+        else:
+            return jsonify({'error': 'Question not found.'}), 404
+    except sqlite3.OperationalError as e:
+        return jsonify({'error': f'Database error: {e}'}), 500

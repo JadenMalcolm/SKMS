@@ -34,7 +34,7 @@
         Unsubscribe
       </button>
       <button
-        v-if="currentUser?.role === 'admin' || currentUser?.email === questionDetails.user_email"
+        v-if="currentUser?.role === 'admin' || currentUser?.email === questionDetails.user_email || currentUser?.role === `expert-${questionDetails.category}`"
         @click="deleteQuestion"
         class="delete-button"
       >
@@ -136,6 +136,7 @@ interface User {
   role: string
 }
 
+
 const route = useRoute()
 const router = useRouter()
 const questionDetails = ref<Question | null>(null)
@@ -175,6 +176,12 @@ onMounted(async () => {
       isEditing: false,
       editText: response.response,
     }))
+    // Fetch upvote, downvote, and report counts in a single call
+    const countsResponse = await axios.get(`http://localhost:5000/questions/${questionId}/counts`)
+    upvoteCount.value = countsResponse.data.upvotes
+    downvoteCount.value = countsResponse.data.downvotes
+    reportCount.value = countsResponse.data.reports
+
     // Check if the current user is subscribed to the question
     if (currentUser.value) {
       const subscriptionResponse = await axios.get<boolean>(
@@ -182,21 +189,6 @@ onMounted(async () => {
       )
       isSubscribedToQuestion.value = subscriptionResponse.data
     }
-    // Fetch upvote, downvote, and report counts
-    const upvoteResponse = await axios.get<{ count: number }>(
-      `http://localhost:5000/upvotes/count/${questionId}`,
-    )
-    upvoteCount.value = upvoteResponse.data.count
-
-    const downvoteResponse = await axios.get<{ count: number }>(
-      `http://localhost:5000/downvotes/count/${questionId}`,
-    )
-    downvoteCount.value = downvoteResponse.data.count
-
-    const reportResponse = await axios.get<{ count: number }>(
-      `http://localhost:5000/reports/count/${questionId}`,
-    )
-    reportCount.value = reportResponse.data.count
   } catch (error) {
     console.error('Error fetching question details or responses:', error)
   }
@@ -350,11 +342,10 @@ const upvoteQuestion = async () => {
       user_id: currentUser.value.id,
     })
 
-    const upvoteResponse = await axios.get<{ count: number }>(
-      `http://localhost:5000/upvotes/count/${route.params.id}`,
-    )
-    // Update the upvote count
-    upvoteCount.value = upvoteResponse.data.count
+    const countsResponse = await axios.get(`http://localhost:5000/questions/${route.params.id}/counts`)
+    upvoteCount.value = countsResponse.data.upvotes
+    downvoteCount.value = countsResponse.data.downvotes
+    reportCount.value = countsResponse.data.reports
 
     feedbackMessage.value = 'Question upvoted successfully!'
   } catch (error) {
@@ -371,11 +362,10 @@ const downvoteQuestion = async () => {
       user_id: currentUser.value.id,
     })
 
-    const downvoteResponse = await axios.get<{ count: number }>(
-      `http://localhost:5000/downvotes/count/${route.params.id}`,
-    )
-    // Update the downvote count
-    downvoteCount.value = downvoteResponse.data.count
+    const countsResponse = await axios.get(`http://localhost:5000/questions/${route.params.id}/counts`)
+    upvoteCount.value = countsResponse.data.upvotes
+    downvoteCount.value = countsResponse.data.downvotes
+    reportCount.value = countsResponse.data.reports
 
     feedbackMessage.value = 'Question downvoted successfully!'
   } catch (error) {
@@ -392,11 +382,10 @@ const reportQuestion = async () => {
       user_id: currentUser.value.id,
     })
 
-    const reportResponse = await axios.get<{ count: number }>(
-      `http://localhost:5000/reports/count/${route.params.id}`,
-    )
-    // Update the report count
-    reportCount.value = reportResponse.data.count
+    const countsResponse = await axios.get(`http://localhost:5000/questions/${route.params.id}/counts`)
+    upvoteCount.value = countsResponse.data.upvotes
+    downvoteCount.value = countsResponse.data.downvotes
+    reportCount.value = countsResponse.data.reports
 
     feedbackMessage.value = 'Question reported successfully!'
   } catch (error) {
