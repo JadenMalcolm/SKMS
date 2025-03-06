@@ -115,6 +115,10 @@
       <!-- Message Box -->
     </div>
   </div>
+  <div class="second-main-container">
+    <h1>Direct Messaging</h1>
+    <button @click="navigateToDirectMessage" class="category-button">Direct Message</button>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -207,6 +211,7 @@ onMounted(async () => {
   }
 })
 
+
 // function to handle logout
 const logout = () => {
   sessionStorage.removeItem('user')
@@ -235,6 +240,9 @@ const navigateToDefenseStrategy = () => {
 
 const navigateToVulnerability = () => {
   router.push('/vulnerability')
+}
+const navigateToDirectMessage = () => {
+  router.push('/direct-messages')
 }
 </script>
 

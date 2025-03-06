@@ -20,6 +20,7 @@ from question_routes import question_routes
 from response_routes import response_routes
 from subscription_routes import subscription_routes
 from vote_routes import vote_routes
+from dm_routes import dm_routes
 
 # Register routes
 app.register_blueprint(auth_routes)
@@ -27,6 +28,7 @@ app.register_blueprint(question_routes)
 app.register_blueprint(response_routes)
 app.register_blueprint(subscription_routes)
 app.register_blueprint(vote_routes)
+app.register_blueprint(dm_routes)
 
 if __name__ == '__main__': 
     app.run(debug=True, port=5000)

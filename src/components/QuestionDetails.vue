@@ -34,7 +34,7 @@
         Unsubscribe
       </button>
       <button
-        v-if="currentUser?.role === 'admin' || currentUser?.email === questionDetails.user_email || currentUser?.role === `expert-${questionDetails.category}`"
+        v-if="currentUser?.role === 'admin' || currentUser?.email === questionDetails.user_email || currentUser?.role === `expert-${questionDetails.category.trim().toLowerCase()}`"
         @click="deleteQuestion"
         class="delete-button"
       >

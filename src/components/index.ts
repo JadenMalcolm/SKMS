@@ -7,6 +7,8 @@ import Recover from '../components/Recover.vue'
 import Reset from '../components/Reset.vue'
 import PasswordReset from '../components/PasswordReset.vue'
 import QuestionComponent from './QuestionCategory.vue'
+import DirectMessages from './DirectMessages.vue'
+
 
 const routes = [
   { path: '/', component: Login }, // Default route
@@ -20,8 +22,9 @@ const routes = [
   { path: '/threat', component: QuestionComponent, props: { category: 'Threat' } }, // Threat route
   { path: '/security-goal', component: QuestionComponent, props: { category: 'Security Goal' } }, // Security Goal route
   { path: '/countermeasure', component: QuestionComponent, props: { category: 'Countermeasure' } }, // Countermeasure route
-  {path: '/defense-strategy',component: QuestionComponent,props: { category: 'Defense Strategy' },}, // Defense Strategy route
+  { path: '/defense-strategy',component: QuestionComponent,props: { category: 'Defense Strategy' },}, // Defense Strategy route
   { path: '/vulnerability', component: QuestionComponent, props: { category: 'Vulnerability' } }, // Vulnerability route
+  { path: '/direct-messages',component: DirectMessages,}, // Direct Messages route
 ]
 
 const router = createRouter({

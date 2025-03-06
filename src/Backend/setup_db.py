@@ -1,5 +1,7 @@
 import sqlite3
 from werkzeug.security import generate_password_hash
+from cryptography.fernet import Fernet
+import os
 
 # Initialize SQLite database
 conn = sqlite3.connect('users.db', check_same_thread=False)
@@ -10,7 +12,7 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    role TEXT NOT NULL CHECK(role IN ('admin','expert-Asset','expert-Countermeasure','expert-SecurityGoal','employee')) DEFAULT 'employee',
+    role TEXT NOT NULL CHECK(role IN ('admin','expert-asset','expert-threat','expert-securitygoal','expert-countermeasure','expert-defensestrategy', 'expert-vulnerablity','employee')) DEFAULT 'employee',
     securityQuestion TEXT NOT NULL,
     securityQuestionAnswer TEXT NOT NULL
 )''')
@@ -54,12 +56,31 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS user_votes (
     FOREIGN KEY (question_id) REFERENCES questions (id)
 )''')
 
+cursor.execute('''CREATE TABLE IF NOT EXISTS direct_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sender_id INTEGER NOT NULL,
+    receiver_id INTEGER NOT NULL,
+    message TEXT NOT NULL,
+    timestamp DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP,'LOCALTIME')),
+    FOREIGN KEY (sender_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (receiver_id) REFERENCES users (id) ON DELETE CASCADE
+)''')
+
 # Enable foreign key constraints in SQLite
 cursor.execute('PRAGMA foreign_keys = ON')
 
 
 conn.commit()
 
+key_file = 'secret.key'
+if not os.path.exists(key_file):
+    key = Fernet.generate_key()
+    with open(key_file, 'wb') as f:
+        f.write(key)
+else:
+    with open(key_file, 'rb') as f:
+        key = f.read()
+    
 # Create admin user if not exists
 admin_email = 'admin@example.com'
 admin_password = 'Admin@123'
@@ -72,20 +93,24 @@ hashed_security_answer = generate_password_hash(security_question_answer)
 
 cursor.execute("SELECT COUNT(*) FROM users WHERE email = ?", (admin_email,))
 user_exists = cursor.fetchone()[0]
-cursor.execute("INSERT INTO users (email, password, role, securityQuestion, securityQuestionAnswer) VALUES (?, ?, ?, ?, ?)", (admin_email, hashed_password, admin_role, security_question, hashed_security_answer))
-conn.commit()
+if not user_exists:
+    cursor.execute("INSERT INTO users (email, password, role, securityQuestion, securityQuestionAnswer) VALUES (?, ?, ?, ?, ?)", (admin_email, hashed_password, admin_role, security_question, hashed_security_answer))
+    conn.commit()
 
-# Create asset-expert user if not exists
-asset_email = 'asset@email.com'
-asset_password = 'Admin@123'
-asset_role = 'expert-Asset'
-hashed_password = generate_password_hash(asset_password)
-security_question = 'Admin Security Question'
-security_question_answer = 'adminsecurityanswer'
+# Create users for all expert categories if not exists
+expert_categories = [
+    'expert-asset', 'expert-threat', 'expert-securitygoal', 
+    'expert-countermeasure', 'expert-defensestrategy', 
+    'expert-vulnerablity'
+]
 
-hashed_security_answer = generate_password_hash(security_question_answer)
-
-cursor.execute("SELECT COUNT(*) FROM users WHERE email = ?", (asset_email,))
-cursor.execute("INSERT INTO users (email, password, role, securityQuestion, securityQuestionAnswer) VALUES (?, ?, ?, ?, ?)", (asset_email, hashed_password, asset_role, security_question, hashed_security_answer))
-conn.commit()
+for category in expert_categories:
+    expert_email = f'{category}@example.com'
+    expert_password = f'{category.capitalize()}@123'
+    hashed_password = generate_password_hash(expert_password)
+    cursor.execute("SELECT COUNT(*) FROM users WHERE email = ?", (expert_email,))
+    user_exists = cursor.fetchone()[0]
+    if not user_exists:
+        cursor.execute("INSERT INTO users (email, password, role, securityQuestion, securityQuestionAnswer) VALUES (?, ?, ?, ?, ?)", (expert_email, hashed_password, category, security_question, hashed_security_answer))
+        conn.commit()
 conn.close()
