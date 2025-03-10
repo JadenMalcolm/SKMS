@@ -116,9 +116,9 @@
     </div>
   </div>
   <div class="second-main-container">
-    <h1>Direct Messaging</h1>
-    <button @click="navigateToDirectMessage" class="category-button">Direct Message</button>
+    <button @click="navigateToDirectMessage" class="direct-message-button">Direct Messages</button>
   </div>
+  <FloatingChat :isVisible="true" />
 </template>
 
 <script setup lang="ts">
@@ -126,6 +126,7 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import FloatingChat from './FloatingChat.vue'
 
 // interfaces for Question and User
 interface Question {
@@ -279,6 +280,7 @@ const navigateToDirectMessage = () => {
   cursor: pointer;
   font-size: 14px;
 }
+
 .category-button:hover {
   background-color: #1976d2;
 }
@@ -286,6 +288,21 @@ const navigateToDirectMessage = () => {
   display: flex;
   justify-content: space-between;
   background-color: #f0f0f0;
+}
+
+.direct-message-button {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 150px;
+  height: 50px;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
 }
 .dashboardSearch-container {
   width: 40%;

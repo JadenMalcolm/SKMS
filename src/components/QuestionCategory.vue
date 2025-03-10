@@ -19,11 +19,29 @@
         />
         <button @click="searchQuestions" class="search-button">Search</button>
       </div>
+      <div class="search-results">
+        <h3>Search Results</h3>
+        <ul>
+          <li v-for="(q, index) in searchResults" :key="index">
+            <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
+            <small>{{
+              new Date(q.timestamp).toLocaleString([], {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+            }}</small>
+            <small>Asked by: {{ q.user_email }}</small>
+          </li>
+        </ul>
+      </div>
     </div>
     <div class="questions-box">
       <h3>{{ category }} Questions</h3>
       <ul>
-        <li v-for="(q, index) in filteredQuestions" :key="index">
+        <li v-for="(q, index) in categoryQuestions" :key="index">
           <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
           <small>{{
             new Date(q.timestamp).toLocaleString([], {
@@ -39,12 +57,14 @@
       </ul>
     </div>
   </div>
+  <FloatingChat :isVisible="true" />
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed, defineProps } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import FloatingChat from './FloatingChat.vue'
 
 interface Question {
   id: number
@@ -69,13 +89,9 @@ const newQuestionText = ref('')
 const searchQuery = ref('')
 const allQuestions = ref<Question[]>([])
 const categoryQuestions = ref<Question[]>([])
+const searchResults = ref<Question[]>([])
 const currentUser = ref<User | null>(null)
 const searchPlaceholder = computed(() => `Search ${props.category.toLowerCase()} questions...`)
-const filteredQuestions = computed(() => {
-  return categoryQuestions.value.filter((q) =>
-    q.question.toLowerCase().includes(searchQuery.value.toLowerCase()),
-  )
-})
 
 onMounted(async () => {
   const storedUser = sessionStorage.getItem('user')
@@ -134,7 +150,7 @@ const searchQuestions = async () => {
     const response = await axios.post('http://localhost:5000/questions/search', {
       query: searchQuery.value,
     })
-    categoryQuestions.value = response.data.filter(
+    searchResults.value = response.data.filter(
       (q: { category: string }) => q.category === props.category,
     )
   } catch (error) {
@@ -218,6 +234,33 @@ const searchQuestions = async () => {
   color: #007bff;
 }
 .questions-box li a:hover {
+  text-decoration: underline;
+}
+.search-results h3 {
+  font-size: 1rem;
+  color: #333;
+}
+.search-results ul {
+  list-style: none;
+  padding: 0;
+}
+.search-results li {
+  margin-bottom: 8px;
+  padding: 8px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.search-results li small {
+  display: block;
+  font-size: 0.7rem;
+  color: #666;
+}
+.search-results li a {
+  text-decoration: none;
+  color: #007bff;
+}
+.search-results li a:hover {
   text-decoration: underline;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="isVisible">
     <!-- Chat Button -->
     <button class="chat-toggle" @click="toggleChat">💬</button>
 
@@ -40,9 +40,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, defineProps } from 'vue'
 import axios from 'axios'
 
+const props = defineProps<{ isVisible: boolean }>()
 const isOpen = ref(false)
 const userMessage = ref('')
 const chatHistory = ref<{ sender: string; text: string; suggestions?: string[] }[]>([])

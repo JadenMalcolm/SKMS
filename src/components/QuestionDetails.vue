@@ -105,12 +105,14 @@
       <p class="loading">Loading...</p>
     </div>
   </div>
+  <FloatingChat :isVisible="true" />
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
+import FloatingChat from './FloatingChat.vue'
 
 // Define interfaces for Question, Response, and User
 interface Question {
