@@ -56,7 +56,11 @@
         </li>
       </ul>
     </div>
+    <!-- Feedback message box -->
   </div>
+  <div v-if="feedbackMessage" class="feedback-box">
+      <p>{{ feedbackMessage }}</p>
+    </div>
   <FloatingChat :isVisible="true" />
 </template>
 
@@ -92,13 +96,14 @@ const categoryQuestions = ref<Question[]>([])
 const searchResults = ref<Question[]>([])
 const currentUser = ref<User | null>(null)
 const searchPlaceholder = computed(() => `Search ${props.category.toLowerCase()} questions...`)
+const feedbackMessage = ref('')
 
 onMounted(async () => {
   const storedUser = sessionStorage.getItem('user')
   if (storedUser) {
     currentUser.value = JSON.parse(storedUser)
   } else {
-    alert('Session expired. Please log in again.')
+    feedbackMessage.value = 'Session expired. Please log in again.'
     router.push('/')
   }
 
@@ -108,6 +113,7 @@ onMounted(async () => {
     categoryQuestions.value = allQuestions.value.filter((q) => q.category === props.category)
   } catch (error) {
     console.error('Error fetching questions:', error)
+    feedbackMessage.value = 'Error fetching questions.'
   }
 })
 
@@ -134,14 +140,14 @@ const submitQuestion = async () => {
       allQuestions.value.unshift(newQuestion)
       categoryQuestions.value.unshift(newQuestion)
 
-      alert(`Your question was saved: ${newQuestionText.value}`)
+      feedbackMessage.value = `Your question was saved: ${newQuestionText.value}`
       newQuestionText.value = ''
     } catch (error) {
       console.error('Error submitting question:', error)
-      alert('Failed to save the question.')
+      feedbackMessage.value = 'Failed to save the question.'
     }
   } else {
-    alert('Please enter a question to ask.')
+    feedbackMessage.value = 'Please enter a question to ask.'
   }
 }
 
@@ -155,6 +161,7 @@ const searchQuestions = async () => {
     )
   } catch (error) {
     console.error('Error searching questions:', error)
+    feedbackMessage.value = 'Error searching questions.'
   }
 }
 </script>
@@ -262,5 +269,17 @@ const searchQuestions = async () => {
 }
 .search-results li a:hover {
   text-decoration: underline;
+}
+.feedback-box {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f4f4f4;
+  color: #333;
+}
+.feedback-box p {
+  margin: 0;
+  font-size: 14px;
 }
 </style>
