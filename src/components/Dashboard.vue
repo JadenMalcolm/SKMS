@@ -118,7 +118,7 @@
   <div class="second-main-container">
     <button @click="navigateToDirectMessage" class="direct-message-button">Direct Messages</button>
   </div>
-  <FloatingChat :isVisible="true" />
+  <FloatingChat/>
 </template>
 
 <script setup lang="ts">
@@ -126,7 +126,6 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
-import FloatingChat from './FloatingChat.vue'
 
 // interfaces for Question and User
 interface Question {

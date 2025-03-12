@@ -59,16 +59,15 @@
     <!-- Feedback message box -->
   </div>
   <div v-if="feedbackMessage" class="feedback-box">
-      <p>{{ feedbackMessage }}</p>
-    </div>
-  <FloatingChat :isVisible="true" />
+    <p>{{ feedbackMessage }}</p>
+  </div>
+  <FloatingChat />
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed, defineProps } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
-import FloatingChat from './FloatingChat.vue'
 
 interface Question {
   id: number

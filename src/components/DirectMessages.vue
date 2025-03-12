@@ -37,13 +37,12 @@
       <button @click="sendMessage">Send</button>
     </div>
   </div>
-  <FloatingChat :isVisible="true" />
+  <FloatingChat/>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick } from 'vue'
 import axios from 'axios'
-import FloatingChat from './FloatingChat.vue'
 
 interface User {
   id: number
@@ -136,7 +135,7 @@ const sendMessage = async () => {
   display: flex;
   padding: 30px;
   border-radius: 10px;
-  
+
 }
 
 .user-list{
