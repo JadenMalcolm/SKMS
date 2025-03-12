@@ -47,7 +47,7 @@ def unsubscribe_from_question():
 @subscription_routes.route('/users/<int:user_id>/subscriptions', methods=['GET'])
 def get_subscribed_questions(user_id):
     cursor.execute('''
-        SELECT q.id, q.question, q.timestamp, u.email
+        SELECT q.id, q.question, q.category, q.timestamp, u.email
         FROM subscriptions s
         JOIN questions q ON s.question_id = q.id
         JOIN users u ON q.user_id = u.id
@@ -56,7 +56,7 @@ def get_subscribed_questions(user_id):
     ''', (user_id,))
     questions = cursor.fetchall()
     return jsonify([
-        {'id': q[0], 'question': q[1], 'timestamp': q[2], 'user_email': q[3]}
+        {'id': q[0], 'question': q[1], 'category': q[2], 'timestamp': q[3], 'user_email': q[4]}
         for q in questions
     ]), 200
 
