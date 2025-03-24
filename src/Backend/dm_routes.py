@@ -16,8 +16,25 @@ with open(key_file, 'rb') as f:
 
 cipher_suite = Fernet(key)
 
-@dm_routes.route('/users', methods=['GET'])
-def get_users():
+@dm_routes.route('/users/<int:current_user_id>', methods=['GET'])
+def get_users(current_user_id):
+    try:
+        cursor.execute('''
+            SELECT u.id, u.email, MAX(dm.timestamp) as last_message
+            FROM users u
+            JOIN direct_messages dm ON u.id = dm.sender_id OR u.id = dm.receiver_id
+            WHERE dm.sender_id = ? OR dm.receiver_id = ?
+            GROUP BY u.id
+            HAVING last_message IS NOT NULL
+            ORDER BY last_message DESC
+        ''', (current_user_id, current_user_id))
+        users = cursor.fetchall()
+        return jsonify([{'id': user[0], 'email': user[1]} for user in users])
+    except sqlite3.OperationalError as e:
+        return jsonify({'error': f'Database error: {e}'}), 500
+
+@dm_routes.route('/all-users', methods=['GET'])
+def get_all_users():
     try:
         cursor.execute('SELECT id, email FROM users')
         users = cursor.fetchall()
@@ -79,6 +96,23 @@ def get_messages(sender_id, receiver_id):
                 'timestamp': message[4]
             })
         return jsonify(decrypted_messages)
+    except sqlite3.OperationalError as e:
+        return jsonify({'error': f'Database error: {e}'}), 500
+
+@dm_routes.route('/experts/<string:category>', methods=['GET'])
+def get_expert_by_category(category):
+    try:
+        cursor.execute('''
+            SELECT id, email FROM users
+            WHERE role = ?
+            ORDER BY RANDOM()
+            LIMIT 1
+        ''', (f'expert-{category.lower()}',))
+        expert = cursor.fetchone()
+        if expert:
+            return jsonify({'id': expert[0], 'email': expert[1]})
+        else:
+            return jsonify({'error': 'No expert found for the selected category.'}), 404
     except sqlite3.OperationalError as e:
         return jsonify({'error': f'Database error: {e}'}), 500
 
