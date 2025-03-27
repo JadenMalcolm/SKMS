@@ -4,7 +4,6 @@
     <div class="login-box">
       <form @submit.prevent="handleSignUp">
         <div class="form-group">
-          <label for="email">Email</label>
           <input
             type="email"
             id="email"
@@ -14,7 +13,6 @@
           />
         </div>
         <div class="form-group">
-          <label for="password">Password</label>
           <input
             type="password"
             id="password"
@@ -24,7 +22,6 @@
           />
         </div>
         <div class="form-group">
-          <label for="password2">Confirm Password</label>
           <input
             type="password"
             id="password2"
@@ -34,7 +31,6 @@
           />
         </div>
         <div class="form-group">
-          <label for="securityQuestion">Select a Security Question</label>
           <select id="securityQuestion" v-model="securityChoice" required>
             <option value="" disabled>Select a Security Question</option>
             <option value="What was the name of your childhood pet?">
@@ -69,7 +65,7 @@
           </select>
         </div>
         <div class="form-group" v-if="securityChoice">
-          <label for="securityAnswer">Answer</label>
+          
           <input
             type="text"
             id="securityAnswer"
@@ -139,6 +135,7 @@ const handleSignUp = async () => {
   color: #333;
   background-color: #f0f0f0;
 }
+
 .login-container {
   display: flex;
   justify-content: center;
@@ -147,6 +144,7 @@ const handleSignUp = async () => {
   padding-top: 30px;
   background-color: #f0f0f0;
 }
+
 .login-box {
   width: 350px;
   padding: 30px;
@@ -155,46 +153,60 @@ const handleSignUp = async () => {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
+
 .form-group {
-  margin-bottom: 20px;
-  text-align: left;
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: #fff;
+  margin: 1rem 0 0.5rem;
+  width: 100%;
 }
+
 .form-group label {
   display: block;
   margin-bottom: 5px;
   color: #555;
 }
-.form-group input {
-  width: 95%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
+.form-group input,
 .form-group select {
+  outline: none;
+  border: 1px solid #e5e7eb;
+  margin: 3px 0;
+  background-color: #fff;
+  padding: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-bottom: 20px;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
+
 .login-button {
-  width: 100%;
-  padding: 12px;
   background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  color: #fff;
+  border: 0;
+  border-radius: 24px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 16px;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
+
 .login-button:hover {
   background-color: #45a049;
 }
+
 .message-box {
-  margin-top: 20px;
+  margin-top: 15px;
   padding: 10px;
-  background-color: #ffcccb;
-  color: #d8000c;
   border-radius: 5px;
+  text-align: center;
+  font-size: 14px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
 }
 </style>

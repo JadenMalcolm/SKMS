@@ -1,6 +1,11 @@
 <template>
   <div>
-    <button @click="showPopup = true" class="schedule-meeting-button">Schedule a Meeting</button>
+    <button 
+      v-if="currentUser && currentUser.role === 'employee'" 
+      @click="showPopup = true" 
+      class="schedule-meeting-button">
+      Schedule a Meeting
+    </button>
     <div v-if="showPopup" class="popup-container">
       <div class="popup">
         <h2>Schedule a Meeting</h2>
@@ -13,7 +18,7 @@
         <label for="date">Select Date:</label>
         <input type="date" v-model="selectedDate" id="date" />
         <label for="time">Select Time:</label>
-        <input type="time" v-model="selectedTime" id="time" />
+        <input type="time" v-model="selectedTime" id="time" step="1800" />
         <label for="meeting-type">Meeting Type:</label>
         <select v-model="selectedMeetingType" id="meeting-type">
           <option value="in-person">In-Person</option>
@@ -24,12 +29,14 @@
         <p v-if="feedbackMessage" class="feedback-message">{{ feedbackMessage }}</p>
       </div>
     </div>
+    <AcceptMeeting />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import axios from 'axios'
+import AcceptMeeting from './AcceptMeeting.vue'
 
 const showPopup = ref(false)
 const selectedCategory = ref('')
@@ -94,7 +101,7 @@ const cancelPopup = () => {
   position: fixed;
   bottom: 20px;
   left: 20px;
-  background: #28a745;
+  background: #4caf50;
   color: white;
   border: 0;
   border-radius: 24px;
@@ -149,11 +156,14 @@ const cancelPopup = () => {
 }
 
 .popup button {
-  padding: 10px 20px;
-  margin: 5px;
-  border: none;
-  border-radius: 5px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 24px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 .popup button:first-of-type {

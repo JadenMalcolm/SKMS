@@ -115,11 +115,12 @@ const navigateToRecover = () => {
   text-align: center;
 }
 .login-header {
-  font-size: 1.6rem;
-  font-weight: bold;
-  color: #333;
-  font-weight: bold;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 600;
   text-align: center;
+  color: #000;
+  padding-bottom: 1rem;
 }
 .form-group {
   overflow: hidden;
@@ -130,23 +131,37 @@ const navigateToRecover = () => {
 }
 
 .form-group input {
-  height: 44px;
-  border-radius: .5rem;
-  padding: 0 1rem;
-  border: 2px solid transparent;
-  font-size: 1rem;
-  width: 100%;
-  border-color: rgb(214, 211, 211);
-  transition: border-color .3s cubic-bezier(.25,.01,.25,1) 0s, color .3s cubic-bezier(.25,.01,.25,1) 0s,background .2s cubic-bezier(.25,.01,.25,1) 0s;
-}
-
-.form-group input:focus, .form-group input:focus, form-group input {
   outline: none;
-  border-color: #05060f;
+  border: 1px solid #e5e7eb;
+  margin: 3px 0;
+  background-color: #fff;
+  padding: 1rem;
+  padding-right: 3rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  width: 100%;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 
 
+.form-group input span{
+  display: grid;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  place-content: center;
+}
+
+.form-group input span svg {
+  color: #9CA3AF;
+  width: 1rem;
+  height: 1rem;
+}
 
 .login-button {
   background-color: #4caf50;

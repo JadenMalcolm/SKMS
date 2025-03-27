@@ -95,6 +95,7 @@ onMounted(() => {
   color: #333;
   background-color: #f0f0f0;
 }
+
 .reset-container {
   display: flex;
   justify-content: center;
@@ -103,6 +104,7 @@ onMounted(() => {
   padding-top: 30px;
   background-color: #f0f0f0;
 }
+
 .reset-box {
   width: 350px;
   padding: 30px;
@@ -111,39 +113,64 @@ onMounted(() => {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
+
 .form-group {
-  margin-bottom: 20px;
-  text-align: left;
-}
-.form-group input {
-  width: 95%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-.reset-button {
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: #fff;
+  margin: 1rem 0 0.5rem;
   width: 100%;
-  padding: 12px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
 }
+
+.form-group input {
+  outline: none;
+  border: 1px solid #e5e7eb;
+  margin: 3px 0;
+  background-color: #fff;
+  padding: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  width: 100%;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.reset-button {
+  background-color: #4caf50;
+  color: #fff;
+  border: 0;
+  border-radius: 24px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
 .reset-button:hover {
   background-color: #45a049;
 }
-.error-message {
-  color: #d8000c;
-  background-color: #ffcccb;
-  padding: 10px;
-  border-radius: 5px;
-}
+
+.error-message,
 .success-message {
-  color: #4caf50;
-  background-color: #d4edda;
+  margin-top: 15px;
   padding: 10px;
   border-radius: 5px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
 }
 </style>

@@ -55,11 +55,11 @@
           <small>Asked by: {{ q.user_email }}</small>
         </li>
       </ul>
+      <div v-if="feedbackMessage" class="feedback-box">
+    <p>{{ feedbackMessage }}</p>
+    </div>
     </div>
     <!-- Feedback message box -->
-  </div>
-  <div v-if="feedbackMessage" class="feedback-box">
-    <p>{{ feedbackMessage }}</p>
   </div>
   <FloatingChat />
 </template>

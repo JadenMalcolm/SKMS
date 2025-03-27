@@ -4,7 +4,6 @@
     <div class="recover-box">
       <form @submit.prevent="handleRecover">
         <div class="form-group">
-          <label for="email">Email</label>
           <input type="email" id="email" v-model="email" placeholder="Enter your email" required />
         </div>
         <button type="submit" class="recover-button">Submit</button>
@@ -83,8 +82,11 @@ const handleRecover = async () => {
 }
 
 .form-group {
-  margin-bottom: 20px;
-  text-align: left;
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: #fff;
+  margin: 1rem 0 0.5rem;
+  width: 100%;
 }
 
 .form-group label {
@@ -94,29 +96,38 @@ const handleRecover = async () => {
 }
 
 .form-group input {
-  width: 95%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  outline: none;
+  border: 1px solid #e5e7eb;
+  margin: 3px 0;
+  background-color: #fff;
+  padding: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  width: 100%;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .recover-button {
-  width: 100%;
-  padding: 12px;
   background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  color: #fff;
+  border: 0;
+  border-radius: 24px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 16px;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 .recover-button:hover {
   background-color: #45a049;
 }
 
-/* Message Box Styles */
-.success-message, .error-message {
+.success-message,
+.error-message {
   margin-top: 15px;
   padding: 10px;
   border-radius: 5px;

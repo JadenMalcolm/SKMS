@@ -2,19 +2,19 @@
   <div class="main-container">
     <div class="header">Security Knowledge Management System</div>
     <div class="categories-container">
-      <button @click="navigateToAsset" class="category-button">Asset</button>
-      <button @click="navigateToThreat" class="category-button">Threat</button>
-      <button @click="navigateToSecurityGoal" class="category-button">Security Goal</button>
-      <button @click="navigateToCountermeasure" class="category-button">Countermeasure</button>
-      <button @click="navigateToDefenseStrategy" class="category-button">Defense Strategy</button>
-      <button @click="navigateToVulnerability" class="category-button">Vulnerability</button>
+      <button @click="navigateToAsset" class="category-button button button-primary">Asset</button>
+      <button @click="navigateToThreat" class="category-button button button-primary">Threat</button>
+      <button @click="navigateToSecurityGoal" class="category-button button button-primary">Security Goal</button>
+      <button @click="navigateToCountermeasure" class="category-button button button-primary">Countermeasure</button>
+      <button @click="navigateToDefenseStrategy" class="category-button button button-primary">Defense Strategy</button>
+      <button @click="navigateToVulnerability" class="category-button button button-primary">Vulnerability</button>
     </div>
     <div class="content-container">
       <div class="dashboardSearch-container">
         <h1>Welcome, {{ currentUser?.email }}!</h1>
 
         <p>You are logged in as an {{ currentUser?.role }}</p>
-        <button @click="logout" class="logout-button">Logout</button>
+        <button @click="logout" class="logout-button button button-danger">Logout</button>
 
         <div class="search-container">
           <h2>Search Questions</h2>
@@ -22,9 +22,9 @@
             type="text"
             v-model="searchQuery"
             placeholder="Search questions..."
-            class="search-input"
+            class="search-input input"
           />
-          <button @click="searchQuestions" class="search-button">Search</button>
+          <button @click="searchQuestions" class="search-button button button-success">Search</button>
 
           <div class="questions-box">
             <h3>Search Results</h3>
@@ -114,12 +114,15 @@
         <div class="questions-box">
           <h2>My Meetings</h2>
           <ul>
-            <li v-for="(meeting, index) in myMeetings" :key="index">
-              <p>Category: {{ meeting.category }}</p>
-              <p>Date: {{ meeting.date }}</p>
-              <p>Time: {{ meeting.time }}</p>
-              <p>Type: {{ meeting.meeting_type }}</p>
-              <p>Expert: {{ meeting.expert_email }}</p>
+            <li v-for="(meeting, index) in myMeetings" :key="index" class="meeting-item compact-meeting">
+              <p>
+                <strong>Category:</strong> {{ meeting.category }} |
+                <strong>Date:</strong> {{ meeting.date }} |
+                <strong>Time:</strong> {{ formatTime(meeting.time) }} |
+                <strong>Type:</strong> {{ meeting.meeting_type }} |
+                <strong>Email:</strong> {{ meeting.expert_email || meeting.user_email }} |
+                <strong>Status:</strong> {{ meeting.status }}
+              </p>
             </li>
           </ul>
         </div>
@@ -129,7 +132,7 @@
     </div>
   </div>
   <div class="second-main-container">
-    <button @click="navigateToDirectMessage" class="direct-message-button">Direct Messages</button>
+    <button @click="navigateToDirectMessage" class="direct-message-button button button-fixed">Direct Messages</button>
   </div>
   <FloatingChat />
   <schedule-meeting />
@@ -172,7 +175,9 @@ interface Meeting {
   date: string
   time: string
   meeting_type: string
-  expert_email: string
+  expert_email?: string
+  user_email?: string
+  status: string
 }
 
 const myMeetings = ref<Meeting[]>([])
@@ -210,13 +215,24 @@ const searchQuestions = async () => {
 const fetchMeetings = async () => {
   if (currentUser.value) {
     try {
-      const response = await axios.get(`http://localhost:5000/meetings/${currentUser.value.id}`)
+      const endpoint =
+        currentUser.value.role.startsWith('expert')
+          ? `http://localhost:5000/accepted-meetings/${currentUser.value.id}`
+          : `http://localhost:5000/meetings/${currentUser.value.id}`
+      const response = await axios.get(endpoint)
       myMeetings.value = response.data
     } catch (error) {
       console.error('Error fetching meetings:', error)
     }
   }
 }
+
+const formatTime = (time: string) => {
+  const [hour, minute] = time.split(':');
+  const date = new Date();
+  date.setHours(parseInt(hour), parseInt(minute));
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+};
 
 onMounted(async () => {
   // Check if user session exists
@@ -304,147 +320,102 @@ const navigateToDirectMessage = () => {
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
-.category-button {
-  padding: 10px 15px;
-  background-color: #2196f3;
+.button {
+  padding: 10px 16px;
   color: white;
   border: 0;
   border-radius: 24px;
-  padding: 10px 16px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color .3s ease;
+  transition: background-color 0.3s ease;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
-
-.category-button:hover {
+.button-primary {
+  background-color: #2196f3;
+}
+.button-primary:hover {
   background-color: #1976d2;
+}
+.button-danger {
+  background-color: #f44336;
+}
+.button-danger:hover {
+  background-color: #d32f2f;
+}
+.button-success {
+  background-color: #4caf50;
+}
+.button-success:hover {
+  background-color: #45a049;
+}
+.button-fixed {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: #007bff;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+}
+.button-fixed:hover {
+  background-color: #0056b3;
 }
 .content-container {
   display: flex;
   justify-content: space-between;
   background-color: #f0f0f0;
 }
-
-.direct-message-button {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background: #007bff;
-  color: white;
-  border: 0;
-  border-radius: 24px;
-  padding: 10px 16px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color .3s ease;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
-}
-.direct-message-button:hover {
-  background-color: #0056b3;
-}
-.dashboardSearch-container {
-  width: 40%;
+.dashboardSearch-container,
+.browse-container {
   padding: 15px;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+.dashboardSearch-container {
+  width: 40%;
   text-align: center;
   margin-right: 10px;
 }
-
-.dashboardSearch-container h1 {
-  font-size: 1.5rem;
+.browse-container {
+  width: 65%;
+  padding-right: 20px;
+}
+.dashboardSearch-container h1,
+.dashboardSearch-container h2,
+.browse-container h2 {
   color: #333;
 }
-
-.dashboardSearch-container h2 {
-  font-size: 1rem;
-  color: #666;
+.dashboardSearch-container h1 {
+  font-size: 1.5rem;
 }
-
+.dashboardSearch-container h2,
+.browse-container h2 {
+  font-size: 1rem;
+}
 .dashboardSearch-container p {
   font-size: 0.9rem;
   color: #555;
 }
-
-.logout-button {
-  padding: 8px 12px;
-  background-color: #f44336;
-  color: white;
-  border: 0;
-  border-radius: 24px;
-  padding: 10px 16px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color .3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-}
-
-.logout-button:hover {
-  background-color: #d32f2f;
-}
-
-.browse-container {
-  width: 65%;
-  padding: 15px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  padding-right: 20px;
-}
-
-.browse-container h2 {
-  font-size: 1rem;
-  color: #333;
-}
-
-.ask-input,
-.search-input {
+.input {
   width: 98%;
   padding: 8px;
   margin-bottom: 8px;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
-
-.ask-button,
-.search-button {
-  padding: 8px 12px;
-  background-color: #4caf50;
-  color: white;
-  border: 0;
-  border-radius: 24px;
-  padding: 10px 16px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color .3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-}
-.search-button:hover {
-  background-color: #45a049;
-}
-
 .questions-box {
   max-height: 500px;
   overflow-y: auto;
   margin-top: 15px;
 }
-
 .questions-box h3 {
   font-size: 1rem;
   color: #333;
 }
-
 .questions-box ul {
   list-style: none;
   padding: 0;
 }
-
 .questions-box li {
   margin-bottom: 8px;
   padding: 8px;
@@ -452,22 +423,33 @@ const navigateToDirectMessage = () => {
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
-
 .questions-box li small {
   display: block;
   font-size: 0.7rem;
   color: #666;
 }
-
 .questions-box li a {
   text-decoration: none;
   color: #007bff;
 }
-
 .questions-box li a:hover {
   text-decoration: underline;
 }
-/* Message Box */
+.meeting-item {
+  margin-bottom: 8px;
+  padding: 10px;
+  background-color: #f0f8ff;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.meeting-item p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+.meeting-item strong {
+  color: #007bff;
+}
 .message-box {
   margin-top: 20px;
   padding: 10px;
@@ -475,5 +457,14 @@ const navigateToDirectMessage = () => {
   border-radius: 5px;
   text-align: center;
   font-weight: bold;
+}
+.compact-meeting p {
+  margin: 5px 0;
+  font-size: 0.85rem;
+  color: #333;
+  line-height: 1.4;
+}
+.compact-meeting strong {
+  color: #007bff;
 }
 </style>

@@ -74,6 +74,7 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS meetings (
     date TEXT NOT NULL,
     time TEXT NOT NULL,
     meeting_type TEXT NOT NULL CHECK(meeting_type IN ('in-person', 'online')),
+    status TEXT DEFAULT 'pending' CHECK(status IN ('accepted', 'rejected', 'pending')),
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY (expert_id) REFERENCES users (id) ON DELETE CASCADE
 )''')
