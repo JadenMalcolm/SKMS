@@ -182,8 +182,9 @@ const searchQuestions = async () => {
   margin-right: 10px;
 }
 .ask-container h2 {
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: #333;
+  padding: 5px
 }
 .ask-input,
 .search-input {
@@ -198,10 +199,14 @@ const searchQuestions = async () => {
   padding: 8px 12px;
   background-color: #4caf50;
   color: white;
-  border: none;
-  border-radius: 5px;
+  border: 0;
+  border-radius: 24px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 14px;
+  transition: background-color .3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 .ask-button:hover,
 .search-button:hover {
@@ -216,7 +221,7 @@ const searchQuestions = async () => {
   padding-right: 20px;
 }
 .questions-box h3 {
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: #333;
 }
 .questions-box ul {
@@ -243,8 +248,9 @@ const searchQuestions = async () => {
   text-decoration: underline;
 }
 .search-results h3 {
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: #333;
+  padding: 5px;
 }
 .search-results ul {
   list-style: none;

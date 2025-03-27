@@ -80,16 +80,17 @@ const setupFeed = async () => {
 <style scoped>
 .message-feed-button {
   position: fixed;
-  bottom: 20px;
+  top: 20px;
   left: 20px;
   background: #007bff;
   color: white;
-  border: none;
-  border-radius: 50%;
-  width: 150px;
-  height: 50px;
-  font-size: 18px;
+  border: 0;
+  border-radius: 24px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: background-color .3s ease;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
 }
 

@@ -30,7 +30,7 @@
             <h3>Search Results</h3>
             <ul>
               <li v-for="(q, index) in searchResults" :key="index">
-                <router-link :to="'/question/${q.id}'">{{ q.question }}</router-link>
+                <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
                 <small>{{
                   new Date(q.timestamp).toLocaleString([], {
                     year: 'numeric',
@@ -110,6 +110,19 @@
             </li>
           </ul>
         </div>
+
+        <div class="questions-box">
+          <h2>My Meetings</h2>
+          <ul>
+            <li v-for="(meeting, index) in myMeetings" :key="index">
+              <p>Category: {{ meeting.category }}</p>
+              <p>Date: {{ meeting.date }}</p>
+              <p>Time: {{ meeting.time }}</p>
+              <p>Type: {{ meeting.meeting_type }}</p>
+              <p>Expert: {{ meeting.expert_email }}</p>
+            </li>
+          </ul>
+        </div>
       </div>
 
       <!-- Message Box -->
@@ -118,7 +131,8 @@
   <div class="second-main-container">
     <button @click="navigateToDirectMessage" class="direct-message-button">Direct Messages</button>
   </div>
-  <FloatingChat/>
+  <FloatingChat />
+  <schedule-meeting />
 </template>
 
 <script setup lang="ts">
@@ -153,6 +167,15 @@ const searchResults = ref<Question[]>([])
 const userQuestions = ref<Question[]>([])
 const subscribedQuestions = ref<Question[]>([])
 const currentUser = ref<User | null>(null)
+interface Meeting {
+  category: string
+  date: string
+  time: string
+  meeting_type: string
+  expert_email: string
+}
+
+const myMeetings = ref<Meeting[]>([])
 
 // filter function to get questions not asked by the current user
 const filteredQuestions = computed(() => {
@@ -184,6 +207,17 @@ const searchQuestions = async () => {
   }
 }
 
+const fetchMeetings = async () => {
+  if (currentUser.value) {
+    try {
+      const response = await axios.get(`http://localhost:5000/meetings/${currentUser.value.id}`)
+      myMeetings.value = response.data
+    } catch (error) {
+      console.error('Error fetching meetings:', error)
+    }
+  }
+}
+
 onMounted(async () => {
   // Check if user session exists
   const storedUser = sessionStorage.getItem('user')
@@ -202,6 +236,7 @@ onMounted(async () => {
           .map((q) => ({ ...q, isEditing: false, editText: q.question }))
 
         await fetchSubscribedQuestions()
+        await fetchMeetings()
       } catch (error) {
         console.error('Error fetching questions:', error)
       }
@@ -210,7 +245,6 @@ onMounted(async () => {
     router.push('/')
   }
 })
-
 
 // function to handle logout
 const logout = () => {
@@ -274,10 +308,14 @@ const navigateToDirectMessage = () => {
   padding: 10px 15px;
   background-color: #2196f3;
   color: white;
-  border: none;
-  border-radius: 5px;
+  border: 0;
+  border-radius: 24px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 14px;
+  transition: background-color .3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 .category-button:hover {
@@ -291,17 +329,21 @@ const navigateToDirectMessage = () => {
 
 .direct-message-button {
   position: fixed;
-  bottom: 20px;
+  top: 20px;
   left: 20px;
   background: #007bff;
   color: white;
-  border: none;
-  border-radius: 50%;
-  width: 150px;
-  height: 50px;
-  font-size: 18px;
+  border: 0;
+  border-radius: 24px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: background-color .3s ease;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+}
+.direct-message-button:hover {
+  background-color: #0056b3;
 }
 .dashboardSearch-container {
   width: 40%;
@@ -332,10 +374,14 @@ const navigateToDirectMessage = () => {
   padding: 8px 12px;
   background-color: #f44336;
   color: white;
-  border: none;
-  border-radius: 5px;
+  border: 0;
+  border-radius: 24px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 14px;
+  transition: background-color .3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 .logout-button:hover {
@@ -370,10 +416,14 @@ const navigateToDirectMessage = () => {
   padding: 8px 12px;
   background-color: #4caf50;
   color: white;
-  border: none;
-  border-radius: 5px;
+  border: 0;
+  border-radius: 24px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 14px;
+  transition: background-color .3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 .search-button:hover {
   background-color: #45a049;
@@ -417,30 +467,6 @@ const navigateToDirectMessage = () => {
 .questions-box li a:hover {
   text-decoration: underline;
 }
-
-.edit-input {
-  width: 80%;
-  padding: 8px;
-  margin-top: 5px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.delete-button {
-  margin-top: 5px;
-  padding: 5px 10px;
-  background-color: #f44336;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.delete-button:hover {
-  background-color: #d32f2f;
-}
-
 /* Message Box */
 .message-box {
   margin-top: 20px;

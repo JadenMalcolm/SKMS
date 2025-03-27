@@ -116,3 +116,65 @@ def get_expert_by_category(category):
     except sqlite3.OperationalError as e:
         return jsonify({'error': f'Database error: {e}'}), 500
 
+@dm_routes.route('/schedule-meeting', methods=['POST'])
+def schedule_meeting():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    category = data.get('category')
+    date = data.get('date')
+    time = data.get('time')
+    meeting_type = data.get('meeting_type')
+
+    # Validate input fields
+    if not user_id or not category or not date or not time or not meeting_type:
+        return jsonify({'error': 'All fields are required.'}), 400
+
+    try:
+        # Fetch a random expert for the selected category
+        cursor.execute('''
+            SELECT id, email FROM users
+            WHERE role = ?
+            ORDER BY RANDOM()
+            LIMIT 1
+        ''', (f'expert-{category.lower()}',))
+        expert = cursor.fetchone()
+
+        if expert:
+            # Insert the meeting into the database
+            cursor.execute('''
+                INSERT INTO meetings (user_id, expert_id, category, date, time, meeting_type)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (user_id, expert[0], category, date, time, meeting_type))
+            conn.commit()
+            return jsonify({'message': f'Meeting scheduled with {expert[1]} on {date} at {time} ({meeting_type}).'})
+        else:
+            return jsonify({'error': 'No expert available for the selected category.'}), 404
+    except sqlite3.OperationalError as e:
+        print(f"Database error: {e}")  # Log the error
+        return jsonify({'error': f'Database error: {e}'}), 500
+    except Exception as e:
+        print(f"Unexpected error: {e}")  # Log unexpected errors
+        return jsonify({'error': f'Unexpected error: {e}'}), 500
+
+@dm_routes.route('/meetings/<int:user_id>', methods=['GET'])
+def get_meetings(user_id):
+    try:
+        cursor.execute('''
+            SELECT m.id, m.category, m.date, m.time, m.meeting_type, u.email as expert_email
+            FROM meetings m
+            JOIN users u ON m.expert_id = u.id
+            WHERE m.user_id = ?
+            ORDER BY m.date, m.time
+        ''', (user_id,))
+        meetings = cursor.fetchall()
+        return jsonify([{
+            'id': meeting[0],
+            'category': meeting[1],
+            'date': meeting[2],
+            'time': meeting[3],
+            'meeting_type': meeting[4],
+            'expert_email': meeting[5]
+        } for meeting in meetings])
+    except sqlite3.OperationalError as e:
+        return jsonify({'error': f'Database error: {e}'}), 500
+

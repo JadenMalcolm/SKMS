@@ -270,6 +270,7 @@ const sendMessage = async () => {
   margin-bottom: 10px;
   padding: 5px;
   border-radius: 10px;
+  max-width: 99%;
 }
 
 .messages .sent {
@@ -289,22 +290,28 @@ const sendMessage = async () => {
 }
 
 textarea {
-  width: 98%;
-  height: 100px;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  width: 99%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  resize: none;
+  height: 96px;
+  border: 1px solid #414141;
+  background-color: transparent;
+  font-family: inherit;
 }
 
 button {
-  padding: 10px 20px;
+  padding: 8px 12px;
   background-color: #4caf50;
   color: white;
-  border: none;
-  border-radius: 5px;
+  border: 0;
+  border-radius: 24px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  margin-bottom: 10px;
+  transition: background-color .3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 button:hover {

@@ -7,11 +7,9 @@
       </div>
       <form @submit.prevent="handleLogin">
         <div class="form-group">
-          <label for="email">Email</label>
           <input type="email" id="email" v-model="email" placeholder="Enter your email" required />
         </div>
         <div class="form-group">
-          <label for="password">Password</label>
           <input
             type="password"
             id="password"
@@ -117,40 +115,52 @@ const navigateToRecover = () => {
   text-align: center;
 }
 .login-header {
-  font-size: 1rem;
+  font-size: 1.6rem;
+  font-weight: bold;
   color: #333;
   font-weight: bold;
   text-align: center;
 }
 .form-group {
-  margin-bottom: 20px;
-  text-align: left;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  color: #555;
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: #fff;
+  margin: 1rem 0 .5rem;
+  width: 100%;
 }
 
 .form-group input {
-  width: 95%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  height: 44px;
+  border-radius: .5rem;
+  padding: 0 1rem;
+  border: 2px solid transparent;
+  font-size: 1rem;
+  width: 100%;
+  border-color: rgb(214, 211, 211);
+  transition: border-color .3s cubic-bezier(.25,.01,.25,1) 0s, color .3s cubic-bezier(.25,.01,.25,1) 0s,background .2s cubic-bezier(.25,.01,.25,1) 0s;
 }
+
+.form-group input:focus, .form-group input:focus, form-group input {
+  outline: none;
+  border-color: #05060f;
+}
+
+
+
 
 .login-button {
-  width: 100%;
-  padding: 12px;
   background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  color: #fff;
+  border: 0;
+  border-radius: 24px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 16px;
+  transition: background-color .3s ease;
+  width: 100%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
-
 .login-button:hover {
   background-color: #45a049;
 }

@@ -66,6 +66,18 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS direct_messages (
     FOREIGN KEY (receiver_id) REFERENCES users (id) ON DELETE CASCADE
 )''')
 
+cursor.execute('''CREATE TABLE IF NOT EXISTS meetings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    expert_id INTEGER NOT NULL,
+    category TEXT NOT NULL,
+    date TEXT NOT NULL,
+    time TEXT NOT NULL,
+    meeting_type TEXT NOT NULL CHECK(meeting_type IN ('in-person', 'online')),
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (expert_id) REFERENCES users (id) ON DELETE CASCADE
+)''')
+
 # Enable foreign key constraints in SQLite
 cursor.execute('PRAGMA foreign_keys = ON')
 

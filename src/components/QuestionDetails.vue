@@ -240,7 +240,7 @@ const editResponse = async (response: Response) => {
       response.response = response.editText || response.response
       // Reset the editing state
       response.isEditing = false
-      alert('Response updated successfully!')
+      feedbackMessage.value = 'Response updated successfully!'
     } catch (error) {
       console.error('Error updating response:', error)
       feedbackMessage.value = 'Error updating response.'
@@ -433,12 +433,17 @@ small {
 }
 
 button {
-  margin-top: 10px;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
+  border: 0;
+  border-radius: 24px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 16px;
+  transition: background-color .3s ease;
+  margin-top: 5px;
+  margin-right: 3px;
+  margin-left: 3px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 .subscribe-button {
@@ -482,10 +487,13 @@ button {
 
 .response-input {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-bottom: 10px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  resize: none;
+  height: 96px;
+  border: 1px solid #414141;
+  background-color: transparent;
+  font-family: inherit;
 }
 
 .post-button {
@@ -507,10 +515,13 @@ button {
 
 .edit-input {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-bottom: 10px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  resize: none;
+  height: 96px;
+  border: 1px solid #414141;
+  background-color: transparent;
+  font-family: inherit;
 }
 
 .loading {
