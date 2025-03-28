@@ -5,6 +5,7 @@ import FloatingChat from './components/FloatingChat.vue'
 // @ts-ignore
 import ContactExpert from './components/ContactExpert.vue'
 import ScheduleMeeting from './components/ScheduleMeeting.vue'
+import AcceptMeeting from './components/AcceptMeeting.vue'
 
 const app = createApp(App)
 
@@ -12,6 +13,7 @@ const app = createApp(App)
 app.component('FloatingChat', FloatingChat)
 app.component('ContactExpert', ContactExpert)
 app.component('ScheduleMeeting', ScheduleMeeting)
+app.component('AcceptMeeting', AcceptMeeting)
 
 app.use(router)
 app.mount('#app')

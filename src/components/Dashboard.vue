@@ -117,7 +117,7 @@
             <li v-for="(meeting, index) in myMeetings" :key="index" class="meeting-item compact-meeting">
               <p>
                 <strong>Category:</strong> {{ meeting.category }} |
-                <strong>Date:</strong> {{ meeting.date }} |
+                <strong>Date:</strong> {{ formatDate(meeting.date) }} |
                 <strong>Time:</strong> {{ formatTime(meeting.time) }} |
                 <strong>Type:</strong> {{ meeting.meeting_type }} |
                 <strong>Email:</strong> {{ meeting.expert_email || meeting.user_email }} |
@@ -202,6 +202,7 @@ const fetchSubscribedQuestions = async () => {
 }
 // function to handle question search
 const searchQuestions = async () => {
+  console.log(formatTime("14:30"));
   try {
     const response = await axios.post(`http://localhost:5000/questions/search`, {
       query: searchQuery.value,
@@ -232,6 +233,17 @@ const formatTime = (time: string) => {
   const date = new Date();
   date.setHours(parseInt(hour), parseInt(minute));
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+};
+
+const formatDate = (date: string) => {
+  const parsedDate = new Date(date);
+  if (isNaN(parsedDate.getTime())) {
+    return date; // Return the original string if parsing fails
+  }
+  const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
+  const day = String(parsedDate.getDate()).padStart(2, '0');
+  const year = parsedDate.getFullYear();
+  return `${month}/${day}/${year}`;
 };
 
 onMounted(async () => {
@@ -358,6 +370,9 @@ const navigateToDirectMessage = () => {
 }
 .button-fixed:hover {
   background-color: #0056b3;
+}
+.category-button {
+  width: 200px;
 }
 .content-container {
   display: flex;

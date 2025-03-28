@@ -130,9 +130,6 @@ def schedule_meeting():
         return jsonify({'error': 'All fields are required.'}), 400
 
     try:
-        # Convert time to 12-hour format with AM/PM
-        formatted_time = sqlite3.datetime.datetime.strptime(time, "%H:%M").strftime("%I:%M %p")
-
         # Fetch a random expert for the selected category
         cursor.execute('''
             SELECT id, email FROM users
@@ -147,9 +144,9 @@ def schedule_meeting():
             cursor.execute('''
                 INSERT INTO meetings (user_id, expert_id, category, date, time, meeting_type)
                 VALUES (?, ?, ?, ?, ?, ?)
-            ''', (user_id, expert[0], category, date, formatted_time, meeting_type))
+            ''', (user_id, expert[0], category, date, time, meeting_type))
             conn.commit()
-            return jsonify({'message': f'Meeting scheduled with {expert[1]} on {date} at {formatted_time} ({meeting_type}).'})
+            return jsonify({'message': f'Meeting scheduled with {expert[1]} on {date} at {time} ({meeting_type}).'})
         else:
             return jsonify({'error': 'No expert available for the selected category.'}), 404
     except sqlite3.OperationalError as e:
@@ -163,7 +160,10 @@ def schedule_meeting():
 def get_meetings(user_id):
     try:
         cursor.execute('''
-            SELECT m.id, m.category, m.date, m.time, m.meeting_type, u.email as expert_email, m.status
+            SELECT m.id, m.category, 
+                   strftime('%m/%d/%Y', m.date) as formatted_date, 
+                   m.time, m.meeting_type, 
+                   u.email as expert_email, m.status
             FROM meetings m
             JOIN users u ON m.expert_id = u.id
             WHERE m.user_id = ?
@@ -173,11 +173,11 @@ def get_meetings(user_id):
         return jsonify([{
             'id': meeting[0],
             'category': meeting[1],
-            'date': meeting[2],
-            'time': meeting[3],
+            'date': meeting[2],  
+            'time': meeting[3],  
             'meeting_type': meeting[4],
             'expert_email': meeting[5],
-            'status': meeting[6]  # Include status in the response
+            'status': meeting[6]
         } for meeting in meetings])
     except sqlite3.OperationalError as e:
         return jsonify({'error': f'Database error: {e}'}), 500
@@ -226,7 +226,10 @@ def accept_meeting():
 def get_accepted_meetings(expert_id):
     try:
         cursor.execute('''
-            SELECT m.id, m.category, m.date, m.time, m.meeting_type, u.email as user_email, m.status
+            SELECT m.id, m.category, 
+                   strftime('%m/%d/%Y', m.date) as formatted_date, 
+                   m.time, m.meeting_type, 
+                   u.email as user_email, m.status
             FROM meetings m
             JOIN users u ON m.user_id = u.id
             WHERE m.expert_id = ? AND m.status = 'accepted'
@@ -236,11 +239,11 @@ def get_accepted_meetings(expert_id):
         return jsonify([{
             'id': meeting[0],
             'category': meeting[1],
-            'date': meeting[2],
-            'time': meeting[3],
+            'date': meeting[2],  
+            'time': meeting[3],  
             'meeting_type': meeting[4],
             'user_email': meeting[5],
-            'status': meeting[6]  # Include status in the response
+            'status': meeting[6]
         } for meeting in meetings])
     except sqlite3.OperationalError as e:
         return jsonify({'error': f'Database error: {e}'}), 500

@@ -36,7 +36,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import axios from 'axios'
-import AcceptMeeting from './AcceptMeeting.vue'
 
 const showPopup = ref(false)
 const selectedCategory = ref('')
