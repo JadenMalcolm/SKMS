@@ -60,6 +60,7 @@
       <textarea v-model="newMessage" placeholder="Type your message..."></textarea>
       <button @click="sendMessage">Send</button>
     </div>
+    <SidebarMenu />
   </div>
 
   <!-- Additional components -->

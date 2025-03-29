@@ -131,11 +131,8 @@
       <!-- Message Box -->
     </div>
   </div>
-  <div class="second-main-container">
-    <button @click="navigateToDirectMessage" class="direct-message-button button button-fixed">Direct Messages</button>
-  </div>
   <FloatingChat />
-  <schedule-meeting />
+  <SidebarMenu />
 </template>
 
 <script setup lang="ts">
@@ -302,9 +299,6 @@ const navigateToDefenseStrategy = () => {
 
 const navigateToVulnerability = () => {
   router.push('/vulnerability')
-}
-const navigateToDirectMessage = () => {
-  router.push('/direct-messages')
 }
 </script>
 

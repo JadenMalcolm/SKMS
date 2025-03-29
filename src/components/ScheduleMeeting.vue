@@ -1,11 +1,5 @@
 <template>
   <div>
-    <button 
-      v-if="currentUser && currentUser.role === 'employee'" 
-      @click="showPopup = true" 
-      class="schedule-meeting-button">
-      Schedule a Meeting
-    </button>
     <div v-if="showPopup" class="popup-container">
       <div class="popup">
         <h2>Schedule a Meeting</h2>
@@ -34,10 +28,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, defineProps, defineEmits } from 'vue'
 import axios from 'axios'
 
-const showPopup = ref(false)
+const props = defineProps({
+  showPopup: Boolean,
+})
+
+const emit = defineEmits(['close'])
 const selectedCategory = ref('')
 const selectedDate = ref('')
 const selectedTime = ref('')
@@ -57,27 +55,24 @@ const currentUser = JSON.parse(sessionStorage.getItem('user') || 'null')
 
 const scheduleMeeting = async () => {
   feedbackMessage.value = '' // Clear any previous feedback message
+
   if (
     selectedCategory.value &&
     selectedDate.value &&
     selectedTime.value &&
-    selectedMeetingType.value
+    selectedMeetingType.value &&
+    currentUser?.id // Ensure currentUser and user_id exist
   ) {
-    if (!currentUser || !currentUser.id) {
-      feedbackMessage.value = 'User not logged in.'
-      return
-    }
-
     try {
       const response = await axios.post('http://localhost:5000/schedule-meeting', {
-        user_id: currentUser.id, // Include the user ID
+        user_id: currentUser.id, // Include user_id in the payload
         category: selectedCategory.value,
         date: selectedDate.value,
         time: selectedTime.value,
         meeting_type: selectedMeetingType.value, // Include the meeting type
       })
       feedbackMessage.value = response.data.message
-      showPopup.value = false
+      emit('close') // Close popup on successful submission
     } catch (error) {
       console.error('Error scheduling meeting:', error)
       feedbackMessage.value =
@@ -86,12 +81,13 @@ const scheduleMeeting = async () => {
     }
   } else {
     feedbackMessage.value = 'Please fill out all fields.'
+    console.error('Validation failed: One or more fields are empty or user is not logged in.')
   }
 }
 
 const cancelPopup = () => {
   feedbackMessage.value = '' // Clear feedback message
-  showPopup.value = false // Close the popup
+  emit('close') // Emit close event
 }
 </script>
 
@@ -108,7 +104,7 @@ const cancelPopup = () => {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color .3s ease;
+  transition: background-color 0.3s ease;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
 }
 

@@ -1,6 +1,5 @@
 <template>
   <div>
-    <button @click="showPopup = true" class="message-feed-button">Contact an Expert</button>
     <div v-if="showPopup" class="popup-container">
       <div class="popup">
         <h2>Contact an Expert</h2>
@@ -11,7 +10,7 @@
           </option>
         </select>
         <button @click="setupFeed">Submit</button>
-        <button @click="showPopup = false">Cancel</button>
+        <button @click="emit('close')">Cancel</button>
         <p v-if="feedbackMessage" class="feedback-message">{{ feedbackMessage }}</p>
       </div>
     </div>
@@ -19,15 +18,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, defineProps, defineEmits } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 
-interface User {
-  id: number
-  email: string
-}
+const props = defineProps({
+  showPopup: Boolean,
+})
 
-const showPopup = ref(false)
+const emit = defineEmits(['close'])
+const router = useRouter() // Use Vue Router for navigation
 const selectedCategory = ref('')
 const feedbackMessage = ref('')
 const categories = [
@@ -38,32 +38,23 @@ const categories = [
   'Defense Strategy',
   'Vulnerability',
 ]
-const allUsers = ref<User[]>([])
-
-const fetchAllUsers = async () => {
-  try {
-    const response = await axios.get('http://localhost:5000/all-users')
-    allUsers.value = response.data
-  } catch (error) {
-    console.error('Error fetching all users:', error)
-  }
-}
 
 const setupFeed = async () => {
   if (selectedCategory.value) {
     try {
-      // Fetch the specific expert for the selected category
+      await router.push('direct-messages') // Navigate to the direct messages page
+      await new Promise(resolve => setTimeout(resolve, 750)) // Add a delay of 750ms
       const response = await axios.get(
         `http://localhost:5000/experts/${selectedCategory.value.replace(/\s+/g, '').toLowerCase()}`,
       )
       const expert = response.data
 
       if (expert && expert.id) {
-        // Emit an event to open the chatbox with the selected expert
+        // Dispatch a custom event to open the chat box with the expert
         const event = new CustomEvent('open-chat', { detail: expert })
         window.dispatchEvent(event)
 
-        showPopup.value = false
+        emit('close') // Close the popup
       } else {
         feedbackMessage.value = 'No expert available for the selected category.'
       }
@@ -90,7 +81,7 @@ const setupFeed = async () => {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color .3s ease;
+  transition: background-color 0.3s ease;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
 }
 

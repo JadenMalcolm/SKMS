@@ -119,6 +119,10 @@ def get_expert_by_category(category):
 @dm_routes.route('/schedule-meeting', methods=['POST'])
 def schedule_meeting():
     data = request.get_json()
+
+    # Debugging logs to verify received data
+    print("Received data:", data)
+
     user_id = data.get('user_id')
     category = data.get('category')
     date = data.get('date')
@@ -127,6 +131,7 @@ def schedule_meeting():
 
     # Validate input fields
     if not user_id or not category or not date or not time or not meeting_type:
+        print("Validation failed: Missing fields")
         return jsonify({'error': 'All fields are required.'}), 400
 
     try:
@@ -186,7 +191,10 @@ def get_meetings(user_id):
 def get_meeting_requests(expert_id):
     try:
         cursor.execute('''
-            SELECT m.id, m.category, m.date, m.time, u.email as user_email
+            SELECT m.id, m.category, 
+                   strftime('%m/%d/%Y', m.date) as formatted_date, 
+                   strftime('%I:%M %p', m.time) as formatted_time, 
+                   u.email as user_email
             FROM meetings m
             JOIN users u ON m.user_id = u.id
             WHERE m.expert_id = ? AND m.status = 'pending'
@@ -196,8 +204,8 @@ def get_meeting_requests(expert_id):
         return jsonify([{
             'id': meeting[0],
             'category': meeting[1],
-            'date': meeting[2],
-            'time': meeting[3],
+            'date': meeting[2],  # Use formatted_date for consistency
+            'time': meeting[3],  # Use formatted_time for 12-hour format
             'user_email': meeting[4]
         } for meeting in meetings])
     except sqlite3.OperationalError as e:

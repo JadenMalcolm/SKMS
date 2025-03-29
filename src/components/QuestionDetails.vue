@@ -106,6 +106,7 @@
     </div>
   </div>
   <FloatingChat/>
+  <SidebarMenu />
 </template>
 
 <script setup lang="ts">

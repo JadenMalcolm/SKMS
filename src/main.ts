@@ -6,6 +6,7 @@ import FloatingChat from './components/FloatingChat.vue'
 import ContactExpert from './components/ContactExpert.vue'
 import ScheduleMeeting from './components/ScheduleMeeting.vue'
 import AcceptMeeting from './components/AcceptMeeting.vue'
+import SidebarMenu from './components/SidebarMenu.vue'
 
 const app = createApp(App)
 
@@ -14,6 +15,7 @@ app.component('FloatingChat', FloatingChat)
 app.component('ContactExpert', ContactExpert)
 app.component('ScheduleMeeting', ScheduleMeeting)
 app.component('AcceptMeeting', AcceptMeeting)
+app.component('SidebarMenu', SidebarMenu)
 
 app.use(router)
 app.mount('#app')

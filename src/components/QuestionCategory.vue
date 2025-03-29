@@ -62,6 +62,7 @@
     <!-- Feedback message box -->
   </div>
   <FloatingChat />
+  <SidebarMenu />
 </template>
 
 <script setup lang="ts">
@@ -167,6 +168,7 @@ const searchQuestions = async () => {
 
 <style scoped>
 .main-container {
+  margin-top: 70px;
   display: flex;
   justify-content: space-between;
   padding: 10px;
