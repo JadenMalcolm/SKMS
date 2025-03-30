@@ -122,6 +122,15 @@ body {
   transform: scale(1.05);
 }
 
+.button-warning {
+  background: linear-gradient(90deg, #ff9800, #f57c00);
+}
+
+.button-warning:hover {
+  background: linear-gradient(90deg, #f57c00, #e65100);
+  transform: scale(1.05);
+}
+
 /* Common input styles */
 .input {
   width: 100%;
