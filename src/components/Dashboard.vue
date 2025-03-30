@@ -1,32 +1,45 @@
 <template>
-  <div class="main-container">
-    <div class="header">Security Knowledge Management System</div>
-    <div class="categories-container">
-      <button @click="navigateToAsset" class="category-button button button-primary">Asset</button>
-      <button @click="navigateToThreat" class="category-button button button-primary">Threat</button>
-      <button @click="navigateToSecurityGoal" class="category-button button button-primary">Security Goal</button>
-      <button @click="navigateToCountermeasure" class="category-button button button-primary">Countermeasure</button>
-      <button @click="navigateToDefenseStrategy" class="category-button button button-primary">Defense Strategy</button>
-      <button @click="navigateToVulnerability" class="category-button button button-primary">Vulnerability</button>
-    </div>
-    <div class="content-container">
-      <div class="dashboardSearch-container">
-        <h1>Welcome, {{ currentUser?.email }}!</h1>
+  <div class="dashboard-container">
+    <header class="dashboard-header">
+      <h1>Security Knowledge Management System</h1>
+      <p>Welcome, {{ currentUser?.email }}! You are logged in as an {{ currentUser?.role }}</p>
+      <button @click="logout" class="button button-danger">Logout</button>
+    </header>
 
-        <p>You are logged in as an {{ currentUser?.role }}</p>
-        <button @click="logout" class="logout-button button button-danger">Logout</button>
+    <div class="dashboard-content">
+      <section class="dashboard-card container">
+        <h2>Categories</h2>
+        <div class="categories-grid">
+          <button @click="navigateToAsset" class="button button-primary">Asset</button>
+          <button @click="navigateToThreat" class="button button-primary">Threat</button>
+          <button @click="navigateToSecurityGoal" class="button button-primary">
+            Security Goal
+          </button>
+          <button @click="navigateToCountermeasure" class="button button-primary">
+            Countermeasure
+          </button>
+          <button @click="navigateToDefenseStrategy" class="button button-primary">
+            Defense Strategy
+          </button>
+          <button @click="navigateToVulnerability" class="button button-primary">
+            Vulnerability
+          </button>
+        </div>
+      </section>
 
-        <div class="search-container">
+      <div class="dashboard-grid">
+        <section class="dashboard-card container">
           <h2>Search Questions</h2>
-          <input
-            type="text"
-            v-model="searchQuery"
-            placeholder="Search questions..."
-            class="search-input input"
-          />
-          <button @click="searchQuestions" class="search-button button button-success">Search</button>
-
-          <div class="questions-box">
+          <div class="search-box">
+            <input
+              type="text"
+              v-model="searchQuery"
+              placeholder="Search questions..."
+              class="input"
+            />
+            <button @click="searchQuestions" class="button button-success">Search</button>
+          </div>
+          <div class="results-box">
             <h3>Search Results</h3>
             <ul>
               <li v-for="(q, index) in searchResults" :key="index">
@@ -42,59 +55,34 @@
                 }}</small>
                 <small>Category: {{ q.category }}</small>
                 <small>Asked by: {{ q.user_email }}</small>
-                <!-- Display user email -->
               </li>
             </ul>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <div class="browse-container">
-        <div class="questions-container">
-          <div class="questions-box">
-            <h3>My Questions</h3>
-            <ul>
-              <li v-for="(q, index) in userQuestions" :key="index">
-                <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
-                <small>{{
-                  new Date(q.timestamp).toLocaleString([], {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })
-                }}</small>
-                <small>Category: {{ q.category }}</small>
-              </li>
-            </ul>
-          </div>
-
-          <div class="questions-box">
-            <h3>Subscribed Questions</h3>
-            <ul>
-              <li v-for="(q, index) in subscribedQuestions" :key="index">
-                <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
-                <small>{{
-                  new Date(q.timestamp).toLocaleString([], {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })
-                }}</small>
-                <small>Category: {{ q.category }}</small>
-                <small>Asked by: {{ q.user_email }}</small>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="questions-box">
-          <h2>Browse All Questions</h2>
+        <section class="dashboard-card container">
+          <h2>My Questions</h2>
           <ul>
-            <li v-for="(q, index) in filteredQuestions" :key="index">
+            <li v-for="(q, index) in userQuestions" :key="index">
+              <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
+              <small>{{
+                new Date(q.timestamp).toLocaleString([], {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })
+              }}</small>
+              <small>Category: {{ q.category }}</small>
+            </li>
+          </ul>
+        </section>
+
+        <section class="dashboard-card container">
+          <h2>Subscribed Questions</h2>
+          <ul>
+            <li v-for="(q, index) in subscribedQuestions" :key="index">
               <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
               <small>{{
                 new Date(q.timestamp).toLocaleString([], {
@@ -109,30 +97,27 @@
               <small>Asked by: {{ q.user_email }}</small>
             </li>
           </ul>
-        </div>
+        </section>
 
-        <div class="questions-box">
+        <section class="dashboard-card container">
           <h2>My Meetings</h2>
           <ul>
-            <li v-for="(meeting, index) in myMeetings" :key="index" class="meeting-item compact-meeting">
+            <li v-for="(meeting, index) in myMeetings" :key="index" class="meeting-item">
               <p>
-                <strong>Category:</strong> {{ meeting.category }} |
-                <strong>Date:</strong> {{ formatDate(meeting.date) }} |
-                <strong>Time:</strong> {{ formatTime(meeting.time) }} |
-                <strong>Type:</strong> {{ meeting.meeting_type }} |
+                <strong>Category:</strong> {{ meeting.category }} | <strong>Date:</strong>
+                {{ formatDate(meeting.date) }} | <strong>Time:</strong>
+                {{ formatTime(meeting.time) }} | <strong>Type:</strong> {{ meeting.meeting_type }} |
                 <strong>Email:</strong> {{ meeting.expert_email || meeting.user_email }} |
                 <strong>Status:</strong> {{ meeting.status }}
               </p>
             </li>
           </ul>
-        </div>
+        </section>
       </div>
-
-      <!-- Message Box -->
     </div>
+    <floating-chat />
+    <sidebar-menu />
   </div>
-  <FloatingChat />
-  <SidebarMenu />
 </template>
 
 <script setup lang="ts">
@@ -199,7 +184,7 @@ const fetchSubscribedQuestions = async () => {
 }
 // function to handle question search
 const searchQuestions = async () => {
-  console.log(formatTime("14:30"));
+  console.log(formatTime('14:30'))
   try {
     const response = await axios.post(`http://localhost:5000/questions/search`, {
       query: searchQuery.value,
@@ -213,10 +198,9 @@ const searchQuestions = async () => {
 const fetchMeetings = async () => {
   if (currentUser.value) {
     try {
-      const endpoint =
-        currentUser.value.role.startsWith('expert')
-          ? `http://localhost:5000/accepted-meetings/${currentUser.value.id}`
-          : `http://localhost:5000/meetings/${currentUser.value.id}`
+      const endpoint = currentUser.value.role.startsWith('expert')
+        ? `http://localhost:5000/accepted-meetings/${currentUser.value.id}`
+        : `http://localhost:5000/meetings/${currentUser.value.id}`
       const response = await axios.get(endpoint)
       myMeetings.value = response.data
     } catch (error) {
@@ -226,22 +210,22 @@ const fetchMeetings = async () => {
 }
 
 const formatTime = (time: string) => {
-  const [hour, minute] = time.split(':');
-  const date = new Date();
-  date.setHours(parseInt(hour), parseInt(minute));
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-};
+  const [hour, minute] = time.split(':')
+  const date = new Date()
+  date.setHours(parseInt(hour), parseInt(minute))
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+}
 
 const formatDate = (date: string) => {
-  const parsedDate = new Date(date);
+  const parsedDate = new Date(date)
   if (isNaN(parsedDate.getTime())) {
-    return date; // Return the original string if parsing fails
+    return date // Return the original string if parsing fails
   }
-  const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
-  const day = String(parsedDate.getDate()).padStart(2, '0');
-  const year = parsedDate.getFullYear();
-  return `${month}/${day}/${year}`;
-};
+  const month = String(parsedDate.getMonth() + 1).padStart(2, '0')
+  const day = String(parsedDate.getDate()).padStart(2, '0')
+  const year = parsedDate.getFullYear()
+  return `${month}/${day}/${year}`
+}
 
 onMounted(async () => {
   // Check if user session exists
@@ -303,177 +287,117 @@ const navigateToVulnerability = () => {
 </script>
 
 <style scoped>
-.main-container {
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-  background-color: #f0f0f0;
+.dashboard-container {
+  font-family: Arial, sans-serif;
+  padding: 20px;
 }
-.header {
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.dashboard-header h1 {
   font-size: 2rem;
-  text-align: center;
-  margin-top: 20px;
-  color: #333;
-  background-color: #f0f0f0;
-  padding-bottom: 20px;
-}
-.categories-container {
-  display: flex;
-  justify-content: space-around;
-  padding: 10px;
-  background-color: #fff;
-  margin-bottom: 10px;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-.button {
-  padding: 10px 16px;
-  color: white;
-  border: 0;
-  border-radius: 24px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-}
-.button-primary {
-  background-color: #2196f3;
-}
-.button-primary:hover {
-  background-color: #1976d2;
-}
-.button-danger {
-  background-color: #f44336;
-}
-.button-danger:hover {
-  background-color: #d32f2f;
-}
-.button-success {
-  background-color: #4caf50;
-}
-.button-success:hover {
-  background-color: #45a049;
-}
-.button-fixed {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background: #007bff;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
-}
-.button-fixed:hover {
-  background-color: #0056b3;
-}
-.category-button {
-  width: 200px;
-}
-.content-container {
-  display: flex;
-  justify-content: space-between;
-  background-color: #f0f0f0;
-}
-.dashboardSearch-container,
-.browse-container {
-  padding: 15px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-.dashboardSearch-container {
-  width: 40%;
-  text-align: center;
-  margin-right: 10px;
-}
-.browse-container {
-  width: 65%;
-  padding-right: 20px;
-}
-.dashboardSearch-container h1,
-.dashboardSearch-container h2,
-.browse-container h2 {
   color: #333;
 }
-.dashboardSearch-container h1 {
-  font-size: 1.5rem;
-}
-.dashboardSearch-container h2,
-.browse-container h2 {
+
+.dashboard-header p {
   font-size: 1rem;
-}
-.dashboardSearch-container p {
-  font-size: 0.9rem;
   color: #555;
 }
-.input {
-  width: 98%;
-  padding: 8px;
-  margin-bottom: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
-.questions-box {
-  max-height: 500px;
-  overflow-y: auto;
-  margin-top: 15px;
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
 }
-.questions-box h3 {
-  font-size: 1rem;
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.dashboard-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.dashboard-card h2 {
+  margin-bottom: 15px;
   color: #333;
 }
-.questions-box ul {
+
+.search-box {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.results-box ul,
+.dashboard-card ul {
   list-style: none;
   padding: 0;
 }
-.questions-box li {
-  margin-bottom: 8px;
-  padding: 8px;
-  background-color: #f9f9f9;
+
+.results-box li,
+.dashboard-card li,
+.meeting-item {
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #f0f8ff; /* Blue background color */
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
-.questions-box li small {
+
+.results-box li small,
+.dashboard-card li small,
+.meeting-item p {
   display: block;
-  font-size: 0.7rem;
-  color: #666;
+  font-size: 0.85rem;
+  color: #555;
 }
-.questions-box li a {
+
+.results-box li a,
+.dashboard-card li a {
   text-decoration: none;
   color: #007bff;
 }
-.questions-box li a:hover {
+
+.results-box li a:hover,
+.dashboard-card li a:hover {
   text-decoration: underline;
 }
-.meeting-item {
-  margin-bottom: 8px;
-  padding: 10px;
-  background-color: #f0f8ff;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+.meeting-item p strong {
+  color: #007bff; /* Blue color for strong text */
 }
-.meeting-item p {
-  margin: 5px 0;
-  font-size: 0.9rem;
-  color: #333;
+
+.button-danger {
+  background: linear-gradient(90deg, #f44336, #d32f2f); /* Gradient background */
 }
-.meeting-item strong {
-  color: #007bff;
+
+.button-danger:hover {
+  background: linear-gradient(90deg, #d32f2f, #b71c1c); /* Darker gradient on hover */
+  transform: scale(1.05); /* Slight zoom effect */
 }
-.message-box {
-  margin-top: 20px;
-  padding: 10px;
-  background-color: #f0f0f0;
-  border-radius: 5px;
-  text-align: center;
-  font-weight: bold;
+
+.button-success {
+  background: linear-gradient(90deg, #4caf50, #388e3c); /* Gradient background */
 }
-.compact-meeting p {
-  margin: 5px 0;
-  font-size: 0.85rem;
-  color: #333;
-  line-height: 1.4;
-}
-.compact-meeting strong {
-  color: #007bff;
+
+.button-success:hover {
+  background: linear-gradient(90deg, #388e3c, #2e7d32); /* Darker gradient on hover */
+  transform: scale(1.05); /* Slight zoom effect */
 }
 </style>

@@ -24,7 +24,9 @@
         />
       </div>
 
-      <button class="reset-button" @click="resetPassword">Reset Password</button>
+      <button class="button button-success full-width" @click="resetPassword">
+        Reset Password
+      </button>
 
       <!-- Display Messages -->
       <p v-if="message" :class="{ 'error-message': isError, 'success-message': !isError }">
@@ -154,24 +156,6 @@ onMounted(() => {
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-.reset-button {
-  background-color: #4caf50;
-  color: #fff;
-  border: 0;
-  border-radius: 24px;
-  padding: 10px 16px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: 100%;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-}
-
-.reset-button:hover {
-  background-color: #45a049;
-}
-
 .success-message,
 .error-message {
   margin-top: 15px;
@@ -191,5 +175,9 @@ onMounted(() => {
   background-color: #f8d7da;
   color: #721c24;
   border: 1px solid #f5c6cb;
+}
+
+.full-width {
+  width: 100%;
 }
 </style>

@@ -6,7 +6,7 @@
         <div class="form-group">
           <input type="email" id="email" v-model="email" placeholder="Enter your email" required />
         </div>
-        <button type="submit" class="recover-button">Submit</button>
+        <button type="submit" class="button button-success full-width">Submit</button>
       </form>
 
       <!-- Message Display -->
@@ -108,24 +108,6 @@ const handleRecover = async () => {
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-.recover-button {
-  background-color: #4caf50;
-  color: #fff;
-  border: 0;
-  border-radius: 24px;
-  padding: 10px 16px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: 100%;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-}
-
-.recover-button:hover {
-  background-color: #45a049;
-}
-
 .success-message,
 .error-message {
   margin-top: 15px;
@@ -145,5 +127,9 @@ const handleRecover = async () => {
   background-color: #f8d7da;
   color: #721c24;
   border: 1px solid #f5c6cb;
+}
+
+.full-width {
+  width: 100%;
 }
 </style>

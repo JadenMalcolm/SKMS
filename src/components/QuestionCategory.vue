@@ -6,18 +6,13 @@
         type="text"
         v-model="newQuestionText"
         placeholder="Type your question here..."
-        class="ask-input"
+        class="input"
       />
-      <button @click="submitQuestion" class="ask-button">Submit Question</button>
+      <button @click="submitQuestion" class="button button-success">Submit Question</button>
       <div class="search-container">
         <h2>Search {{ category }} Questions</h2>
-        <input
-          type="text"
-          v-model="searchQuery"
-          :placeholder="searchPlaceholder"
-          class="search-input"
-        />
-        <button @click="searchQuestions" class="search-button">Search</button>
+        <input type="text" v-model="searchQuery" :placeholder="searchPlaceholder" class="input" />
+        <button @click="searchQuestions" class="button button-success">Search</button>
       </div>
       <div class="search-results">
         <h3>Search Results</h3>
@@ -56,8 +51,8 @@
         </li>
       </ul>
       <div v-if="feedbackMessage" class="feedback-box">
-    <p>{{ feedbackMessage }}</p>
-    </div>
+        <p>{{ feedbackMessage }}</p>
+      </div>
     </div>
     <!-- Feedback message box -->
   </div>
@@ -186,34 +181,11 @@ const searchQuestions = async () => {
 .ask-container h2 {
   font-size: 1.2rem;
   color: #333;
-  padding: 5px
+  padding: 5px;
 }
-.ask-input,
-.search-input {
-  width: 98%;
-  padding: 8px;
-  margin-bottom: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-.ask-button,
-.search-button {
-  padding: 8px 12px;
-  background-color: #4caf50;
-  color: white;
-  border: 0;
-  border-radius: 24px;
-  padding: 10px 16px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color .3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-}
-.ask-button:hover,
-.search-button:hover {
-  background-color: #45a049;
-}
+ .button-success {
+  margin-top: 15px;
+ }
 .questions-box {
   width: 65%;
   padding: 15px;
@@ -231,16 +203,16 @@ const searchQuestions = async () => {
   padding: 0;
 }
 .questions-box li {
-  margin-bottom: 8px;
-  padding: 8px;
-  background-color: #f9f9f9;
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #f0f8ff; /* Blue background color */
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 .questions-box li small {
   display: block;
-  font-size: 0.7rem;
-  color: #666;
+  font-size: 0.85rem;
+  color: #555;;
 }
 .questions-box li a {
   text-decoration: none;

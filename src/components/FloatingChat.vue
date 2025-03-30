@@ -1,40 +1,48 @@
 <template>
-    <!-- Chat Button -->
-    <button class="chat-toggle" @click="toggleChat">💬</button>
+  <!-- Chat Button -->
+  <button class="button button-primary chat-toggle" @click="toggleChat">💬</button>
 
-    <!-- Chat Popup -->
-    <div v-if="isOpen" class="chat-popup">
-      <div class="chat-header">
-        <span>Chatbot</span>
-        <button @click="toggleChat">✖</button>
-      </div>
+  <!-- Chat Popup -->
+  <div v-if="isOpen" class="chat-popup">
+    <div class="chat-header">
+      <span>Chatbot</span>
+      <button @click="toggleChat">✖</button>
+    </div>
 
-      <!-- Chat History -->
-      <div class="chat-box">
-        <div v-for="(msg, index) in chatHistory" :key="index">
-          <div v-if="msg.sender === 'user'" class="user">{{ msg.text }}</div>
-          <div v-else class="bot">
-            <p>{{ msg.text }}</p>
-            <div v-if="msg.suggestions">
-              <button v-for="suggestion in msg.suggestions" :key="suggestion" @click="sendMessage(suggestion)">
-                {{ suggestion }}
-              </button>
-            </div>
+    <!-- Chat History -->
+    <div class="chat-box">
+      <div v-for="(msg, index) in chatHistory" :key="index">
+        <div v-if="msg.sender === 'user'" class="user">{{ msg.text }}</div>
+        <div v-else class="bot">
+          <p>{{ msg.text }}</p>
+          <div v-if="msg.suggestions">
+            <button
+              v-for="suggestion in msg.suggestions"
+              :key="suggestion"
+              @click="sendMessage(suggestion)"
+            >
+              {{ suggestion }}
+            </button>
           </div>
         </div>
       </div>
-
-      <!-- Chat Input -->
-      <div class="chat-input">
-        <input v-model="userMessage" @keyup.enter="sendMessage(userMessage)" placeholder="Ask me something..." />
-        <button @click="sendMessage(userMessage)">Send</button>
-      </div>
-
-      <!-- Feedback Box -->
-      <div v-if="feedbackMessage" class="feedback-box">
-        <p>{{ feedbackMessage }}</p>
-      </div>
     </div>
+
+    <!-- Chat Input -->
+    <div class="chat-input">
+      <input
+        v-model="userMessage"
+        @keyup.enter="sendMessage(userMessage)"
+        placeholder="Ask me something..."
+      />
+      <button @click="sendMessage(userMessage)">Send</button>
+    </div>
+
+    <!-- Feedback Box -->
+    <div v-if="feedbackMessage" class="feedback-box">
+      <p>{{ feedbackMessage }}</p>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -69,7 +77,7 @@ const sendMessage = async (message: string) => {
       chatHistory.value.push({
         sender: 'bot',
         text: 'Did you mean:',
-        suggestions: response.data.suggestions
+        suggestions: response.data.suggestions,
       })
     }
 
@@ -90,15 +98,11 @@ const sendMessage = async (message: string) => {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background: #007bff;
-  color: white;
-  border: none;
   border-radius: 50%;
   width: 50px;
   height: 50px;
   font-size: 24px;
-  cursor: pointer;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+  /* Removed redundant styles, now using .button and .button-primary */
 }
 
 /* Chat Popup */
@@ -192,4 +196,3 @@ button:focus {
   outline: none;
 }
 </style>
-

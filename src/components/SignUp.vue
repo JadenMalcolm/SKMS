@@ -65,7 +65,6 @@
           </select>
         </div>
         <div class="form-group" v-if="securityChoice">
-          
           <input
             type="text"
             id="securityAnswer"
@@ -74,7 +73,7 @@
             required
           />
         </div>
-        <button type="submit" class="login-button">Create Account</button>
+        <button type="submit" class="button button-success full-width">Create Account</button>
       </form>
       <div v-if="message" class="message-box">{{ message }}</div>
     </div>
@@ -181,24 +180,6 @@ const handleSignUp = async () => {
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-.login-button {
-  background-color: #4caf50;
-  color: #fff;
-  border: 0;
-  border-radius: 24px;
-  padding: 10px 16px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: 100%;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-}
-
-.login-button:hover {
-  background-color: #45a049;
-}
-
 .message-box {
   margin-top: 15px;
   padding: 10px;
@@ -208,5 +189,9 @@ const handleSignUp = async () => {
   background-color: #f8d7da;
   color: #721c24;
   border: 1px solid #f5c6cb;
+}
+
+.full-width {
+  width: 100%;
 }
 </style>

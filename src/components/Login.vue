@@ -18,7 +18,7 @@
             required
           />
         </div>
-        <button type="submit" class="login-button">Login</button>
+        <button type="submit" class="button button-success full-width">Login</button>
       </form>
 
       <!-- Message Box for Login Status -->
@@ -126,7 +126,7 @@ const navigateToRecover = () => {
   overflow: hidden;
   border-radius: 8px;
   background-color: #fff;
-  margin: 1rem 0 .5rem;
+  margin: 1rem 0 0.5rem;
   width: 100%;
 }
 
@@ -144,9 +144,7 @@ const navigateToRecover = () => {
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-
-
-.form-group input span{
+.form-group input span {
   display: grid;
   position: absolute;
   top: 0;
@@ -158,29 +156,15 @@ const navigateToRecover = () => {
 }
 
 .form-group input span svg {
-  color: #9CA3AF;
+  color: #9ca3af;
   width: 1rem;
   height: 1rem;
 }
 
-.login-button {
-  background-color: #4caf50;
-  color: #fff;
-  border: 0;
-  border-radius: 24px;
-  padding: 10px 16px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color .3s ease;
+.form-group button {
   width: 100%;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-}
-.login-button:hover {
-  background-color: #45a049;
 }
 
-/* Login message styles */
 .success-message,
 .error-message {
   margin-top: 15px;
@@ -218,5 +202,9 @@ const navigateToRecover = () => {
 .signup-link a:hover,
 .recover-link a:hover {
   text-decoration: underline;
+}
+
+.full-width {
+  width: 100%;
 }
 </style>

@@ -34,7 +34,11 @@
         Unsubscribe
       </button>
       <button
-        v-if="currentUser?.role === 'admin' || currentUser?.email === questionDetails.user_email || currentUser?.role === `expert-${questionDetails.category.trim().toLowerCase()}`"
+        v-if="
+          currentUser?.role === 'admin' ||
+          currentUser?.email === questionDetails.user_email ||
+          currentUser?.role === `expert-${questionDetails.category.trim().toLowerCase()}`
+        "
         @click="deleteQuestion"
         class="delete-button"
       >
@@ -105,7 +109,7 @@
       <p class="loading">Loading...</p>
     </div>
   </div>
-  <FloatingChat/>
+  <FloatingChat />
   <SidebarMenu />
 </template>
 
@@ -137,7 +141,6 @@ interface User {
   email: string
   role: string
 }
-
 
 const route = useRoute()
 const router = useRouter()
@@ -344,7 +347,9 @@ const upvoteQuestion = async () => {
       user_id: currentUser.value.id,
     })
 
-    const countsResponse = await axios.get(`http://localhost:5000/questions/${route.params.id}/counts`)
+    const countsResponse = await axios.get(
+      `http://localhost:5000/questions/${route.params.id}/counts`,
+    )
     upvoteCount.value = countsResponse.data.upvotes
     downvoteCount.value = countsResponse.data.downvotes
     reportCount.value = countsResponse.data.reports
@@ -364,7 +369,9 @@ const downvoteQuestion = async () => {
       user_id: currentUser.value.id,
     })
 
-    const countsResponse = await axios.get(`http://localhost:5000/questions/${route.params.id}/counts`)
+    const countsResponse = await axios.get(
+      `http://localhost:5000/questions/${route.params.id}/counts`,
+    )
     upvoteCount.value = countsResponse.data.upvotes
     downvoteCount.value = countsResponse.data.downvotes
     reportCount.value = countsResponse.data.reports
@@ -384,7 +391,9 @@ const reportQuestion = async () => {
       user_id: currentUser.value.id,
     })
 
-    const countsResponse = await axios.get(`http://localhost:5000/questions/${route.params.id}/counts`)
+    const countsResponse = await axios.get(
+      `http://localhost:5000/questions/${route.params.id}/counts`,
+    )
     upvoteCount.value = countsResponse.data.upvotes
     downvoteCount.value = countsResponse.data.downvotes
     reportCount.value = countsResponse.data.reports
@@ -436,50 +445,81 @@ small {
 button {
   border: 0;
   border-radius: 24px;
-  padding: 10px 16px;
+  padding: 12px; /* Match padding with sidebar buttons */
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color .3s ease;
+  transition:
+    transform 0.2s ease,
+    background-color 0.3s ease;
   margin-top: 5px;
   margin-right: 3px;
   margin-left: 3px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  color: white;
 }
 
 .subscribe-button {
-  background-color: #4caf50;
-  color: white;
+  background: linear-gradient(90deg, #4caf50, #388e3c); /* Gradient background */
+}
+
+.subscribe-button:hover {
+  background: linear-gradient(90deg, #388e3c, #2e7d32); /* Darker gradient on hover */
+  transform: scale(1.05); /* Slight zoom effect */
 }
 
 .unsubscribe-button {
-  background-color: #f44336;
-  color: white;
+  background: linear-gradient(90deg, #f44336, #d32f2f); /* Gradient background */
+}
+
+.unsubscribe-button:hover {
+  background: linear-gradient(90deg, #d32f2f, #b71c1c); /* Darker gradient on hover */
+  transform: scale(1.05); /* Slight zoom effect */
 }
 
 .delete-button {
-  background-color: #ff9800;
-  color: white;
+  background: linear-gradient(90deg, #ff9800, #f57c00); /* Gradient background */
+}
+
+.delete-button:hover {
+  background: linear-gradient(90deg, #f57c00, #e65100); /* Darker gradient on hover */
+  transform: scale(1.05); /* Slight zoom effect */
 }
 
 .edit-button {
-  background-color: #007bff;
-  color: white;
+  background: linear-gradient(90deg, #007bff, #0056b3); /* Gradient background */
+}
+
+.edit-button:hover {
+  background: linear-gradient(90deg, #0056b3, #003f7f); /* Darker gradient on hover */
+  transform: scale(1.05); /* Slight zoom effect */
 }
 
 .upvote-button {
-  background-color: #4caf50;
-  color: white;
+  background: linear-gradient(90deg, #4caf50, #388e3c); /* Gradient background */
+}
+
+.upvote-button:hover {
+  background: linear-gradient(90deg, #388e3c, #2e7d32); /* Darker gradient on hover */
+  transform: scale(1.05); /* Slight zoom effect */
 }
 
 .downvote-button {
-  background-color: #f44336;
-  color: white;
+  background: linear-gradient(90deg, #f44336, #d32f2f); /* Gradient background */
+}
+
+.downvote-button:hover {
+  background: linear-gradient(90deg, #d32f2f, #b71c1c); /* Darker gradient on hover */
+  transform: scale(1.05); /* Slight zoom effect */
 }
 
 .report-button {
-  background-color: #ff9800;
-  color: white;
+  background: linear-gradient(90deg, #ff9800, #f57c00); /* Gradient background */
+}
+
+.report-button:hover {
+  background: linear-gradient(90deg, #f57c00, #e65100); /* Darker gradient on hover */
+  transform: scale(1.05); /* Slight zoom effect */
 }
 
 .response-section {
@@ -498,8 +538,12 @@ button {
 }
 
 .post-button {
-  background-color: #2196f3;
-  color: white;
+  background: linear-gradient(90deg, #2196f3, #1976d2); /* Gradient background */
+}
+
+.post-button:hover {
+  background: linear-gradient(90deg, #1976d2, #1565c0); /* Darker gradient on hover */
+  transform: scale(1.05); /* Slight zoom effect */
 }
 
 .responses {
@@ -513,6 +557,12 @@ button {
   border-radius: 5px;
   background-color: #f9f9f9;
 }
+ .response button{
+  color: black
+ }
+ .response button:hover{
+  transform: scale(1.05);
+ }
 
 .edit-input {
   width: 100%;

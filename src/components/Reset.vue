@@ -7,7 +7,7 @@
       <div class="form-group">
         <input v-model="answer" placeholder="Enter your answer" />
       </div>
-      <button class="reset-button" @click="checkAnswer">Submit</button>
+      <button class="button button-success full-width" @click="checkAnswer">Submit</button>
       <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
       <p v-if="successMessage" class="success-message">{{ successMessage }}</p>
     </div>
@@ -135,24 +135,6 @@ onMounted(() => {
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-.reset-button {
-  background-color: #4caf50;
-  color: #fff;
-  border: 0;
-  border-radius: 24px;
-  padding: 10px 16px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: 100%;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-}
-
-.reset-button:hover {
-  background-color: #45a049;
-}
-
 .error-message,
 .success-message {
   margin-top: 15px;
@@ -172,5 +154,9 @@ onMounted(() => {
   background-color: #d4edda;
   color: #155724;
   border: 1px solid #c3e6cb;
+}
+
+.full-width {
+  width: 100%;
 }
 </style>

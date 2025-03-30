@@ -79,3 +79,76 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Common button styles */
+.button {
+  padding: 10px 16px;
+  color: white;
+  border: 0;
+  border-radius: 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.button-success {
+  background: linear-gradient(90deg, #4caf50, #388e3c);
+}
+
+.button-success:hover {
+  background: linear-gradient(90deg, #388e3c, #2e7d32);
+  transform: scale(1.05);
+}
+
+.button-danger {
+  background: linear-gradient(90deg, #f44336, #d32f2f);
+}
+
+.button-danger:hover {
+  background: linear-gradient(90deg, #d32f2f, #b71c1c);
+  transform: scale(1.05);
+}
+
+.button-primary {
+  background: linear-gradient(90deg, #2196f3, #1976d2);
+}
+
+.button-primary:hover {
+  background: linear-gradient(90deg, #1976d2, #1565c0);
+  transform: scale(1.05);
+}
+
+/* Common input styles */
+.input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Common textarea styles */
+.textarea {
+  width: 99%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  resize: none;
+  height: 96px;
+  border: 1px solid #414141;
+  background-color: transparent;
+  font-family: inherit;
+}
+
+/* Common container styles */
+.container {
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}

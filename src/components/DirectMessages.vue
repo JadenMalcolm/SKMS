@@ -57,8 +57,8 @@
           }}</small>
         </div>
       </div>
-      <textarea v-model="newMessage" placeholder="Type your message..."></textarea>
-      <button @click="sendMessage">Send</button>
+      <textarea v-model="newMessage" placeholder="Type your message..." class="textarea"></textarea>
+      <button @click="sendMessage" class="button button-success">Send</button>
     </div>
     <SidebarMenu />
   </div>
@@ -288,35 +288,6 @@ const sendMessage = async () => {
   padding: 3px;
   border-radius: 5px;
   margin-bottom: 10px;
-}
-
-textarea {
-  width: 99%;
-  padding: 12px 16px;
-  border-radius: 8px;
-  resize: none;
-  height: 96px;
-  border: 1px solid #414141;
-  background-color: transparent;
-  font-family: inherit;
-}
-
-button {
-  padding: 8px 12px;
-  background-color: #4caf50;
-  color: white;
-  border: 0;
-  border-radius: 24px;
-  padding: 10px 16px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color .3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-}
-
-button:hover {
-  background-color: #45a049;
 }
 
 .start-chat {
