@@ -161,3 +161,45 @@ body {
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
+
+/* Password visibility toggle styles */
+.password-wrapper {
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #6c757d;
+  transition: transform 0.3s ease, color 0.3s ease;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-password svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.75;
+}
+
+/* New styles for image-based icons */
+.toggle-password img {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.toggle-password:hover {
+  transform: translateY(-50%) scale(1.2);
+  color: #007bff;
+}
+
+.toggle-password:hover img {
+  transform: scale(1.1);
+  filter: invert(31%) sepia(98%) saturate(1823%) hue-rotate(197deg) brightness(96%) contrast(101%); /* Changes to #007bff blue */
+}

@@ -3,7 +3,6 @@
     <header class="dashboard-header">
       <h1>Security Knowledge Management System</h1>
       <p>Welcome, {{ currentUser?.email }}! You are logged in as an {{ currentUser?.role }}</p>
-      <button @click="logout" class="button button-danger">Logout</button>
     </header>
 
     <div class="dashboard-content">
@@ -254,12 +253,6 @@ onMounted(async () => {
     router.push('/')
   }
 })
-
-// function to handle logout
-const logout = () => {
-  sessionStorage.removeItem('user')
-  router.push('/')
-}
 
 // navigate to different pages
 const navigateToAsset = () => {

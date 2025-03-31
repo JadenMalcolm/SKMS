@@ -23,7 +23,7 @@ def is_strong_password(password):
 @auth_routes.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
-    email = data.get('email')
+    email = data.get('email').lower()  # Convert email to lowercase
     password = data.get('password')
     security_question = data.get('securityQuestion')
     security_question_answer = data.get('securityQuestionAnswer').replace(" ", "").lower()
@@ -45,7 +45,7 @@ def signup():
 @auth_routes.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    email = data.get('email')
+    email = data.get('email').lower()  # Convert email to lowercase
     password = data.get('password')
 
     cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
@@ -57,7 +57,7 @@ def login():
 @auth_routes.route('/recover', methods=['POST'])
 def recover():
     data = request.get_json()
-    email = data.get('email')
+    email = data.get('email').lower()  # Convert email to lowercase
 
     cursor.execute("SELECT securityQuestion FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
@@ -68,7 +68,7 @@ def recover():
 @auth_routes.route('/verify_answer', methods=['POST'])
 def verify_answer():
     data = request.get_json()
-    email = data.get('email')
+    email = data.get('email').lower()  # Convert email to lowercase
     security_question_answer = data.get('securityQuestionAnswer').replace(" ", "").lower()
 
     cursor.execute("SELECT securityQuestionAnswer FROM users WHERE email = ?", (email,))
@@ -80,7 +80,7 @@ def verify_answer():
 @auth_routes.route('/reset_password', methods=['POST'])
 def reset_password():
     data = request.get_json()
-    email = data.get('email')
+    email = data.get('email').lower()  # Convert email to lowercase
     new_password = data.get('newPassword')
 
     if not is_strong_password(new_password):

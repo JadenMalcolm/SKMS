@@ -30,7 +30,7 @@ const router = useRouter()
 const handleRecover = async () => {
   try {
     const response = await axios.post('http://localhost:5000/recover', {
-      email: email.value,
+      email: email.value.toLowerCase(), // Convert email to lowercase
     })
 
     if (response.data.securityQuestion) {

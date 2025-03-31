@@ -13,22 +13,34 @@
           />
         </div>
         <div class="form-group">
-          <input
-            type="password"
-            id="password"
-            v-model="passwordInput"
-            placeholder="Enter your password"
-            required
-          />
+          <div class="password-wrapper">
+            <input
+              :type="peakPassword ? 'text' : 'password'"
+              id="password"
+              v-model="passwordInput"
+              placeholder="Enter your password"
+              required
+            />
+            <span class="toggle-password" @click="togglePeakPassword">
+              <img v-if="!peakPassword" :src="eyeIcon" alt="Show password" width="16" height="16" />
+              <img v-else :src="eyeOffIcon" alt="Hide password" width="16" height="16" />
+            </span>
+          </div>
         </div>
         <div class="form-group">
-          <input
-            type="password"
-            id="password2"
-            v-model="confirmPasswordInput"
-            placeholder="Re-enter your password"
-            required
-          />
+          <div class="password-wrapper">
+            <input
+              :type="peakConfirmPassword ? 'text' : 'password'"
+              id="password2"
+              v-model="confirmPasswordInput"
+              placeholder="Re-enter your password"
+              required
+            />
+            <span class="toggle-password" @click="togglePeakConfirmPassword">
+              <img v-if="!peakConfirmPassword" :src="eyeIcon" alt="Show password" width="16" height="16" />
+              <img v-else :src="eyeOffIcon" alt="Hide password" width="16" height="16" />
+            </span>
+          </div>
         </div>
         <div class="form-group">
           <select id="securityQuestion" v-model="securityChoice" required>
@@ -85,6 +97,8 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import eyeIcon from '../assets/eye.svg'
+import eyeOffIcon from '../assets/eye-off.svg'
 
 // variables
 const emailInput = ref('')
@@ -94,6 +108,18 @@ const router = useRouter()
 const securityChoice = ref('')
 const securityQuestionAnswer = ref('')
 const message = ref('')
+const peakPassword = ref(false)
+const peakConfirmPassword = ref(false)
+
+// function to toggle password visibility
+const togglePeakPassword = () => {
+  peakPassword.value = !peakPassword.value
+}
+
+// function to toggle confirm password visibility
+const togglePeakConfirmPassword = () => {
+  peakConfirmPassword.value = !peakConfirmPassword.value
+}
 
 // function to handle sign up
 const handleSignUp = async () => {
@@ -103,7 +129,7 @@ const handleSignUp = async () => {
   }
   try {
     await axios.post('http://localhost:5000/signup', {
-      email: emailInput.value,
+      email: emailInput.value.toLowerCase(), // Convert email to lowercase
       password: passwordInput.value,
       securityQuestion: securityChoice.value,
       securityQuestionAnswer: securityQuestionAnswer.value,
@@ -180,6 +206,10 @@ const handleSignUp = async () => {
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
+.password-wrapper {
+  position: relative;
+}
+
 .message-box {
   margin-top: 15px;
   padding: 10px;
@@ -194,4 +224,5 @@ const handleSignUp = async () => {
 .full-width {
   width: 100%;
 }
+
 </style>

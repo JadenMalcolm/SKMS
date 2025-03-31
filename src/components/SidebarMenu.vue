@@ -24,6 +24,7 @@
     >
       Contact Expert
     </button>
+    <button @click="logout" class="menu-button menu-logout-button">Logout</button>
     <button @click="toggleVisibility" class="menu-close-button">Close</button>
   </div>
   <button v-else @click="toggleVisibility" class="menu-open-button">
@@ -69,6 +70,11 @@ const navigateToDirectMessages = () => {
 
 const navigateToDashboard = () => {
   router.push('/dashboard')
+}
+
+const logout = () => {
+  sessionStorage.removeItem('user')
+  router.push('/')
 }
 </script>
 
@@ -167,5 +173,14 @@ const navigateToDashboard = () => {
   height: 2px;
   background-color: white;
   border-radius: 1px;
+}
+
+.menu-logout-button {
+  background: linear-gradient(90deg, #f44336, #d32f2f); /* Gradient background */
+}
+
+.menu-logout-button:hover {
+  background: linear-gradient(90deg, #d32f2f, #b71c1c); /* Darker gradient on hover */
+  transform: scale(1.05); /* Slight zoom effect */
 }
 </style>

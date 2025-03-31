@@ -66,7 +66,7 @@ const scheduleMeeting = async () => {
     try {
       const response = await axios.post('http://localhost:5000/schedule-meeting', {
         user_id: currentUser.id, // Include user_id in the payload
-        category: selectedCategory.value,
+        category: selectedCategory.value.replace(/\s+/g, '').toLowerCase(),
         date: selectedDate.value,
         time: selectedTime.value,
         meeting_type: selectedMeetingType.value, // Include the meeting type

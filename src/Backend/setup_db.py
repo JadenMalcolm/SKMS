@@ -95,7 +95,7 @@ else:
         key = f.read()
     
 # Create admin user if not exists
-admin_email = 'admin@example.com'
+admin_email = 'admin@example.com'.lower()  # Convert to lowercase
 admin_password = 'Admin@123'
 admin_role = 'admin'
 hashed_password = generate_password_hash(admin_password)
@@ -118,7 +118,7 @@ expert_categories = [
 ]
 
 for category in expert_categories:
-    expert_email = f'{category}@example.com'
+    expert_email = f'{category}@example.com'.lower()  # Convert to lowercase
     expert_password = f'{category.capitalize()}@123'
     hashed_password = generate_password_hash(expert_password)
     cursor.execute("SELECT COUNT(*) FROM users WHERE email = ?", (expert_email,))

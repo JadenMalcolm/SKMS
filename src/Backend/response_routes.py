@@ -21,24 +21,6 @@ def save_response():
     conn.commit()
     return jsonify({'message': 'Response saved successfully!', 'id': cursor.lastrowid}), 201
 
-@response_routes.route('/responses/<int:id>', methods=['PUT', 'DELETE'])
-def update_response(id):
-    if request.method == 'PUT':
-        data = request.get_json()
-        response_text = data.get('response')
-
-        if not response_text:
-            return jsonify({'error': 'Response text is required.'}), 400
-
-        cursor.execute("UPDATE responses SET response = ? WHERE id = ?", (response_text, id))
-        conn.commit()
-        return jsonify({'message': 'Response updated successfully!'}), 200
-
-    if request.method == 'DELETE':
-        cursor.execute("DELETE FROM responses WHERE id = ?", (id,))
-        conn.commit()
-        return jsonify({'message': 'Response deleted successfully!'}), 200
-
 @response_routes.route('/questions/<int:id>/responses', methods=['GET'])
 def get_responses(id):
     cursor.execute('''
@@ -53,4 +35,22 @@ def get_responses(id):
         {'id': r[0], 'response': r[1], 'timestamp': r[2], 'user_email': r[3]}
         for r in responses
     ]), 200
+
+@response_routes.route('/responses/<int:response_id>', methods=['PUT', 'DELETE'])
+def manage_response(response_id):
+    if request.method == 'PUT':
+        data = request.get_json()
+        response_text = data.get('response')
+
+        if not response_text:
+            return jsonify({'error': 'Response text is required.'}), 400
+
+        cursor.execute("UPDATE responses SET response = ? WHERE id = ?", (response_text, response_id))
+        conn.commit()
+        return jsonify({'message': 'Response updated successfully!'}), 200
+
+    if request.method == 'DELETE':
+        cursor.execute("DELETE FROM responses WHERE id = ?", (response_id,))
+        conn.commit()
+        return jsonify({'message': 'Response deleted successfully!'}), 200
 

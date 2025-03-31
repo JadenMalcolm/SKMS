@@ -10,13 +10,13 @@
           <input type="email" id="email" v-model="email" placeholder="Enter your email" required />
         </div>
         <div class="form-group">
-          <input
-            type="password"
-            id="password"
-            v-model="password"
-            placeholder="Enter your password"
-            required
-          />
+          <div class="password-wrapper">
+            <input :type="peakPassword ? 'text' : 'password'" id="password" v-model="password" placeholder="Enter your password" required />
+            <span class="toggle-password" @click="togglePeakPassword">
+              <img v-if="!peakPassword" :src="eyeIcon" alt="Show password" width="16" height="16" />
+              <img v-else :src="eyeOffIcon" alt="Hide password" width="16" height="16" />
+            </span>
+          </div>
         </div>
         <button type="submit" class="button button-success full-width">Login</button>
       </form>
@@ -27,7 +27,7 @@
       </p>
 
       <p class="signup-link">
-        Don’t have an account? <a href="/signup" @click.prevent="navigateToSignup">Sign up</a>
+        Don't have an account? <a href="/signup" @click.prevent="navigateToSignup">Sign up</a>
       </p>
       <p class="recover-link">
         Forgot Password? <a href="/recover" @click.prevent="navigateToRecover">Reset Password</a>
@@ -41,21 +41,29 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import eyeIcon from '../assets/eye.svg'
+import eyeOffIcon from '../assets/eye-off.svg'
 
 // variables
 const email = ref('')
 const password = ref('')
+const peakPassword = ref(false) // renamed from showPassword
 const router = useRouter()
 
 // New reactive properties for messages
 const loginMessage = ref('')
 const isError = ref(false)
 
+// function to toggle password visibility
+const togglePeakPassword = () => {
+  peakPassword.value = !peakPassword.value
+}
+
 // function to handle login
 const handleLogin = async () => {
   try {
     const response = await axios.post('http://localhost:5000/login', {
-      email: email.value,
+      email: email.value.toLowerCase(), // Convert email to lowercase
       password: password.value,
     })
 
@@ -142,23 +150,6 @@ const navigateToRecover = () => {
   width: 100%;
   border-radius: 0.5rem;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
-.form-group input span {
-  display: grid;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  place-content: center;
-}
-
-.form-group input span svg {
-  color: #9ca3af;
-  width: 1rem;
-  height: 1rem;
 }
 
 .form-group button {

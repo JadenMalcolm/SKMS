@@ -68,7 +68,11 @@
           >
             {{ response.isEditing ? 'Save' : 'Edit' }}
           </button>
-          <button v-if="isAdmin" @click="deleteResponse(response.id)" class="button button-warning">
+          <button
+            v-if="response.user_email === currentUser?.email || isAdmin"
+            @click="deleteResponse(response.id)"
+            class="button button-warning"
+          >
             Delete
           </button>
         </div>

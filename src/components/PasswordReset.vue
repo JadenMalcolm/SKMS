@@ -5,23 +5,35 @@
       <p>Email: {{ email }}</p>
 
       <div class="form-group">
-        <input
-          type="password"
-          id="newPassword"
-          v-model="newPassword"
-          placeholder="Enter new password"
-          required
-        />
+        <div class="password-wrapper">
+          <input
+            :type="peakNewPassword ? 'text' : 'password'"
+            id="newPassword"
+            v-model="newPassword"
+            placeholder="Enter new password"
+            required
+          />
+          <span class="toggle-password" @click="togglePeakNewPassword">
+            <img v-if="!peakNewPassword" :src="eyeIcon" alt="Show password" width="16" height="16" />
+            <img v-else :src="eyeOffIcon" alt="Hide password" width="16" height="16" />
+          </span>
+        </div>
       </div>
 
       <div class="form-group">
-        <input
-          type="password"
-          id="confirmPassword"
-          v-model="confirmPassword"
-          placeholder="Confirm new password"
-          required
-        />
+        <div class="password-wrapper">
+          <input
+            :type="peakConfirmPassword ? 'text' : 'password'"
+            id="confirmPassword"
+            v-model="confirmPassword"
+            placeholder="Confirm new password"
+            required
+          />
+          <span class="toggle-password" @click="togglePeakConfirmPassword">
+            <img v-if="!peakConfirmPassword" :src="eyeIcon" alt="Show password" width="16" height="16" />
+            <img v-else :src="eyeOffIcon" alt="Hide password" width="16" height="16" />
+          </span>
+        </div>
       </div>
 
       <button class="button button-success full-width" @click="resetPassword">
@@ -41,6 +53,8 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import eyeIcon from '../assets/eye.svg'
+import eyeOffIcon from '../assets/eye-off.svg'
 
 // variables
 const email = ref<string>(sessionStorage.getItem('recoverEmail') || '')
@@ -49,6 +63,17 @@ const confirmPassword = ref<string>('')
 const message = ref<string>('')
 const isError = ref<boolean>(false)
 const router = useRouter()
+const peakNewPassword = ref(false)
+const peakConfirmPassword = ref(false)
+
+// functions to toggle password visibility
+const togglePeakNewPassword = () => {
+  peakNewPassword.value = !peakNewPassword.value
+}
+
+const togglePeakConfirmPassword = () => {
+  peakConfirmPassword.value = !peakConfirmPassword.value
+}
 
 // function to reset password
 const resetPassword = async () => {
@@ -154,6 +179,10 @@ onMounted(() => {
   width: 100%;
   border-radius: 0.5rem;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.password-wrapper {
+  position: relative;
 }
 
 .success-message,
