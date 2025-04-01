@@ -12,11 +12,10 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    role TEXT NOT NULL CHECK(role IN ('admin','expert-asset','expert-threat','expert-securitygoal','expert-countermeasure','expert-defensestrategy', 'expert-vulnerablity','employee')) DEFAULT 'employee',
+    role TEXT NOT NULL CHECK(role IN ('admin','expert-asset','expert-threat','expert-securitygoal','expert-countermeasure','expert-defensestrategy', 'expert-vulnerability','employee')) DEFAULT 'employee',
     securityQuestion TEXT NOT NULL,
     securityQuestionAnswer TEXT NOT NULL
 )''')
-
 cursor.execute('''CREATE TABLE IF NOT EXISTS questions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -114,7 +113,7 @@ if not user_exists:
 expert_categories = [
     'expert-asset', 'expert-threat', 'expert-securitygoal', 
     'expert-countermeasure', 'expert-defensestrategy', 
-    'expert-vulnerablity'
+    'expert-vulnerability'
 ]
 
 for category in expert_categories:

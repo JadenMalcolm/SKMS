@@ -18,8 +18,8 @@
           <option value="in-person">In-Person</option>
           <option value="online">Online</option>
         </select>
-        <button @click="scheduleMeeting">Submit</button>
-        <button @click="cancelPopup">Cancel</button>
+        <button @click="scheduleMeeting" class="button button-success">Submit</button>
+        <button @click="cancelPopup" class="button button-danger">Cancel</button>
         <p v-if="feedbackMessage" class="feedback-message">{{ feedbackMessage }}</p>
       </div>
     </div>
@@ -150,25 +150,8 @@ const cancelPopup = () => {
   border-radius: 5px;
 }
 
-.popup button {
-  padding: 10px 16px;
-  border: 0;
-  border-radius: 24px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-}
-
-.popup button:first-of-type {
-  background: #4caf50;
-  color: white;
-}
-
-.popup button:last-of-type {
-  background: #f44336;
-  color: white;
+.button-success {
+  margin-right: 5px
 }
 
 .feedback-message {

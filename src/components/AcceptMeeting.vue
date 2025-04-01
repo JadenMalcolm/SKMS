@@ -10,12 +10,12 @@
             <p><strong>Time:</strong> {{ meeting.time }}</p>
             <!-- Time is now in 12-hour format -->
             <p><strong>Requested By:</strong> {{ meeting.user_email }}</p>
-            <button @click="acceptMeeting(meeting.id)">Accept</button>
-            <button @click="rejectMeeting(meeting.id)">Reject</button>
+            <button @click="acceptMeeting(meeting.id)" class="button button-success">Accept</button>
+            <button @click="rejectMeeting(meeting.id)" class="button button-danger">Reject</button>
           </li>
         </ul>
         <p v-else>No meeting requests available.</p>
-        <button @click="emit('close')">Close</button>
+        <button @click="emit('close')" class="button button-danger">Close</button>
         <p v-if="feedbackMessage" class="feedback-message">{{ feedbackMessage }}</p>
       </div>
     </div>
@@ -136,25 +136,8 @@ const rejectMeeting = async (meetingId: number) => {
   padding-bottom: 10px;
 }
 
-.popup button {
-  padding: 10px 16px;
-  border: 0;
-  border-radius: 24px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-}
-
-.popup button:first-of-type {
-  background: #4caf50;
-  color: white;
-}
-
-.popup button:last-of-type {
-  background: #f44336;
-  color: white;
+.button-success {
+  margin-right:5px
 }
 
 .feedback-message {
