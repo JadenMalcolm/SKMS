@@ -2,21 +2,8 @@
   <div class="sidebar-menu" v-if="isVisible">
     <button class="menu-button">View Profile</button>
     <button @click="navigateToDashboard" class="menu-button">Dashboard</button>
+    <button @click="navigateToMeetings" class="menu-button">Meetings</button>
     <button @click="navigateToDirectMessages" class="menu-button">Direct Messages</button>
-    <button
-      v-if="currentUser && currentUser.role.startsWith('employee')"
-      @click="isScheduleMeetingVisible = true"
-      class="menu-button"
-    >
-      Schedule Meeting
-    </button>
-    <button
-      v-if="currentUser && currentUser.role.startsWith('expert')"
-      @click="isAcceptMeetingVisible = true"
-      class="menu-button"
-    >
-      View Meeting Requests
-    </button>
     <button
       @click="isContactExpertVisible = true"
       class="menu-button"
@@ -26,6 +13,7 @@
     </button>
     <button @click="logout" class="menu-button menu-logout-button">Logout</button>
     <button @click="toggleVisibility" class="menu-close-button">Close</button>
+    <ContactExpert :showPopup="isContactExpertVisible" @close="isContactExpertVisible = false" />
   </div>
   <button v-else @click="toggleVisibility" class="menu-open-button">
     <span class="menu-icon">
@@ -34,17 +22,6 @@
       <span class="menu-line"></span>
     </span>
   </button>
-  <ScheduleMeeting
-    v-if="currentUser && currentUser.role.startsWith('employee')"
-    :showPopup="isScheduleMeetingVisible"
-    @close="isScheduleMeetingVisible = false"
-  />
-  <AcceptMeeting
-    v-if="currentUser && currentUser.role.startsWith('expert')"
-    :showPopup="isAcceptMeetingVisible"
-    @close="isAcceptMeetingVisible = false"
-  />
-  <ContactExpert :showPopup="isContactExpertVisible" @close="isContactExpertVisible = false" />
 </template>
 
 <script setup lang="ts">
@@ -52,24 +29,30 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const isVisible = ref(false)
-const isScheduleMeetingVisible = ref(false)
-const isAcceptMeetingVisible = ref(false)
-const isContactExpertVisible = ref(false) // State for ContactExpert popup
+const showContactExpert = ref(false)
 const router = useRouter()
+const isContactExpertVisible = ref(false)
 
-// Fetch the current user from session storage
 const currentUser = JSON.parse(sessionStorage.getItem('user') || 'null')
 
 const toggleVisibility = () => {
   isVisible.value = !isVisible.value
 }
 
+const navigateToDashboard = () => {
+  router.push('/dashboard')
+}
+
+const navigateToMeetings = () => {
+  router.push('/meetings')
+}
+
 const navigateToDirectMessages = () => {
   router.push('/direct-messages')
 }
 
-const navigateToDashboard = () => {
-  router.push('/dashboard')
+const openContactExpert = () => {
+  showContactExpert.value = true
 }
 
 const logout = () => {

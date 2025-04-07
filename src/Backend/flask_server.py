@@ -5,6 +5,7 @@ from subscription_routes import subscription_routes
 from response_routes import response_routes
 from question_routes import question_routes
 from auth_routes import auth_routes
+from meeting_routes import meeting_routes
 import sqlite3
 from flask_cors import CORS
 from flask import Flask
@@ -31,6 +32,7 @@ app.register_blueprint(subscription_routes)
 app.register_blueprint(vote_routes)
 app.register_blueprint(chatbot_routes)
 app.register_blueprint(dm_routes)
+app.register_blueprint(meeting_routes)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

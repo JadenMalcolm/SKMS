@@ -103,10 +103,9 @@
           <ul>
             <li v-for="(meeting, index) in myMeetings" :key="index" class="meeting-item">
               <p>
-                <strong>Category:</strong> {{ meeting.category }} | <strong>Date:</strong>
-                {{ formatDate(meeting.date) }} | <strong>Time:</strong>
+                <strong>Date:</strong> {{ formatDate(meeting.date) }} | <strong>Time:</strong>
                 {{ formatTime(meeting.time) }} | <strong>Type:</strong> {{ meeting.meeting_type }} |
-                <strong>Email:</strong> {{ meeting.expert_email || meeting.user_email }} |
+                <strong>Email:</strong> {{ meeting.target_user_email || meeting.user_email }} |
                 <strong>Status:</strong> {{ meeting.status }}
               </p>
             </li>
@@ -156,17 +155,12 @@ interface Meeting {
   date: string
   time: string
   meeting_type: string
-  expert_email?: string
+  target_user_email?: string
   user_email?: string
   status: string
 }
 
 const myMeetings = ref<Meeting[]>([])
-
-// filter function to get questions not asked by the current user
-const filteredQuestions = computed(() => {
-  return allQuestions.value.filter((q) => q.user_email !== currentUser.value?.email)
-})
 
 // function to get subscribed questions
 const fetchSubscribedQuestions = async () => {
