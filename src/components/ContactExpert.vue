@@ -9,8 +9,8 @@
             {{ category }}
           </option>
         </select>
-        <button @click="setupFeed">Submit</button>
-        <button @click="emit('close')">Cancel</button>
+        <button @click="setupFeed" class="button button-success">Submit</button>
+        <button @click="emit('close')" class="button button-danger">Cancel</button>
         <p v-if="feedbackMessage" class="feedback-message">{{ feedbackMessage }}</p>
       </div>
     </div>
@@ -69,21 +69,6 @@ const setupFeed = async () => {
 </script>
 
 <style scoped>
-.message-feed-button {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background: #007bff;
-  color: white;
-  border: 0;
-  border-radius: 24px;
-  padding: 10px 16px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
-}
 
 .popup-container {
   position: fixed;
@@ -121,24 +106,9 @@ const setupFeed = async () => {
   border: 1px solid #ccc;
   border-radius: 5px;
 }
-
-.popup button {
-  padding: 10px 20px;
-  margin: 5px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.popup button:first-of-type {
-  background: #4caf50;
-  color: white;
-}
-
-.popup button:last-of-type {
-  background: #f44336;
-  color: white;
-}
+ .button-success{
+  margin-right:5px;
+ }
 
 .feedback-message {
   margin-top: 10px;
