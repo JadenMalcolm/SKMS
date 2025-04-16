@@ -152,3 +152,21 @@ def reject_meeting():
         return jsonify({'message': 'Meeting rejected successfully.'})
     except sqlite3.OperationalError as e:
         return jsonify({'error': f'Database error: {e}'}), 500
+
+@meeting_routes.route('/delete-meeting', methods=['POST'])
+def delete_meeting():
+    data = request.get_json()
+    meeting_id = data.get('meeting_id')
+
+    if not meeting_id:
+        return jsonify({'error': 'Meeting ID is required.'}), 400
+
+    try:
+        cursor.execute('''
+            DELETE FROM meetings
+            WHERE id = ?
+        ''', (meeting_id,))
+        conn.commit()
+        return jsonify({'message': 'Meeting deleted successfully.'})
+    except sqlite3.OperationalError as e:
+        return jsonify({'error': f'Database error: {e}'}), 500

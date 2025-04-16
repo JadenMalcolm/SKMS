@@ -4,6 +4,7 @@
   </div>
 
   <div class="meetings-container">
+    <!-- Start Meeting Section -->
     <div class="start-meeting">
       <h2>Schedule a Meeting</h2>
       <input
@@ -20,7 +21,8 @@
       </ul>
     </div>
 
-    <div class="meeting-details" v-if="selectedUser">
+    <!-- Meeting Details Section -->
+    <div v-if="selectedUser" class="meeting-details">
       <h2>Meeting with {{ selectedUser.email }}</h2>
       <input type="date" v-model="selectedDate" class="input-field" />
       <input type="time" v-model="selectedTime" step="1800" class="input-field" />
@@ -31,13 +33,19 @@
       <button @click="scheduleMeeting" class="button button-success">Schedule</button>
     </div>
 
+    <!-- Meeting Requests Section -->
     <div class="meeting-requests">
       <h2>Meeting Requests</h2>
       <ul>
         <li v-for="request in meetingRequests" :key="request.id">
-          <p>{{ request.user_email }} requested a meeting on {{ request.date }} at {{ request.time }}</p>
+          <p>
+            {{ request.user_email }} requested a meeting on {{ request.date }} at {{ request.time }}
+          </p>
           <button @click="acceptMeeting(request.id)" class="button button-success">Accept</button>
           <button @click="rejectMeeting(request.id)" class="button button-danger">Reject</button>
+          <button @click="rescheduleMeeting(request)" class="button button-warning">
+            Reschedule
+          </button>
         </li>
       </ul>
     </div>
@@ -51,60 +59,61 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
 
 interface MeetingRequest {
-  id: number;
-  user_email: string;
-  date: string;
-  time: string;
+  id: number
+  user_email: string
+  user_id: number
+  date: string
+  time: string
 }
 
 interface User {
-  id: number;
-  email: string;
+  id: number
+  email: string
 }
 
-const selectedUser = ref<User | null>(null);
-const meetingRequests = ref<MeetingRequest[]>([]);
-const selectedDate = ref('');
-const selectedTime = ref('');
-const selectedMeetingType = ref('in-person');
-const feedbackMessage = ref('');
-const searchQuery = ref('');
-const allUsers = ref<User[]>([]);
-const filteredUsers = ref<User[]>([]);
-const currentUser = JSON.parse(sessionStorage.getItem('user') || '{}');
+const selectedUser = ref<User | null>(null)
+const meetingRequests = ref<MeetingRequest[]>([])
+const selectedDate = ref('')
+const selectedTime = ref('')
+const selectedMeetingType = ref('in-person')
+const feedbackMessage = ref('')
+const searchQuery = ref('')
+const allUsers = ref<User[]>([])
+const filteredUsers = ref<User[]>([])
+const currentUser = JSON.parse(sessionStorage.getItem('user') || '{}')
 
 const fetchAllUsers = async () => {
   try {
-    const response = await axios.get('http://localhost:5000/all-users');
-    allUsers.value = response.data;
-    filteredUsers.value = allUsers.value;
+    const response = await axios.get('http://localhost:5000/all-users')
+    allUsers.value = response.data
+    filteredUsers.value = allUsers.value
   } catch (error) {
-    console.error('Error fetching all users:', error);
+    console.error('Error fetching all users:', error)
   }
-};
+}
 
 const fetchMeetingRequests = async () => {
   try {
-    const response = await axios.get(`http://localhost:5000/meeting-requests/${currentUser.id}`);
-    meetingRequests.value = response.data;
+    const response = await axios.get(`http://localhost:5000/meeting-requests/${currentUser.id}`)
+    meetingRequests.value = response.data
   } catch (error) {
-    console.error('Error fetching meeting requests:', error);
+    console.error('Error fetching meeting requests:', error)
   }
-};
+}
 
 const filterUsers = () => {
   filteredUsers.value = allUsers.value.filter((user) =>
-    user.email.toLowerCase().includes(searchQuery.value.toLowerCase())
-  );
-};
+    user.email.toLowerCase().includes(searchQuery.value.toLowerCase()),
+  )
+}
 
 const selectUser = (user: User) => {
-  selectedUser.value = user;
-};
+  selectedUser.value = user
+}
 
 const scheduleMeeting = async () => {
   if (selectedUser.value && selectedDate.value && selectedTime.value && selectedMeetingType.value) {
@@ -115,53 +124,76 @@ const scheduleMeeting = async () => {
         date: selectedDate.value,
         time: selectedTime.value,
         meeting_type: selectedMeetingType.value,
-      });
-      feedbackMessage.value = response.data.message;
+      })
+      feedbackMessage.value = response.data.message
+      await fetchMeetingRequests()
     } catch (error) {
-      feedbackMessage.value = 'Failed to schedule meeting. Please try again.';
+      feedbackMessage.value = 'Failed to schedule meeting. Please try again.'
     }
   } else {
-    feedbackMessage.value = 'Please fill out all fields.';
+    feedbackMessage.value = 'Please fill out all fields.'
   }
-};
+}
 
 const acceptMeeting = async (meetingId: number) => {
   try {
-    const response = await axios.post('http://localhost:5000/accept-meeting', { meeting_id: meetingId });
-    feedbackMessage.value = response.data.message;
-    await fetchMeetingRequests();
+    const response = await axios.post('http://localhost:5000/accept-meeting', {
+      meeting_id: meetingId,
+    })
+    feedbackMessage.value = response.data.message
+    await fetchMeetingRequests()
   } catch (error) {
-    feedbackMessage.value = 'Failed to accept meeting. Please try again.';
+    feedbackMessage.value = 'Failed to accept meeting. Please try again.'
   }
-};
+}
 
 const rejectMeeting = async (meetingId: number) => {
   try {
-    const response = await axios.post('http://localhost:5000/reject-meeting', { meeting_id: meetingId });
-    feedbackMessage.value = response.data.message;
-    await fetchMeetingRequests();
+    const response = await axios.post('http://localhost:5000/reject-meeting', {
+      meeting_id: meetingId,
+    })
+    feedbackMessage.value = response.data.message
+    await fetchMeetingRequests()
   } catch (error) {
-    feedbackMessage.value = 'Failed to reject meeting. Please try again.';
+    feedbackMessage.value = 'Failed to reject meeting. Please try again.'
   }
-};
+}
+
+const rescheduleMeeting = async (request: MeetingRequest) => {
+  try {
+    // Delete the original meeting request
+    await axios.post('http://localhost:5000/delete-meeting', { meeting_id: request.id })
+
+    selectedUser.value = null
+
+    feedbackMessage.value = `Please select ${request.user_email} to reschedule the meeting and set a new date and time.`
+    await fetchMeetingRequests()
+  } catch (error) {
+    feedbackMessage.value = 'Failed to reschedule meeting. Please try again.'
+  }
+}
 
 onMounted(async () => {
   if (currentUser) {
-    await fetchAllUsers();
-    await fetchMeetingRequests();
+    await fetchAllUsers()
+    await fetchMeetingRequests()
   } else {
-    feedbackMessage.value = 'User not logged in. Redirecting to login page.';
+    feedbackMessage.value = 'User not logged in. Redirecting to login page.'
     setTimeout(() => {
-      window.location.href = '/';
-    }, 2000);
+      window.location.href = '/'
+    }, 2000)
   }
-});
+})
 </script>
 
 <style scoped>
 .header {
   text-align: center;
   margin-bottom: 20px;
+}
+
+.button {
+  margin: 3px;
 }
 
 .meetings-container {
@@ -173,7 +205,8 @@ onMounted(async () => {
 }
 
 .start-meeting,
-.meeting-requests {
+.meeting-requests,
+.meeting-details {
   width: 30%;
   border: 1px solid #ccc;
   padding: 20px;
@@ -183,7 +216,8 @@ onMounted(async () => {
 }
 
 .start-meeting h2,
-.meeting-requests h2 {
+.meeting-requests h2,
+.meeting-details h2 {
   text-align: center;
   margin-bottom: 10px;
 }
@@ -223,14 +257,13 @@ onMounted(async () => {
 }
 
 .feedback-box {
-    width: 80%;
-    margin: 10px auto;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #ffffff;
-    color: #333;
-    
+  width: 80%;
+  margin: 10px auto;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #ffffff;
+  color: #333;
 }
 
 .feedback-box p {
