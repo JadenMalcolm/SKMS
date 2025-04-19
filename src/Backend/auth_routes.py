@@ -97,3 +97,39 @@ def reset_password():
     conn.commit()
 
     return jsonify({'message': 'Password reset successfully'}), 200
+
+@auth_routes.route('/change-password', methods=['POST'])
+def change_password():
+    data = request.get_json()
+    user_id = data.get('userId')
+    current_password = data.get('currentPassword')
+    new_password = data.get('newPassword')
+    
+    # Validate inputs
+    if not all([user_id, current_password, new_password]):
+        return jsonify({'error': 'All fields are required'}), 400
+    
+    # Check if password is strong
+    if not is_strong_password(new_password):
+        return jsonify({'error': 'New password must contain at least one uppercase letter, one lowercase letter, one digit and be at least 8 characters long'}), 400
+    
+    # Verify current user and password
+    cursor.execute("SELECT password FROM users WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    if not check_password_hash(user[0], current_password):
+        return jsonify({'error': 'Current password is incorrect'}), 401
+    
+    # Check if new password is same as current
+    if check_password_hash(user[0], new_password):
+        return jsonify({'error': 'New password must be different from current password'}), 400
+    
+    # Update password
+    hashed_password = generate_password_hash(new_password)
+    cursor.execute("UPDATE users SET password = ? WHERE id = ?", (hashed_password, user_id))
+    conn.commit()
+    
+    return jsonify({'message': 'Password updated successfully'}), 200

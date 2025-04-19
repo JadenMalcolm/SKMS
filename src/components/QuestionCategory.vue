@@ -1,7 +1,9 @@
 <template>
   <div class="main-container">
     <div class="ask-container">
-      <h2>Ask a Question</h2>
+      <div class="section-header">
+        <h2>Ask a Question</h2>
+      </div>
       <input
         type="text"
         v-model="newQuestionText"
@@ -10,14 +12,16 @@
       />
       <button @click="submitQuestion" class="button button-success">Submit Question</button>
       <div class="search-container">
-        <h2>Search {{ category }} Questions</h2>
+        <div class="section-header">
+          <h2>Search {{ category }} Questions</h2>
+        </div>
         <input type="text" v-model="searchQuery" :placeholder="searchPlaceholder" class="input" />
         <button @click="searchQuestions" class="button button-success">Search</button>
       </div>
       <div class="search-results">
-        <h3>Search Results</h3>
+        <h3 class="subsection-header">Search Results</h3>
         <ul>
-          <li v-for="(q, index) in searchResults" :key="index">
+          <li v-for="(q, index) in searchResults" :key="index" class="question-item">
             <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
             <small>{{
               new Date(q.timestamp).toLocaleString([], {
@@ -34,9 +38,9 @@
       </div>
     </div>
     <div class="questions-box">
-      <h3>{{ category }} Questions</h3>
+      <h3 class="subsection-header">{{ category }} Questions</h3>
       <ul>
-        <li v-for="(q, index) in categoryQuestions" :key="index">
+        <li v-for="(q, index) in categoryQuestions" :key="index" class="question-item">
           <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
           <small>{{
             new Date(q.timestamp).toLocaleString([], {
@@ -183,9 +187,9 @@ const searchQuestions = async () => {
   color: #333;
   padding: 5px;
 }
- .button-success {
+.button-success {
   margin-top: 15px;
- }
+}
 .questions-box {
   width: 65%;
   padding: 15px;
@@ -198,56 +202,14 @@ const searchQuestions = async () => {
   font-size: 1.2rem;
   color: #333;
 }
-.questions-box ul {
+.questions-box ul, .search-results ul {
   list-style: none;
   padding: 0;
-}
-.questions-box li {
-  margin-bottom: 10px;
-  padding: 10px;
-  background-color: #f0f8ff; /* Blue background color */
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-.questions-box li small {
-  display: block;
-  font-size: 0.85rem;
-  color: #555;;
-}
-.questions-box li a {
-  text-decoration: none;
-  color: #007bff;
-}
-.questions-box li a:hover {
-  text-decoration: underline;
 }
 .search-results h3 {
   font-size: 1.2rem;
   color: #333;
   padding: 5px;
-}
-.search-results ul {
-  list-style: none;
-  padding: 0;
-}
-.search-results li {
-  margin-bottom: 8px;
-  padding: 8px;
-  background-color: #f9f9f9;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-.search-results li small {
-  display: block;
-  font-size: 0.7rem;
-  color: #666;
-}
-.search-results li a {
-  text-decoration: none;
-  color: #007bff;
-}
-.search-results li a:hover {
-  text-decoration: underline;
 }
 .feedback-box {
   margin-top: 10px;

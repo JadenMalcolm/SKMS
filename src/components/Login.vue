@@ -1,17 +1,19 @@
 <template>
-  <div class="header">Security Knowledge Management System</div>
+  <div class="page-header">
+    <h1>Security Knowledge Management System</h1>
+  </div>
   <div class="login-container">
-    <div class="login-box">
-      <div class="login-header">
-        <h1>Login</h1>
+    <div class="login-box container">
+      <div class="section-header">
+        <h2>Login</h2>
       </div>
       <form @submit.prevent="handleLogin">
         <div class="form-group">
-          <input type="email" id="email" v-model="email" placeholder="Enter your email" required />
+          <input type="email" id="email" v-model="email" placeholder="Enter your email" required class="input" />
         </div>
         <div class="form-group">
           <div class="password-wrapper">
-            <input :type="peakPassword ? 'text' : 'password'" id="password" v-model="password" placeholder="Enter your password" required />
+            <input :type="peakPassword ? 'text' : 'password'" id="password" v-model="password" placeholder="Enter your password" required class="input" />
             <span class="toggle-password" @click="togglePeakPassword">
               <img v-if="!peakPassword" :src="eyeIcon" alt="Show password" width="16" height="16" />
               <img v-else :src="eyeOffIcon" alt="Hide password" width="16" height="16" />
@@ -97,62 +99,22 @@ const navigateToRecover = () => {
 </script>
 
 <style scoped>
-.header {
-  font-size: 2rem;
-  text-align: center;
-  margin-top: 30px;
-  color: #333;
-  background-color: #f0f0f0;
-}
-
 .login-container {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  height: 100vh;
+  min-height: 70vh;
   padding-top: 30px;
   background-color: #f0f0f0;
 }
 
 .login-box {
-  width: 350px;
+  width: 400px;
   padding: 30px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  text-align: center;
 }
-.login-header {
-  font-size: 1.25rem;
-  line-height: 1.75rem;
-  font-weight: 600;
-  text-align: center;
-  color: #000;
-  padding-bottom: 1rem;
-}
+
 .form-group {
-  overflow: hidden;
-  border-radius: 8px;
-  background-color: #fff;
   margin: 1rem 0 0.5rem;
-  width: 100%;
-}
-
-.form-group input {
-  outline: none;
-  border: 1px solid #e5e7eb;
-  margin: 3px 0;
-  background-color: #fff;
-  padding: 1rem;
-  padding-right: 3rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  width: 100%;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
-.form-group button {
   width: 100%;
 }
 
@@ -160,42 +122,46 @@ const navigateToRecover = () => {
 .error-message {
   margin-top: 15px;
   padding: 10px;
-  border-radius: 5px;
+  border-radius: 8px;
   text-align: center;
   font-size: 14px;
 }
 
 .success-message {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background-color: #e8f5e9;
+  color: #2e7d32;
 }
 
 .error-message {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background-color: #ffebee;
+  color: #c62828;
 }
 
+.section-header h2{
+  font-size: 2rem;
+}
 .signup-link,
 .recover-link {
   text-align: center;
-  margin-top: 10px;
+  margin-top: 15px;
   color: #555;
 }
 
 .signup-link a,
 .recover-link a {
-  color: #007bff;
+  color: #1976d2;
   text-decoration: none;
+  font-weight: 500;
 }
 
 .signup-link a:hover,
 .recover-link a:hover {
+  color: #0056b3;
   text-decoration: underline;
 }
 
 .full-width {
   width: 100%;
+  margin-top: 10px;
 }
 </style>

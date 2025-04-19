@@ -1,16 +1,22 @@
 <template>
   <div>
     <div v-if="showPopup" class="popup-container">
-      <div class="popup">
-        <h2>Contact an Expert</h2>
-        <label for="category">Select Category:</label>
-        <select v-model="selectedCategory" id="category">
-          <option v-for="category in categories" :key="category" :value="category">
-            {{ category }}
-          </option>
-        </select>
-        <button @click="setupFeed" class="button button-success">Submit</button>
-        <button @click="emit('close')" class="button button-danger">Cancel</button>
+      <div class="popup container">
+        <div class="section-header">
+          <h2>Contact an Expert</h2>
+        </div>
+        <div class="form-group">
+          <label for="category">Select Category:</label>
+          <select v-model="selectedCategory" id="category" class="input">
+            <option v-for="category in categories" :key="category" :value="category">
+              {{ category }}
+            </option>
+          </select>
+        </div>
+        <div class="popup-actions">
+          <button @click="setupFeed" class="button button-success">Submit</button>
+          <button @click="emit('close')" class="button button-danger">Cancel</button>
+        </div>
         <p v-if="feedbackMessage" class="feedback-message">{{ feedbackMessage }}</p>
       </div>
     </div>
@@ -69,7 +75,6 @@ const setupFeed = async () => {
 </script>
 
 <style scoped>
-
 .popup-container {
   position: fixed;
   top: 0;
@@ -80,39 +85,39 @@ const setupFeed = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
 .popup {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  width: 400px;
+  padding: 25px;
 }
 
-.popup h2 {
-  margin-bottom: 20px;
+.form-group {
+  margin: 1rem 0 1.5rem;
 }
 
-.popup label {
+.form-group label {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #444;
+  text-align: left;
 }
 
-.popup select {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+.popup-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
 }
- .button-success{
-  margin-right:5px;
- }
 
 .feedback-message {
-  margin-top: 10px;
-  color: #007bff;
-  font-weight: bold;
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 8px;
+  color: #1976d2;
+  background-color: rgba(25, 118, 210, 0.1);
+  text-align: center;
 }
 </style>

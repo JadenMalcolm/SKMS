@@ -9,6 +9,7 @@ import PasswordReset from '../components/PasswordReset.vue'
 import QuestionComponent from './QuestionCategory.vue'
 import DirectMessages from './DirectMessages.vue'
 import Meetings from './Meetings.vue'
+import Profile from './Profile.vue'
 
 const routes = [
   { path: '/', component: Login }, // Default route
@@ -26,6 +27,7 @@ const routes = [
   { path: '/vulnerability', component: QuestionComponent, props: { category: 'Vulnerability' } }, // Vulnerability route
   { path: '/direct-messages',component: DirectMessages,}, // Direct Messages route
   { path: '/meetings', component: Meetings }, // Meetings page route
+  { path : '/profile', component: Profile }, // Profile page route
 ]
 
 const router = createRouter({

@@ -1,6 +1,6 @@
 <template>
   <!-- Header section -->
-  <div class="header">
+  <div class="page-header">
     <h1>Direct Messages</h1>
   </div>
 
@@ -8,14 +8,16 @@
   <div class="message-container">
     <!-- Start new chat section -->
     <div class="start-chat">
-      <h2>Start New Chat</h2>
+      <div class="section-header">
+        <h2>Start New Chat</h2>
+      </div>
       <input
         type="text"
         v-model="newChatSearchQuery"
         placeholder="Search users..."
         class="search-input"
       />
-      <ul>
+      <ul class="user-list">
         <li v-for="user in newChatFilteredUsers" :key="user.id" @click="selectUser(user)">
           {{ user.email }}
         </li>
@@ -24,9 +26,11 @@
 
     <!-- My Messages section -->
     <div class="messages-list">
-      <h2>My Messages</h2>
+      <div class="section-header">
+        <h2>My Messages</h2>
+      </div>
       <input type="text" v-model="searchQuery" placeholder="Search users..." class="search-input" />
-      <ul>
+      <ul class="user-list">
         <li v-for="user in filteredUsers" :key="user.id" @click="selectUser(user)">
           {{ user.email }}
         </li>
@@ -35,7 +39,9 @@
 
     <!-- Chat box section -->
     <div class="chat-box" v-if="selectedUser && selectedUser.id !== currentUser?.id">
-      <h2>Chat with {{ selectedUser.email }}</h2>
+      <div class="section-header">
+        <h2>Chat with {{ selectedUser.email }}</h2>
+      </div>
       <div class="messages" ref="messagesContainer">
         <div
           v-for="message in messages"
@@ -57,15 +63,16 @@
           }}</small>
         </div>
       </div>
-      <textarea v-model="newMessage" placeholder="Type your message..." class="textarea"></textarea>
-      <button @click="sendMessage" class="button button-success">Send</button>
+      <div class="chat-input">
+        <textarea v-model="newMessage" placeholder="Type your message..." class="textarea"></textarea>
+        <button @click="sendMessage" class="button button-success send-button">Send</button>
+      </div>
     </div>
     <SidebarMenu />
+    <floating-chat />
   </div>
 
   <!-- Additional components -->
-  <ContactExpert />
-  <FloatingChat />
 </template>
 
 <script setup lang="ts">
@@ -208,10 +215,6 @@ const sendMessage = async () => {
 </script>
 
 <style scoped>
-.header {
-  text-align: center;
-  margin-bottom: 20px;
-}
 .message-container {
   display: flex;
   padding: 30px;
@@ -228,25 +231,6 @@ const sendMessage = async () => {
   margin-right: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
-.messages-list h2 {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.messages-list ul {
-  list-style: none;
-  padding: 0;
-}
-
-.messages-list li {
-  padding: 10px;
-  cursor: pointer;
-  border-bottom: 1px solid #eee;
-}
-
-.messages-list li:hover {
-  background-color: #f0f0f0;
-}
 
 .search-input {
   width: 98%;
@@ -258,36 +242,80 @@ const sendMessage = async () => {
 
 .chat-box {
   width: 70%;
-  padding-left: 20px;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding-left: 20px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .messages {
   max-height: 400px;
   overflow-y: auto;
-  margin-bottom: 10px;
-  padding: 5px;
-  border-radius: 10px;
-  max-width: 99%;
+  padding: 15px;
+  margin: 0;
+  flex-grow: 1;
 }
 
 .messages .sent {
   text-align: right;
-  background-color: #dcf8c6;
-  padding: 3px;
-  border-radius: 5px;
-  margin-bottom: 10px;
+  background: linear-gradient(90deg, #e3f2fd, #bbdefb);
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 12px 12px 0 12px;
+  color: #333;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  word-break: break-word;
 }
 
 .messages .received {
   text-align: left;
-  background-color: #fff;
-  padding: 3px;
-  border-radius: 5px;
-  margin-bottom: 10px;
+  background: linear-gradient(90deg, #f5f5f5, #e0e0e0);
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 12px 12px 12px 0;
+  color: #333;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  word-break: break-word;
+}
+
+.messages .sent p,
+.messages .received p {
+  margin: 0 0 8px 0;
+}
+
+.messages .sent small,
+.messages .received small {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  display: block;
+}
+
+.chat-input {
+  display: flex;
+  padding: 12px;
+  border-top: 1px solid #ddd;
+  background: #f9f9f9;
+  align-items: flex-end;
+}
+
+.chat-input .textarea {
+  flex: 1;
+  margin-right: 8px;
+  border-radius: 20px;
+  padding: 10px 15px;
+  min-height: 50px;
+  max-height: 120px;
+  resize: none;
+}
+
+.send-button {
+  border-radius: 20px;
+  padding: 8px 15px;
+  min-width: 60px;
+  align-self: flex-end;
 }
 
 .start-chat {
@@ -299,25 +327,5 @@ const sendMessage = async () => {
   border-radius: 10px;
   margin-right: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.start-chat h2 {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.start-chat ul {
-  list-style: none;
-  padding: 0;
-}
-
-.start-chat li {
-  padding: 10px;
-  cursor: pointer;
-  border-bottom: 1px solid #eee;
-}
-
-.start-chat li:hover {
-  background-color: #f0f0f0;
 }
 </style>

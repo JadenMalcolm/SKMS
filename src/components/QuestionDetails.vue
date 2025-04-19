@@ -1,81 +1,106 @@
 <template>
-  <div class="question-details-container">
-    <h1>Question Details</h1>
-    <div v-if="questionDetails">
-      <p v-if="!isEditing">{{ questionDetails.question }}</p>
-      <textarea v-else v-model="editText" class="edit-input" maxlength="500"></textarea>
-      <small>Asked on: {{ formatDate(questionDetails.timestamp) }}</small>
-      <small>Asked by: {{ questionDetails.user_email }}</small>
+  <div class="question-details-container container">
+    <div class="page-header">
+      <h1>Question Details</h1>
+    </div>
 
-      <!-- Display buttons and actions -->
-      <button
-        v-if="currentUser && !isSubscribedToQuestion"
-        @click="subscribeToQuestion"
-        class="button button-success"
-      >
-        Subscribe
-      </button>
-      <button
-        v-if="currentUser && isSubscribedToQuestion"
-        @click="unsubscribeFromQuestion"
-        class="button button-danger"
-      >
-        Unsubscribe
-      </button>
-      <button v-if="canDeleteQuestion" @click="deleteQuestion" class="button button-warning">
-        Delete Question
-      </button>
-      <button v-if="isQuestionOwner" @click="toggleEdit" class="button button-primary">
-        {{ isEditing ? 'Save' : 'Edit' }}
-      </button>
-      <button @click="handleVote('upvote')" class="button button-success">
-        Upvote ({{ upvoteCount }})
-      </button>
-      <button @click="handleVote('downvote')" class="button button-danger">
-        Downvote ({{ downvoteCount }})
-      </button>
-      <button @click="handleVote('report')" class="button button-warning">
-        Report ({{ reportCount }})
-      </button>
+    <div v-if="questionDetails" class="question-content">
+      <div class="question-main">
+        <div class="question-item">
+          <p v-if="!isEditing" class="question-text">{{ questionDetails.question }}</p>
+          <textarea v-else v-model="editText" class="textarea" maxlength="500"></textarea>
+          <div class="question-meta">
+            <small>Asked on: {{ formatDate(questionDetails.timestamp) }}</small>
+            <small>Asked by: {{ questionDetails.user_email }}</small>
+            <small>Category: {{ questionDetails.category }}</small>
+          </div>
+        </div>
 
-      <!-- Response Section -->
-      <div class="response-section">
-        <textarea
-          v-model="newResponseText"
-          placeholder="Type your response here..."
-          class="response-input"
-        ></textarea>
-        <button @click="postResponse" class="button button-primary">Post Response</button>
+        <!-- Display buttons and actions -->
+        <div class="action-buttons">
+          <button
+            v-if="currentUser && !isSubscribedToQuestion"
+            @click="subscribeToQuestion"
+            class="button button-primary"
+          >
+            Subscribe
+          </button>
+          <button
+            v-if="currentUser && isSubscribedToQuestion"
+            @click="unsubscribeFromQuestion"
+            class="button button-danger"
+          >
+            Unsubscribe
+          </button>
+          <button v-if="isQuestionOwner" @click="toggleEdit" class="button button-primary">
+            {{ isEditing ? 'Save' : 'Edit' }}
+          </button>
+          <button v-if="canDeleteQuestion" @click="deleteQuestion" class="button button-danger">
+            Delete Question
+          </button>
+
+            <button @click="handleVote('upvote')" class="button button-success">
+              Upvote ({{ upvoteCount }})
+            </button>
+            <button @click="handleVote('downvote')" class="button button-danger">
+              Downvote ({{ downvoteCount }})
+            </button>
+            <button @click="handleVote('report')" class="button button-warning">
+              Report ({{ reportCount }})
+            </button>
+        </div>
+
+        <!-- Response Section -->
+        <div class="response-section">
+          <div class="section-header">
+            <h2>Add Your Response</h2>
+          </div>
+          <textarea
+            v-model="newResponseText"
+            placeholder="Type your response here..."
+            class="textarea"
+          ></textarea>
+          <button @click="postResponse" class="button button-success">Post Response</button>
+        </div>
       </div>
 
       <!-- Responses List -->
-      <div class="responses" v-if="responseList.length">
-        <h2>Responses</h2>
-        <div v-for="response in responseList" :key="response.id" class="response">
+      <div v-if="responseList.length" class="responses-container">
+        <div class="subsection-header">
+          <h3>Responses ({{ responseList.length }})</h3>
+        </div>
+        <div v-for="response in responseList" :key="response.id" class="question-item response-item">
           <p v-if="!response.isEditing">{{ response.response }}</p>
           <textarea
             v-else
             v-model="response.editText"
-            class="edit-input"
+            class="textarea"
             maxlength="500"
           ></textarea>
-          <small>Responded on: {{ formatDate(response.timestamp) }}</small>
-          <small>Responded by: {{ response.user_email }}</small>
-          <button
-            v-if="response.user_email === currentUser?.email"
-            @click="editResponse(response)"
-            class="button button-primary"
-          >
-            {{ response.isEditing ? 'Save' : 'Edit' }}
-          </button>
-          <button
-            v-if="response.user_email === currentUser?.email || isAdmin"
-            @click="deleteResponse(response.id)"
-            class="button button-warning"
-          >
-            Delete
-          </button>
+          <div class="response-meta">
+            <small>Responded on: {{ formatDate(response.timestamp) }}</small>
+            <small>Responded by: {{ response.user_email }}</small>
+          </div>
+          <div class="response-actions">
+            <button
+              v-if="response.user_email === currentUser?.email"
+              @click="editResponse(response)"
+              class="button button-primary button-small"
+            >
+              {{ response.isEditing ? 'Save' : 'Edit' }}
+            </button>
+            <button
+              v-if="response.user_email === currentUser?.email || isAdmin"
+              @click="deleteResponse(response.id)"
+              class="button button-danger button-small"
+            >
+              Delete
+            </button>
+          </div>
         </div>
+      </div>
+      <div v-else class="no-responses">
+        <p>No responses yet. Be the first to respond!</p>
       </div>
 
       <!-- Feedback message box -->
@@ -83,7 +108,7 @@
         <p>{{ feedbackMessage }}</p>
       </div>
     </div>
-    <div v-else>
+    <div v-else class="loading-container">
       <p class="loading">Loading...</p>
     </div>
   </div>
@@ -344,95 +369,123 @@ const unsubscribeFromQuestion = async () => {
 </script>
 
 <style scoped>
-.feedback-box {
-  margin-top: 10px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f4f4f4;
-  color: #333;
-}
-
-.feedback-box p {
-  margin: 0;
-  font-size: 14px;
-}
-
 .question-details-container {
+  max-width: 900px;
+  margin: 20px auto;
   padding: 20px;
-  max-width: 800px;
-  margin: auto;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
-  font-size: 2rem;
-  margin-bottom: 20px;
-  color: #333;
+.question-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-small {
-  display: block;
-  margin-top: 5px;
-  color: #666;
+.question-main {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.button {
-  margin-left: 5px;
-  margin-right: 5px;
+.question-text {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.question-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.question-meta small {
+  margin: 0;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.vote-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 .response-section {
   margin-top: 20px;
-}
-
-.response-input {
-  width: 100%;
-  padding: 12px 16px;
+  padding: 15px;
+  background-color: #f9fbff;
   border-radius: 8px;
-  resize: none;
-  height: 96px;
-  border: 1px solid #414141;
-  background-color: transparent;
-  font-family: inherit;
+  border: 1px solid rgba(76, 149, 232, 0.2);
 }
 
-.post-button {
-  background: linear-gradient(90deg, #2196f3, #1976d2); /* Gradient background */
+.responses-container {
+  margin-top: 15px;
 }
 
-.post-button:hover {
-  background: linear-gradient(90deg, #1976d2, #1565c0); /* Darker gradient on hover */
-  transform: scale(1.05); /* Slight zoom effect */
+.response-item {
+  margin-bottom: 15px;
+  background-color: #f9fbff;
 }
 
-.responses {
-  margin-top: 20px;
+.response-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 8px;
+  font-size: 0.85rem;
 }
 
-.response {
-  border: 1px solid #ccc;
-  padding: 10px;
+.response-actions {
+  display: flex;
+  gap: 8px;
   margin-top: 10px;
-  border-radius: 5px;
-  background-color: #f9f9f9;
+  justify-content: flex-end;
 }
 
-.edit-input {
-  width: 100%;
-  padding: 12px 16px;
+.no-responses {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+  background-color: #f9fbff;
   border-radius: 8px;
-  resize: none;
-  height: 96px;
-  border: 1px solid #414141;
-  background-color: transparent;
-  font-family: inherit;
+  border: 1px dashed #ccc;
+}
+
+.feedback-box {
+  margin-top: 20px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  text-align: center;
+}
+
+.loading-container {
+  text-align: center;
+  padding: 40px;
 }
 
 .loading {
-  text-align: center;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+@media (max-width: 600px) {
+  .action-buttons, .vote-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .action-buttons .button{
+    width: 100%;
+  }
 }
 </style>

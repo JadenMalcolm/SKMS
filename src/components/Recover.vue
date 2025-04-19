@@ -1,10 +1,12 @@
 <template>
-  <div class="header">Recover Password</div>
+  <div class="page-header">
+    <h1>Recover Password</h1>
+  </div>
   <div class="recover-container">
-    <div class="recover-box">
+    <div class="recover-box container">
       <form @submit.prevent="handleRecover">
         <div class="form-group">
-          <input type="email" id="email" v-model="email" placeholder="Enter your email" required />
+          <input type="email" id="email" v-model="email" placeholder="Enter your email" required class="input" />
         </div>
         <button type="submit" class="button button-success full-width">Submit</button>
       </form>
@@ -55,7 +57,7 @@ const handleRecover = async () => {
 </script>
 
 <style scoped>
-.header {
+.page-header {
   font-size: 2rem;
   text-align: center;
   margin-top: 30px;
@@ -67,13 +69,13 @@ const handleRecover = async () => {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  height: 100vh;
+  min-height: 70vh;
   padding-top: 30px;
   background-color: #f0f0f0;
 }
 
 .recover-box {
-  width: 350px;
+  width: 400px;
   padding: 30px;
   background-color: #fff;
   border-radius: 10px;
@@ -82,17 +84,8 @@ const handleRecover = async () => {
 }
 
 .form-group {
-  overflow: hidden;
-  border-radius: 8px;
-  background-color: #fff;
-  margin: 1rem 0 0.5rem;
+  margin: 1rem 0 1.5rem;
   width: 100%;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  color: #555;
 }
 
 .form-group input {
@@ -112,21 +105,19 @@ const handleRecover = async () => {
 .error-message {
   margin-top: 15px;
   padding: 10px;
-  border-radius: 5px;
+  border-radius: 8px;
   text-align: center;
   font-size: 14px;
 }
 
 .success-message {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background-color: #e8f5e9;
+  color: #2e7d32;
 }
 
 .error-message {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background-color: #ffebee;
+  color: #c62828;
 }
 
 .full-width {
