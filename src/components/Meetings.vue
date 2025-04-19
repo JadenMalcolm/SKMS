@@ -49,6 +49,26 @@
         </li>
       </ul>
     </div>
+    <div class="meetings">
+      <h2>Meetings</h2>
+      <ul v-if="myMeetings.length > 0">
+        <li v-for="(meeting, index) in myMeetings" :key="index" class="meeting-item">
+          <p>
+            <strong>Date:</strong> {{ formatDate(meeting.date) }} | <strong>Time:</strong>
+            {{ formatTime(meeting.time) }} | <strong>Type:</strong> {{ meeting.meeting_type }} |
+            <strong>Email:</strong> {{ meeting.target_user_email || meeting.user_email }} |
+            <strong>Status:</strong> {{ meeting.status }}
+          </p>
+          <button
+            @click="handleMeetingAction(meeting.id)"
+            class="button button-danger button-small"
+          >
+            {{ meeting.status === 'rejected' ? 'Delete' : 'Cancel' }}
+          </button>
+        </li>
+      </ul>
+      <p v-else>No meetings available.</p>
+    </div>
   </div>
 
   <div v-if="feedbackMessage" class="feedback-box">
@@ -75,6 +95,34 @@ interface User {
   email: string
 }
 
+interface Meeting {
+  id: number
+  user_id: number
+  target_user_id: number
+  date: string
+  time: string
+  meeting_type: string
+  status: string
+  user_email: string
+  target_user_email: string
+}
+const formatTime = (time: string) => {
+  const [hour, minute] = time.split(':')
+  const date = new Date()
+  date.setHours(parseInt(hour), parseInt(minute))
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+}
+
+const formatDate = (date: string) => {
+  const parsedDate = new Date(date)
+  if (isNaN(parsedDate.getTime())) {
+    return date // Return the original string if parsing fails
+  }
+  const month = String(parsedDate.getMonth() + 1).padStart(2, '0')
+  const day = String(parsedDate.getDate()).padStart(2, '0')
+  const year = parsedDate.getFullYear()
+  return `${month}/${day}/${year}`
+}
 const selectedUser = ref<User | null>(null)
 const meetingRequests = ref<MeetingRequest[]>([])
 const selectedDate = ref('')
@@ -85,6 +133,7 @@ const searchQuery = ref('')
 const allUsers = ref<User[]>([])
 const filteredUsers = ref<User[]>([])
 const currentUser = JSON.parse(sessionStorage.getItem('user') || '{}')
+const myMeetings = ref<Meeting[]>([])
 
 const fetchAllUsers = async () => {
   try {
@@ -93,6 +142,19 @@ const fetchAllUsers = async () => {
     filteredUsers.value = allUsers.value
   } catch (error) {
     console.error('Error fetching all users:', error)
+  }
+}
+
+const fetchMeetings = async () => {
+  try {
+    const endpoint = currentUser.role.startsWith('expert')
+      ? `http://localhost:5000/accepted-meetings/${currentUser.id}`
+      : `http://localhost:5000/meetings/${currentUser.id}`
+    const response = await axios.get(endpoint)
+    myMeetings.value = response.data
+  } catch (error) {
+    console.error('Error fetching meetings:', error)
+    feedbackMessage.value = 'Failed to load meetings. Please try again later.'
   }
 }
 
@@ -173,10 +235,23 @@ const rescheduleMeeting = async (request: MeetingRequest) => {
   }
 }
 
+const handleMeetingAction = async (meetingId: number) => {
+  try {
+    const response = await axios.post('http://localhost:5000/delete-meeting', {
+      meeting_id: meetingId,
+    })
+    feedbackMessage.value = response.data.message
+    await fetchMeetings()
+  } catch (error) {
+    feedbackMessage.value = 'Failed to process meeting action. Please try again.'
+  }
+}
+
 onMounted(async () => {
   if (currentUser) {
     await fetchAllUsers()
     await fetchMeetingRequests()
+    await fetchMeetings()
   } else {
     feedbackMessage.value = 'User not logged in. Redirecting to login page.'
     setTimeout(() => {
@@ -202,30 +277,49 @@ onMounted(async () => {
   gap: 20px;
   padding: 30px;
   border-radius: 10px;
+  max-height: 50%;
 }
 
 .start-meeting,
 .meeting-requests,
-.meeting-details {
-  width: 30%;
+.meeting-details,
+.meetings {
+  width: 24%;
   border: 1px solid #ccc;
   padding: 20px;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-height: 1024px;
+  overflow-y: auto;
+}
+
+.meeting-item {
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #f0f8ff; /* Blue background color */
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  list-style: none; /* Remove bullet points */
+}
+
+.meeting-item p strong {
+  color: #007bff; /* Blue color for strong text */
+}
+
+.start-meeting ul,
+.meeting-requests ul,
+.meetings ul {
+  list-style: none; /* Remove bullet points */
+  padding: 0;
 }
 
 .start-meeting h2,
 .meeting-requests h2,
-.meeting-details h2 {
-  text-align: center;
+.meeting-details h2,
+.meetings h2 {
+  text-align: center; /* Ensure consistent alignment */
   margin-bottom: 10px;
-}
-
-.start-meeting ul,
-.meeting-requests ul {
-  list-style: none;
-  padding: 0;
 }
 
 .start-meeting li,
@@ -269,5 +363,12 @@ onMounted(async () => {
 .feedback-box p {
   margin: 0;
   font-size: 14px;
+}
+
+.button-small {
+  padding: 5px 10px;
+  font-size: 0.75rem;
+  border-radius: 12px;
+  box-shadow: none;
 }
 </style>
