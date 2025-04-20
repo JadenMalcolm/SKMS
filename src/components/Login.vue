@@ -15,8 +15,8 @@
           <div class="password-wrapper">
             <input :type="peakPassword ? 'text' : 'password'" id="password" v-model="password" placeholder="Enter your password" required class="input" />
             <span class="toggle-password" @click="togglePeakPassword">
-              <img v-if="!peakPassword" :src="eyeIcon" alt="Show password" width="16" height="16" />
-              <img v-else :src="eyeOffIcon" alt="Hide password" width="16" height="16" />
+              <img v-if="!peakPassword" src="../assets/eye.svg" alt="Show password" width="16" height="16" />
+              <img v-else src="../assets/eye-off.svg" alt="Hide password" width="16" height="16" />
             </span>
           </div>
         </div>
@@ -43,9 +43,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import eyeIcon from '../assets/eye.svg'
-import eyeOffIcon from '../assets/eye-off.svg'
-
 // variables
 const email = ref('')
 const password = ref('')

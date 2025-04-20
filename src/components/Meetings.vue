@@ -5,7 +5,7 @@
 
   <div class="meetings-container">
     <!-- Start Meeting Section -->
-    <div class="meetings-panel start-meeting">
+    <div class="meetings-panel">
       <div class="section-header">
         <h2>Schedule a Meeting</h2>
       </div>
@@ -24,7 +24,7 @@
     </div>
 
     <!-- Meeting Details Section -->
-    <div v-if="selectedUser" class="meetings-panel meeting-details-panel">
+    <div v-if="selectedUser" class="meetings-panel">
       <div class="section-header">
         <h2>Meeting with {{ selectedUser.email }}</h2>
       </div>
@@ -339,7 +339,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   height: auto;
-  max-height: 600px;
+  max-height: 750px;
   overflow-y: auto;
 }
 
@@ -384,22 +384,6 @@ onMounted(async () => {
   border-radius: 5px;
 }
 
-.user-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.user-list li {
-  padding: 10px;
-  cursor: pointer;
-  border-bottom: 1px solid #eee;
-  transition: background-color 0.2s;
-}
-
-.user-list li:hover {
-  background-color: #f0f0f0;
-}
 
 /* Meeting details form */
 .meeting-form {

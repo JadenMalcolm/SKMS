@@ -17,8 +17,8 @@
             required
           />
           <span class="toggle-password" @click="togglePeakNewPassword">
-            <img v-if="!peakNewPassword" :src="eyeIcon" alt="Show password" width="16" height="16" />
-            <img v-else :src="eyeOffIcon" alt="Hide password" width="16" height="16" />
+            <img v-if="!peakNewPassword" src="../assets/eye.svg" alt="Show password" width="16" height="16" />
+            <img v-else src="../assets/eye-off.svg" alt="Hide password" width="16" height="16" />
           </span>
         </div>
       </div>
@@ -34,8 +34,8 @@
             required
           />
           <span class="toggle-password" @click="togglePeakConfirmPassword">
-            <img v-if="!peakConfirmPassword" :src="eyeIcon" alt="Show password" width="16" height="16" />
-            <img v-else :src="eyeOffIcon" alt="Hide password" width="16" height="16" />
+            <img v-if="!peakConfirmPassword" src="../assets/eye.svg" alt="Show password" width="16" height="16" />
+            <img v-else src="../assets/eye-off.svg" alt="Hide password" width="16" height="16" />
           </span>
         </div>
       </div>
@@ -57,8 +57,6 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
-import eyeIcon from '../assets/eye.svg'
-import eyeOffIcon from '../assets/eye-off.svg'
 
 // variables
 const email = ref<string>(sessionStorage.getItem('recoverEmail') || '')

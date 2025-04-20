@@ -7,16 +7,11 @@
   <!-- Main container for messages and chat -->
   <div class="message-container">
     <!-- Start new chat section -->
-    <div class="start-chat">
+    <div class="container">
       <div class="section-header">
         <h2>Start New Chat</h2>
       </div>
-      <input
-        type="text"
-        v-model="newChatSearchQuery"
-        placeholder="Search users..."
-        class="search-input"
-      />
+      <input type="text" v-model="newChatSearchQuery" placeholder="Search users..." class="input" />
       <ul class="user-list">
         <li v-for="user in newChatFilteredUsers" :key="user.id" @click="selectUser(user)">
           {{ user.email }}
@@ -25,11 +20,11 @@
     </div>
 
     <!-- My Messages section -->
-    <div class="messages-list">
+    <div class="container">
       <div class="section-header">
         <h2>My Messages</h2>
       </div>
-      <input type="text" v-model="searchQuery" placeholder="Search users..." class="search-input" />
+      <input type="text" v-model="searchQuery" placeholder="Search users..." class="input" />
       <ul class="user-list">
         <li v-for="user in filteredUsers" :key="user.id" @click="selectUser(user)">
           {{ user.email }}
@@ -38,41 +33,50 @@
     </div>
 
     <!-- Chat box section -->
-    <div class="chat-box" v-if="selectedUser && selectedUser.id !== currentUser?.id">
+    <div class="container-chat chat-box" v-if="selectedUser && selectedUser.id !== currentUser?.id">
       <div class="section-header">
         <h2>Chat with {{ selectedUser.email }}</h2>
       </div>
       <div class="messages" ref="messagesContainer">
-        <div
-          v-for="message in messages"
-          :key="message.id"
-          :class="{
-            sent: message.sender_id === currentUser?.id,
-            received: message.sender_id !== currentUser?.id,
-          }"
-        >
-          <p>{{ message.message }}</p>
-          <small>{{
-            new Date(message.timestamp).toLocaleString([], {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit',
-            })
-          }}</small>
+        <div v-for="message in messages" :key="message.id">
+          <div v-if="message.sender_id === currentUser?.id" class="user">
+            <p>{{ message.message }}</p>
+            <small class="timestamp">{{
+              new Date(message.timestamp).toLocaleString([], {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+            }}</small>
+          </div>
+          <div v-else class="bot">
+            <p>{{ message.message }}</p>
+            <small class="timestamp">{{
+              new Date(message.timestamp).toLocaleString([], {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+            }}</small>
+          </div>
         </div>
       </div>
       <div class="chat-input">
-        <textarea v-model="newMessage" placeholder="Type your message..." class="textarea"></textarea>
-        <button @click="sendMessage" class="button button-success send-button">Send</button>
+        <textarea
+          v-model="newMessage"
+          placeholder="Type your message..."
+          class="textarea"
+        ></textarea>
+        <button @click="sendMessage" class="button button-success">Send</button>
       </div>
     </div>
     <SidebarMenu />
     <floating-chat />
   </div>
-
-  <!-- Additional components -->
 </template>
 
 <script setup lang="ts">
@@ -217,49 +221,55 @@ const sendMessage = async () => {
 <style scoped>
 .message-container {
   display: flex;
-  padding: 30px;
-  border-radius: 10px;
+  gap: 20px;
+  padding: 20px;
 }
 
-.messages-list {
-  width: 30%;
-  border-right: 1px solid #ccc;
-  padding-right: 30px;
-  padding-left: 10px;
+.container {
   background-color: #fff;
   border-radius: 10px;
-  margin-right: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  flex: 1;
+  max-height: 750px;
+  overflow-y: auto;
 }
 
-.search-input {
-  width: 98%;
-  padding: 10px;
+.container-chat {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  flex: 2;
+  max-height: 750px;
+  overflow-y: auto;
+}
+
+.input {
   margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
 }
 
 .chat-box {
-  width: 70%;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
 .messages {
-  max-height: 400px;
+  flex-grow: 1;
   overflow-y: auto;
   padding: 15px;
-  margin: 0;
-  flex-grow: 1;
 }
 
-.messages .sent {
+.timestamp {
+  display: block;
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 5px;
+  text-align: right;
+}
+
+.user {
   text-align: right;
   background: linear-gradient(90deg, #e3f2fd, #bbdefb);
   padding: 10px;
@@ -270,7 +280,7 @@ const sendMessage = async () => {
   word-break: break-word;
 }
 
-.messages .received {
+.bot {
   text-align: left;
   background: linear-gradient(90deg, #f5f5f5, #e0e0e0);
   padding: 10px;
@@ -281,51 +291,25 @@ const sendMessage = async () => {
   word-break: break-word;
 }
 
-.messages .sent p,
-.messages .received p {
+.bot p {
   margin: 0 0 8px 0;
-}
-
-.messages .sent small,
-.messages .received small {
-  font-size: 0.75rem;
-  opacity: 0.7;
-  display: block;
 }
 
 .chat-input {
   display: flex;
-  padding: 12px;
-  border-top: 1px solid #ddd;
-  background: #f9f9f9;
+  gap: 10px;
   align-items: flex-end;
 }
 
-.chat-input .textarea {
+.textarea {
   flex: 1;
-  margin-right: 8px;
   border-radius: 20px;
   padding: 10px 15px;
-  min-height: 50px;
-  max-height: 120px;
   resize: none;
 }
 
-.send-button {
+.button {
   border-radius: 20px;
   padding: 8px 15px;
-  min-width: 60px;
-  align-self: flex-end;
-}
-
-.start-chat {
-  width: 30%;
-  border-right: 1px solid #ccc;
-  padding-right: 30px;
-  padding-left: 10px;
-  background-color: #fff;
-  border-radius: 10px;
-  margin-right: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 </style>

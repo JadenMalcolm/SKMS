@@ -57,13 +57,6 @@ const handleRecover = async () => {
 </script>
 
 <style scoped>
-.page-header {
-  font-size: 2rem;
-  text-align: center;
-  margin-top: 30px;
-  color: #333;
-  background-color: #f0f0f0;
-}
 
 .recover-container {
   display: flex;
