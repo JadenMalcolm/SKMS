@@ -22,6 +22,9 @@
       <button @click="navigateToDirectMessages" class="menu-button">
         <i class="menu-icon-messages"></i> Direct Messages
       </button>
+      <button @click="navigateToLearn" class="menu-button">
+        <i class="menu-icon-learn"></i> Learn
+      </button>
       <button
         @click="isContactExpertVisible = true"
         class="menu-button"
@@ -42,6 +45,12 @@
         v-if="currentUser && currentUser.role === 'admin'"
       >
         <i class="menu-icon-admin"></i> Admin Panel
+      </button>
+      <button
+        @click="navigateToAdministration"
+        class="menu-button"
+      >
+        <i class="menu-icon-administration"></i> Administration
       </button>
     </div>
 
@@ -100,8 +109,16 @@ const navigateToFeedback = () => {
   router.push('/feedback')
 }
 
+const navigateToLearn = () => {
+  router.push('/learn')
+}
+
 const navigateToAdminPanel = () => {
   router.push('/admin-panel')
+}
+
+const navigateToAdministration = () => {
+  router.push('/administration')
 }
 
 const logout = () => {
@@ -265,6 +282,21 @@ const logout = () => {
   height: 24px;
   display: inline-block;
 }
+.menu-icon-admin {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.06-.94l2.03-1.58c.18-.14.23-.39.12-.59l-1.92-3.32c-.11-.2-.35-.28-.56-.22l-2.39.96c-.5-.38-1.05-.7-1.65-.94l-.36-2.54A.485.485 0 0014.25 3h-4.5c-.24 0-.44.17-.48.41l-.36 2.54c-.6.24-1.15.56-1.65.94l-2.39-.96a.485.485 0 00-.56.22l-1.92 3.32c-.11.2-.06.45.12.59l2.03 1.58c-.04.3-.06.61-.06.94s.02.64.06.94l-2.03 1.58c-.18.14-.23.39-.12.59l1.92 3.32c.11.2.35.28.56.22l2.39-.96c.5.38 1.05.7 1.65.94l.36 2.54c.04.24.24.41.48.41h4.5c.24 0 .44-.17.48-.41l.36-2.54c.6-.24 1.15-.56 1.65-.94l2.39.96c.21.06.45-.02.56-.22l1.92-3.32c.11-.2.06-.45-.12-.59l-2.03-1.58zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z'/%3E%3C/svg%3E")
+    no-repeat center;
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+}
+
+.menu-icon-learn {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 3L1 9l11 6l9-4.91V17h2V9M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z'/%3E%3C/svg%3E")
+    no-repeat center;
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+}
 
 .menu-icon-logout {
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z'/%3E%3C/svg%3E")
@@ -274,8 +306,8 @@ const logout = () => {
   display: inline-block;
 }
 
-.menu-icon-admin {
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z'/%3E%3C/svg%3E")
+.menu-icon-administration {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z'/%3E%3C/svg%3E")
     no-repeat center;
   width: 24px;
   height: 24px;

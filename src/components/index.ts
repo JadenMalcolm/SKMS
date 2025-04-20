@@ -11,6 +11,9 @@ import DirectMessages from './DirectMessages.vue'
 import Meetings from './Meetings.vue'
 import Profile from './Profile.vue'
 import AdminPanel from './AdminPanel.vue'
+import Learn from '../components/Learn.vue'
+import Administration from './Administration.vue'
+
 
 
 const routes = [
@@ -31,6 +34,8 @@ const routes = [
   { path: '/meetings', component: Meetings }, // Meetings page route
   { path : '/profile', component: Profile }, // Profile page route
   { path: '/admin-panel', component: AdminPanel }, // Admin panel route
+  { path: '/learn', component: Learn }, // Learn page route
+  { path: '/administration', component: Administration }, // Administration page route
 ]
 
 const router = createRouter({

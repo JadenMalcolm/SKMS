@@ -127,7 +127,8 @@
         {{ message }}
       </div>
     </div>
-    <SidebarMenu />
+    <floating-chat />
+    <sidebar-menu />
   </div>
 </template>
 
