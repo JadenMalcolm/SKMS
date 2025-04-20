@@ -114,7 +114,9 @@
             <li v-for="(meeting, index) in myMeetings" :key="index" class="meeting-item">
               <div class="meeting-header">
                 <span class="meeting-type">{{ meeting.meeting_type }}</span>
-                <span :class="['meeting-status', `status-${meeting.status.toLowerCase()}`]">{{ meeting.status }}</span>
+                <span :class="['meeting-status', `status-${meeting.status.toLowerCase()}`]">{{
+                  meeting.status
+                }}</span>
               </div>
               <div class="meeting-details">
                 <div class="meeting-detail">
@@ -217,9 +219,7 @@ const searchQuestions = async () => {
 const fetchMeetings = async () => {
   if (currentUser.value) {
     try {
-      const endpoint = currentUser.value.role.startsWith('expert')
-        ? `http://localhost:5000/accepted-meetings/${currentUser.value.id}`
-        : `http://localhost:5000/meetings/${currentUser.value.id}`
+      const endpoint = `http://localhost:5000/meetings/${currentUser.value.id}`
       const response = await axios.get(endpoint)
       myMeetings.value = response.data
     } catch (error) {

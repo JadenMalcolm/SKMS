@@ -31,12 +31,7 @@
       <div class="meeting-form">
         <div class="form-group">
           <label for="meeting-date">Date</label>
-          <input
-            type="date"
-            id="meeting-date"
-            v-model="selectedDate"
-            class="input-field"
-          />
+          <input type="date" id="meeting-date" v-model="selectedDate" class="input-field" />
         </div>
         <div class="form-group">
           <label for="meeting-time">Time</label>
@@ -50,18 +45,12 @@
         </div>
         <div class="form-group">
           <label for="meeting-type">Meeting Type</label>
-          <select
-            id="meeting-type"
-            v-model="selectedMeetingType"
-            class="input-field select-field"
-          >
+          <select id="meeting-type" v-model="selectedMeetingType" class="input-field select-field">
             <option value="in-person">In-Person</option>
             <option value="online">Online</option>
           </select>
         </div>
-        <button @click="scheduleMeeting" class="button button-success">
-          Schedule Meeting
-        </button>
+        <button @click="scheduleMeeting" class="button button-success">Schedule Meeting</button>
       </div>
     </div>
 
@@ -73,7 +62,8 @@
       <ul class="request-list">
         <li v-for="request in meetingRequests" :key="request.id" class="request-item">
           <p>
-            {{ request.user_email }} requested a meeting on {{ formatDate(request.date) }} at {{ formatTime(request.time) }}
+            {{ request.user_email }} requested a meeting on {{ formatDate(request.date) }} at
+            {{ formatTime(request.time) }}
           </p>
           <div class="request-actions">
             <button @click="acceptMeeting(request.id)" class="button button-success">Accept</button>
@@ -95,7 +85,9 @@
         <li v-for="(meeting, index) in myMeetings" :key="index" class="meeting-item">
           <div class="meeting-header">
             <span class="meeting-type">{{ meeting.meeting_type }}</span>
-            <span :class="['meeting-status', `status-${meeting.status.toLowerCase()}`]">{{ meeting.status }}</span>
+            <span :class="['meeting-status', `status-${meeting.status.toLowerCase()}`]">{{
+              meeting.status
+            }}</span>
           </div>
           <div class="meeting-details">
             <div class="meeting-detail">
@@ -121,7 +113,10 @@
           </div>
         </li>
       </ul>
-      <p v-else>No meetings available.</p>
+
+      <div v-else class="no-meetings">
+        <p>No meetings available. Schedule one to get started!</p>
+      </div>
     </div>
   </div>
 
@@ -202,9 +197,7 @@ const fetchAllUsers = async () => {
 
 const fetchMeetings = async () => {
   try {
-    const endpoint = currentUser.role.startsWith('expert')
-      ? `http://localhost:5000/accepted-meetings/${currentUser.id}`
-      : `http://localhost:5000/meetings/${currentUser.id}`
+    const endpoint = `http://localhost:5000/meetings/${currentUser.id}`
     const response = await axios.get(endpoint)
     myMeetings.value = response.data
   } catch (error) {
@@ -384,7 +377,6 @@ onMounted(async () => {
   border-radius: 5px;
 }
 
-
 /* Meeting details form */
 .meeting-form {
   display: flex;
@@ -496,6 +488,17 @@ onMounted(async () => {
 /* Ensure meeting items don't exceed their container */
 .meeting-item {
   max-width: 95%;
+}
+
+/* No meetings message styling */
+.no-meetings {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+  background-color: #f9fbff;
+  border-radius: 8px;
+  border: 1px dashed #ccc;
 }
 
 /* Make sure grid items in meeting details don't overflow at small widths */

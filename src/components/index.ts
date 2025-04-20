@@ -10,6 +10,8 @@ import QuestionComponent from './QuestionCategory.vue'
 import DirectMessages from './DirectMessages.vue'
 import Meetings from './Meetings.vue'
 import Profile from './Profile.vue'
+import AdminPanel from './AdminPanel.vue'
+
 
 const routes = [
   { path: '/', component: Login }, // Default route
@@ -28,6 +30,7 @@ const routes = [
   { path: '/direct-messages',component: DirectMessages,}, // Direct Messages route
   { path: '/meetings', component: Meetings }, // Meetings page route
   { path : '/profile', component: Profile }, // Profile page route
+  { path: '/admin-panel', component: AdminPanel }, // Admin panel route
 ]
 
 const router = createRouter({

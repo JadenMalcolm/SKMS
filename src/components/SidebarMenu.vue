@@ -10,16 +10,38 @@
     </div>
 
     <div class="menu-items">
-      <button @click="navigateToProfile" class="menu-button"><i class="menu-icon-user"></i> View Profile</button>
-      <button @click="navigateToDashboard" class="menu-button"><i class="menu-icon-dashboard"></i> Dashboard</button>
-      <button @click="navigateToMeetings" class="menu-button"><i class="menu-icon-calendar"></i> Meetings</button>
-      <button @click="navigateToDirectMessages" class="menu-button"><i class="menu-icon-messages"></i> Direct Messages</button>
+      <button @click="navigateToProfile" class="menu-button">
+        <i class="menu-icon-user"></i> View Profile
+      </button>
+      <button @click="navigateToDashboard" class="menu-button">
+        <i class="menu-icon-dashboard"></i> Dashboard
+      </button>
+      <button @click="navigateToMeetings" class="menu-button">
+        <i class="menu-icon-calendar"></i> Meetings
+      </button>
+      <button @click="navigateToDirectMessages" class="menu-button">
+        <i class="menu-icon-messages"></i> Direct Messages
+      </button>
       <button
         @click="isContactExpertVisible = true"
         class="menu-button"
         v-if="currentUser && currentUser.role.startsWith('employee')"
       >
         <i class="menu-icon-expert"></i> Contact Expert
+      </button>
+      <button
+        @click="isFeedbackVisible = true"
+        class="menu-button"
+        v-if="currentUser && currentUser.role !== 'admin'"
+      >
+        <i class="menu-icon-feedback"></i> Give Feedback
+      </button>
+      <button
+        @click="navigateToAdminPanel"
+        class="menu-button"
+        v-if="currentUser && currentUser.role === 'admin'"
+      >
+        <i class="menu-icon-admin"></i> Admin Panel
       </button>
     </div>
 
@@ -32,6 +54,7 @@
     </button>
 
     <ContactExpert :showPopup="isContactExpertVisible" @close="isContactExpertVisible = false" />
+    <Feedback :showPopup="isFeedbackVisible" @close="isFeedbackVisible = false" />
   </div>
   <button v-else @click="toggleVisibility" class="menu-open-button">
     <span class="menu-icon">
@@ -47,9 +70,9 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const isVisible = ref(false)
-const showContactExpert = ref(false)
 const router = useRouter()
 const isContactExpertVisible = ref(false)
+const isFeedbackVisible = ref(false)
 
 const currentUser = JSON.parse(sessionStorage.getItem('user') || 'null')
 
@@ -72,12 +95,19 @@ const navigateToDirectMessages = () => {
 const navigateToProfile = () => {
   router.push('/profile')
 }
+
+const navigateToFeedback = () => {
+  router.push('/feedback')
+}
+
+const navigateToAdminPanel = () => {
+  router.push('/admin-panel')
+}
+
 const logout = () => {
   sessionStorage.removeItem('user')
   router.push('/')
 }
-
-
 </script>
 
 <style scoped>
@@ -189,42 +219,64 @@ const logout = () => {
 
 /* Icon styles using CSS backgrounds */
 .menu-icon-user {
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E") no-repeat center;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E")
+    no-repeat center;
   width: 24px;
   height: 24px;
   display: inline-block;
 }
 
 .menu-icon-dashboard {
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z'/%3E%3C/svg%3E") no-repeat center;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z'/%3E%3C/svg%3E")
+    no-repeat center;
   width: 24px;
   height: 24px;
   display: inline-block;
 }
 
 .menu-icon-calendar {
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z'/%3E%3C/svg%3E") no-repeat center;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z'/%3E%3C/svg%3E")
+    no-repeat center;
   width: 24px;
   height: 24px;
   display: inline-block;
 }
 
 .menu-icon-messages {
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z'/%3E%3C/svg%3E") no-repeat center;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z'/%3E%3C/svg%3E")
+    no-repeat center;
   width: 24px;
   height: 24px;
   display: inline-block;
 }
 
 .menu-icon-expert {
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z'/%3E%3C/svg%3E") no-repeat center;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z'/%3E%3C/svg%3E")
+    no-repeat center;
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+}
+
+.menu-icon-feedback {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z'/%3E%3C/svg%3E")
+    no-repeat center;
   width: 24px;
   height: 24px;
   display: inline-block;
 }
 
 .menu-icon-logout {
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z'/%3E%3C/svg%3E") no-repeat center;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z'/%3E%3C/svg%3E")
+    no-repeat center;
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+}
+
+.menu-icon-admin {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z'/%3E%3C/svg%3E")
+    no-repeat center;
   width: 24px;
   height: 24px;
   display: inline-block;
