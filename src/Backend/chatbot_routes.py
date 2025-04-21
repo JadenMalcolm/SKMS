@@ -4,37 +4,54 @@ from rapidfuzz import process, fuzz
 chatbot_routes = Blueprint('chatbot_routes', __name__)
 
 knowledge_base = {
-    "home": "home",
-    "contact": "Contact",
-    "features": "Features",
-    "support": "Support",
-    "about": "FAQ"
+    "home": "You can visit the Home page to explore our platform.",
+    "contact": "You can contact us via the Contact page or email support@example.com.",
+    "features": "Our system includes appointment booking, real-time chat, and a service dashboard.",
+    "support": "Support is available 24/7 through chat or our Help Center.",
+    "about": "We are a student-built SKMS system designed to streamline service operations.",
+    "faq": "The FAQ section answers common questions about the system.",
+    "appointments": "You can schedule, reschedule, or cancel appointments from the portal.",
+    "login": "Login with your registered email and password through the login page.",
+    "signup": "Sign up as a user or support agent depending on your role."
 }
 
-# Define the /chat endpoint to handle POST requests
-
+intents = {
+    "hello": "Hi there! How can I assist you today?",
+    "hi": "Hello! Feel free to ask me anything.",
+    "help": "Sure! Ask me about appointments, login, contact info, and more.",
+    "thanks": "You're welcome!",
+    "thank you": "You're welcome!"
+}
 
 @chatbot_routes.route('/chat', methods=['POST'])
 def chat():
-    # Get the user message from the request body (in JSON format)
     data = request.get_json()
     user_message = data.get("message", "").strip().lower()
 
-    # Check if the message is empty
     if not user_message:
         return jsonify({"error": "Message is required."}), 400
 
-    # Use fuzzy matching to find the best response from the knowledge base
-    matches = process.extract(
-        user_message, knowledge_base.keys(), scorer=fuzz.ratio, limit=3)
+    # Quick intent match
+    for intent, response in intents.items():
+        if intent in user_message:
+            return jsonify({"response": response, "suggestions": list(knowledge_base.keys())})
 
-    # Ignore the index value (third element)
+    # Exact keyword match before fuzzy search
+    for key in knowledge_base.keys():
+        if key in user_message:
+            return jsonify({"response": knowledge_base[key], "suggestions": []})
+
+    # Fuzzy match fallback
+    matches = process.extract(user_message, knowledge_base.keys(), scorer=fuzz.token_sort_ratio, limit=3)
     best_match, confidence, _ = matches[0]
 
-    # If the confidence is high enough, return the response
-    if confidence > 80:
+    if confidence > 85:
         return jsonify({"response": knowledge_base[best_match], "suggestions": []})
-
-    # If confidence is low, suggest some similar responses
-    suggestions = list(knowledge_base.keys())
-    return jsonify({"response": "I'm not sure. Did you mean one of these?", "suggestions": suggestions})
+    elif confidence > 60:
+        suggestions = [match[0] for match in matches if match[0] != best_match]
+        return jsonify({"response": knowledge_base[best_match], "suggestions": suggestions})
+    else:
+        return jsonify({
+            "response": "I'm not sure I understand. Here are some things I can help with:",
+            "suggestions": list(knowledge_base.keys())
+        })
