@@ -113,3 +113,30 @@ def get_categorized_feedback():
         return jsonify({"error": str(e)}), 500
     finally:
         conn.close()
+
+@feedback_routes.route('/feedback/<int:feedback_id>', methods=['DELETE'])
+def delete_feedback(feedback_id):
+    """Delete a feedback item by ID"""
+    # In a real application, check if the user is an admin first
+    
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        
+        # Check if the feedback exists
+        cursor.execute("SELECT id FROM feedback WHERE id = ?", (feedback_id,))
+        feedback = cursor.fetchone()
+        
+        if not feedback:
+            return jsonify({"error": "Feedback not found"}), 404
+        
+        # Delete the feedback
+        cursor.execute("DELETE FROM feedback WHERE id = ?", (feedback_id,))
+        conn.commit()
+        
+        return jsonify({"message": "Feedback deleted successfully"}), 200
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()

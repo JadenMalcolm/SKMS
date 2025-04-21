@@ -34,6 +34,9 @@
               <button @click="replyToFeedback(item)" class="button button-primary reply-button">
                 Reply
               </button>
+              <button @click="deleteFeedback(item)" class="button button-danger delete-button">
+                Delete
+              </button>
             </div>
           </div>
         </div>
@@ -56,6 +59,11 @@
               <span class="feedback-date">{{ formatDate(item.timestamp) }}</span>
             </div>
             <div class="feedback-content">{{ item.feedback_text }}</div>
+            <div class="feedback-actions">
+              <button @click="deleteFeedback(item)" class="button button-danger delete-button">
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -81,6 +89,9 @@
               <button @click="replyToFeedback(item)" class="button button-primary reply-button">
                 Reply
               </button>
+              <button @click="deleteFeedback(item)" class="button button-danger delete-button">
+                Delete
+              </button>
             </div>
           </div>
         </div>
@@ -103,6 +114,11 @@
               <span class="feedback-date">{{ formatDate(item.timestamp) }}</span>
             </div>
             <div class="feedback-content">{{ item.feedback_text }}</div>
+            <div class="feedback-actions">
+              <button @click="deleteFeedback(item)" class="button button-danger delete-button">
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -119,6 +135,7 @@ import axios from 'axios'
 
 const router = useRouter()
 const loading = ref(true)
+
 interface FeedbackItem {
   id: number
   user_email?: string // Optional for anonymous feedback
@@ -167,7 +184,7 @@ const replyToFeedback = async (feedbackItem: FeedbackItem) => {
     return
   }
   try {
-    await router.push('direct-messages') 
+    await router.push('direct-messages')
     await new Promise(resolve => setTimeout(resolve, 750))
 
     // Dispatch a custom event to select the user
@@ -177,6 +194,24 @@ const replyToFeedback = async (feedbackItem: FeedbackItem) => {
     window.dispatchEvent(event)
   } catch (error) {
     console.error('Error setting up reply:', error)
+  }
+}
+
+const deleteFeedback = async (item: FeedbackItem) => {
+  try {
+    await axios.delete(`http://localhost:5000/feedback/${item.id}`)
+
+    // Remove the deleted feedback from the list
+    const categories = ['identifiedVoice', 'anonymousVoice', 'identifiedReport', 'anonymousReport'] as const
+
+    categories.forEach(category => {
+      const key = category as keyof typeof categorizedFeedback.value;
+      categorizedFeedback.value[key] = categorizedFeedback.value[key].filter(
+        feedbackItem => feedbackItem.id !== item.id
+      )
+    })
+  } catch (error) {
+    console.error('Error deleting feedback:', error)
   }
 }
 
@@ -262,9 +297,10 @@ const formatDate = (timestamp: string | number | Date) => {
   display: flex;
   justify-content: flex-end;
   margin-top: 10px;
+  gap: 8px;
 }
 
-.reply-button {
+.reply-button, .delete-button {
   padding: 6px 12px;
   font-size: 0.85rem;
   border-radius: 16px;
