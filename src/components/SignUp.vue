@@ -93,7 +93,7 @@
         </div>
         <button type="submit" class="button button-success full-width">Create Account</button>
       </form>
-      <div v-if="message" class="feedback-box">{{ message }}</div>
+      <div v-if="message" class="error-message">{{ message }}</div>
     </div>
   </div>
 </template>

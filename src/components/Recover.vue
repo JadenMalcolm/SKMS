@@ -6,7 +6,14 @@
     <div class="recover-box container">
       <form @submit.prevent="handleRecover">
         <div class="form-group">
-          <input type="email" id="email" v-model="email" placeholder="Enter your email" required class="input" />
+          <input
+            type="email"
+            id="email"
+            v-model="email"
+            placeholder="Enter your email"
+            required
+            class="input"
+          />
         </div>
         <button type="submit" class="button button-success full-width">Submit</button>
       </form>
@@ -57,7 +64,6 @@ const handleRecover = async () => {
 </script>
 
 <style scoped>
-
 .recover-container {
   display: flex;
   justify-content: center;
@@ -70,28 +76,14 @@ const handleRecover = async () => {
 .recover-box {
   width: 400px;
   padding: 30px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   text-align: center;
+}
+.full-width {
+  width: 100%;
 }
 
 .form-group {
   margin: 1rem 0 1.5rem;
-  width: 100%;
-}
-
-.form-group input {
-  outline: none;
-  border: 1px solid #e5e7eb;
-  margin: 3px 0;
-  background-color: #fff;
-  padding: 1rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  width: 100%;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .success-message,
@@ -111,9 +103,5 @@ const handleRecover = async () => {
 .error-message {
   background-color: #ffebee;
   color: #c62828;
-}
-
-.full-width {
-  width: 100%;
 }
 </style>

@@ -158,25 +158,6 @@ onMounted(() => {
   width: 100%;
 }
 
-.success-message,
-.error-message {
-  margin-top: 15px;
-  padding: 10px;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 14px;
-}
-
-.success-message {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
-
-.error-message {
-  background-color: #ffebee;
-  color: #c62828;
-}
-
 .full-width {
   width: 100%;
   margin-top: 10px;

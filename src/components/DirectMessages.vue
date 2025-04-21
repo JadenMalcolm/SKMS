@@ -225,16 +225,15 @@ const sendMessage = async () => {
   padding: 20px;
 }
 
+/* Extend container styles from base.css with specific sizing for this component */
 .container {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
   flex: 1;
   max-height: 750px;
   overflow-y: auto;
+  padding: 20px; /* Override padding from base.css to match original design */
 }
 
+/* Special container for chat that needs specific styling */
 .container-chat {
   background-color: #fff;
   border-radius: 10px;
@@ -243,10 +242,6 @@ const sendMessage = async () => {
   flex: 2;
   max-height: 750px;
   overflow-y: auto;
-}
-
-.input {
-  margin-bottom: 10px;
 }
 
 .chat-box {
@@ -299,17 +294,5 @@ const sendMessage = async () => {
   display: flex;
   gap: 10px;
   align-items: flex-end;
-}
-
-.textarea {
-  flex: 1;
-  border-radius: 20px;
-  padding: 10px 15px;
-  resize: none;
-}
-
-.button {
-  border-radius: 20px;
-  padding: 8px 15px;
 }
 </style>

@@ -301,23 +301,7 @@ const navigateToVulnerability = () => {
 
 <style scoped>
 .dashboard-container {
-  font-family: Arial, sans-serif;
   padding: 20px;
-}
-
-.page-header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.page-header h1 {
-  font-size: 2rem;
-  color: #333;
-}
-
-.page-header p {
-  font-size: 1rem;
-  color: #555;
 }
 
 .dashboard-content {
@@ -339,16 +323,7 @@ const navigateToVulnerability = () => {
 }
 
 .dashboard-card {
-  background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   margin-top: 20px;
-}
-
-.section-header h2 {
-  margin-bottom: 15px;
-  color: #333;
 }
 
 .search-box {
@@ -364,26 +339,10 @@ const navigateToVulnerability = () => {
   margin-top: 10px;
 }
 
-.subsection-header {
-  font-size: 1.2rem;
-  color: #333;
-}
-
-.button-danger {
-  background: linear-gradient(90deg, #f44336, #d32f2f);
-}
-
-.button-danger:hover {
-  background: linear-gradient(90deg, #d32f2f, #b71c1c);
-  transform: scale(1.05);
-}
-
-.button-success {
-  background: linear-gradient(90deg, #4caf50, #388e3c);
-}
-
-.button-success:hover {
-  background: linear-gradient(90deg, #388e3c, #2e7d32);
-  transform: scale(1.05);
+/* Override/adjust the page-header spacing specifically for dashboard */
+.page-header p {
+  font-size: 1rem;
+  color: #555;
+  margin-top: 5px;
 }
 </style>

@@ -9,13 +9,33 @@
       </div>
       <form @submit.prevent="handleLogin">
         <div class="form-group">
-          <input type="email" id="email" v-model="email" placeholder="Enter your email" required class="input" />
+          <input
+            type="email"
+            id="email"
+            v-model="email"
+            placeholder="Enter your email"
+            required
+            class="input"
+          />
         </div>
         <div class="form-group">
           <div class="password-wrapper">
-            <input :type="peakPassword ? 'text' : 'password'" id="password" v-model="password" placeholder="Enter your password" required class="input" />
+            <input
+              :type="peakPassword ? 'text' : 'password'"
+              id="password"
+              v-model="password"
+              placeholder="Enter your password"
+              required
+              class="input"
+            />
             <span class="toggle-password" @click="togglePeakPassword">
-              <img v-if="!peakPassword" src="../assets/eye.svg" alt="Show password" width="16" height="16" />
+              <img
+                v-if="!peakPassword"
+                src="../assets/eye.svg"
+                alt="Show password"
+                width="16"
+                height="16"
+              />
               <img v-else src="../assets/eye-off.svg" alt="Hide password" width="16" height="16" />
             </span>
           </div>
@@ -111,32 +131,16 @@ const navigateToRecover = () => {
 }
 
 .form-group {
-  margin: 1rem 0 0.5rem;
+  margin-bottom: 20px;
+}
+
+.full-width {
   width: 100%;
 }
-
-.success-message,
-.error-message {
-  margin-top: 15px;
-  padding: 10px;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 14px;
-}
-
-.success-message {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
-
-.error-message {
-  background-color: #ffebee;
-  color: #c62828;
-}
-
-.section-header h2{
+.section-header h2 {
   font-size: 2rem;
 }
+
 .signup-link,
 .recover-link {
   text-align: center;
@@ -157,8 +161,5 @@ const navigateToRecover = () => {
   text-decoration: underline;
 }
 
-.full-width {
-  width: 100%;
-  margin-top: 10px;
-}
+
 </style>
