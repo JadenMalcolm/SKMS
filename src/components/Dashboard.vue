@@ -1,13 +1,15 @@
 <template>
   <div class="dashboard-container">
-    <header class="dashboard-header">
+    <div class="page-header">
       <h1>Security Knowledge Management System</h1>
       <p>Welcome, {{ currentUser?.email }}! You are logged in as an {{ currentUser?.role }}</p>
-    </header>
+    </div>
 
     <div class="dashboard-content">
       <section class="dashboard-card container">
-        <h2>Categories</h2>
+        <div class="section-header">
+          <h2>Categories</h2>
+        </div>
         <div class="categories-grid">
           <button @click="navigateToAsset" class="button button-primary">Asset</button>
           <button @click="navigateToThreat" class="button button-primary">Threat</button>
@@ -28,7 +30,9 @@
 
       <div class="dashboard-grid">
         <section class="dashboard-card container">
-          <h2>Search Questions</h2>
+          <div class="section-header">
+            <h2>Search Questions</h2>
+          </div>
           <div class="search-box">
             <input
               type="text"
@@ -39,9 +43,9 @@
             <button @click="searchQuestions" class="button button-success">Search</button>
           </div>
           <div class="results-box">
-            <h3>Search Results</h3>
+            <h3 class="subsection-header">Search Results</h3>
             <ul>
-              <li v-for="(q, index) in searchResults" :key="index">
+              <li v-for="(q, index) in searchResults" :key="index" class="question-item">
                 <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
                 <small>{{
                   new Date(q.timestamp).toLocaleString([], {
@@ -60,9 +64,11 @@
         </section>
 
         <section class="dashboard-card container">
-          <h2>My Questions</h2>
+          <div class="section-header">
+            <h2>My Questions</h2>
+          </div>
           <ul>
-            <li v-for="(q, index) in userQuestions" :key="index">
+            <li v-for="(q, index) in userQuestions" :key="index" class="question-item">
               <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
               <small>{{
                 new Date(q.timestamp).toLocaleString([], {
@@ -79,9 +85,11 @@
         </section>
 
         <section class="dashboard-card container">
-          <h2>Subscribed Questions</h2>
+          <div class="section-header">
+            <h2>Subscribed Questions</h2>
+          </div>
           <ul>
-            <li v-for="(q, index) in subscribedQuestions" :key="index">
+            <li v-for="(q, index) in subscribedQuestions" :key="index" class="question-item">
               <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
               <small>{{
                 new Date(q.timestamp).toLocaleString([], {
@@ -99,15 +107,35 @@
         </section>
 
         <section class="dashboard-card container">
-          <h2>My Meetings</h2>
+          <div class="section-header">
+            <h2>My Meetings</h2>
+          </div>
           <ul>
             <li v-for="(meeting, index) in myMeetings" :key="index" class="meeting-item">
-              <p>
-                <strong>Date:</strong> {{ formatDate(meeting.date) }} | <strong>Time:</strong>
-                {{ formatTime(meeting.time) }} | <strong>Type:</strong> {{ meeting.meeting_type }} |
-                <strong>Email:</strong> {{ meeting.target_user_email || meeting.user_email }} |
-                <strong>Status:</strong> {{ meeting.status }}
-              </p>
+              <div class="meeting-header">
+                <span class="meeting-type">{{ meeting.meeting_type }}</span>
+                <span :class="['meeting-status', `status-${meeting.status.toLowerCase()}`]">{{
+                  meeting.status
+                }}</span>
+              </div>
+              <div class="meeting-details">
+                <div class="meeting-detail">
+                  <i class="meeting-icon-calendar"></i>
+                  <span>{{ formatDate(meeting.date) }}</span>
+                </div>
+                <div class="meeting-detail">
+                  <i class="meeting-icon-time"></i>
+                  <span>{{ formatTime(meeting.time) }}</span>
+                </div>
+                <div class="meeting-detail">
+                  <i class="meeting-icon-user"></i>
+                  <span>{{ meeting.target_user_email || meeting.user_email }}</span>
+                </div>
+                <div class="meeting-detail" v-if="meeting.category">
+                  <i class="meeting-icon-category"></i>
+                  <span>{{ meeting.category }}</span>
+                </div>
+              </div>
             </li>
           </ul>
         </section>
@@ -191,9 +219,7 @@ const searchQuestions = async () => {
 const fetchMeetings = async () => {
   if (currentUser.value) {
     try {
-      const endpoint = currentUser.value.role.startsWith('expert')
-        ? `http://localhost:5000/accepted-meetings/${currentUser.value.id}`
-        : `http://localhost:5000/meetings/${currentUser.value.id}`
+      const endpoint = `http://localhost:5000/meetings/${currentUser.value.id}`
       const response = await axios.get(endpoint)
       myMeetings.value = response.data
     } catch (error) {
@@ -275,23 +301,7 @@ const navigateToVulnerability = () => {
 
 <style scoped>
 .dashboard-container {
-  font-family: Arial, sans-serif;
   padding: 20px;
-}
-
-.dashboard-header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.dashboard-header h1 {
-  font-size: 2rem;
-  color: #333;
-}
-
-.dashboard-header p {
-  font-size: 1rem;
-  color: #555;
 }
 
 .dashboard-content {
@@ -313,16 +323,7 @@ const navigateToVulnerability = () => {
 }
 
 .dashboard-card {
-  background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   margin-top: 20px;
-}
-
-.dashboard-card h2 {
-  margin-bottom: 15px;
-  color: #333;
 }
 
 .search-box {
@@ -335,56 +336,13 @@ const navigateToVulnerability = () => {
 .dashboard-card ul {
   list-style: none;
   padding: 0;
+  margin-top: 10px;
 }
 
-.results-box li,
-.dashboard-card li,
-.meeting-item {
-  margin-bottom: 10px;
-  padding: 10px;
-  background-color: #f0f8ff; /* Blue background color */
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.results-box li small,
-.dashboard-card li small,
-.meeting-item p {
-  display: block;
-  font-size: 0.85rem;
+/* Override/adjust the page-header spacing specifically for dashboard */
+.page-header p {
+  font-size: 1rem;
   color: #555;
-}
-
-.results-box li a,
-.dashboard-card li a {
-  text-decoration: none;
-  color: #007bff;
-}
-
-.results-box li a:hover,
-.dashboard-card li a:hover {
-  text-decoration: underline;
-}
-
-.meeting-item p strong {
-  color: #007bff; /* Blue color for strong text */
-}
-
-.button-danger {
-  background: linear-gradient(90deg, #f44336, #d32f2f); /* Gradient background */
-}
-
-.button-danger:hover {
-  background: linear-gradient(90deg, #d32f2f, #b71c1c); /* Darker gradient on hover */
-  transform: scale(1.05); /* Slight zoom effect */
-}
-
-.button-success {
-  background: linear-gradient(90deg, #4caf50, #388e3c); /* Gradient background */
-}
-
-.button-success:hover {
-  background: linear-gradient(90deg, #388e3c, #2e7d32); /* Darker gradient on hover */
-  transform: scale(1.05); /* Slight zoom effect */
+  margin-top: 5px;
 }
 </style>

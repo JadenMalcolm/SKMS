@@ -6,6 +6,8 @@ from response_routes import response_routes
 from question_routes import question_routes
 from auth_routes import auth_routes
 from meeting_routes import meeting_routes
+from feedback_routes import feedback_routes
+from users_routes import users_routes
 import sqlite3
 from flask_cors import CORS
 from flask import Flask
@@ -22,8 +24,6 @@ CORS(app)
 conn = sqlite3.connect('users.db', check_same_thread=False)
 cursor = conn.cursor()
 
-# Import routes
-
 # Register routes
 app.register_blueprint(auth_routes)
 app.register_blueprint(question_routes)
@@ -33,6 +33,9 @@ app.register_blueprint(vote_routes)
 app.register_blueprint(chatbot_routes)
 app.register_blueprint(dm_routes)
 app.register_blueprint(meeting_routes)
+app.register_blueprint(feedback_routes)
+app.register_blueprint(users_routes)
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

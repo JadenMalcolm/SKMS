@@ -9,6 +9,12 @@ import PasswordReset from '../components/PasswordReset.vue'
 import QuestionComponent from './QuestionCategory.vue'
 import DirectMessages from './DirectMessages.vue'
 import Meetings from './Meetings.vue'
+import Profile from './Profile.vue'
+import AdminPanel from './AdminPanel.vue'
+import Learn from '../components/Learn.vue'
+import Staff from './Staff.vue'
+import Policies from './Policies.vue'
+
 
 const routes = [
   { path: '/', component: Login }, // Default route
@@ -26,6 +32,11 @@ const routes = [
   { path: '/vulnerability', component: QuestionComponent, props: { category: 'Vulnerability' } }, // Vulnerability route
   { path: '/direct-messages',component: DirectMessages,}, // Direct Messages route
   { path: '/meetings', component: Meetings }, // Meetings page route
+  { path : '/profile', component: Profile }, // Profile page route
+  { path: '/admin-panel', component: AdminPanel }, // Admin panel route
+  { path: '/learn', component: Learn }, // Learn page route
+  { path: '/staff', component: Staff }, // Administration page route
+  { path: '/policies', component: Policies }, // Policies page route
 ]
 
 const router = createRouter({

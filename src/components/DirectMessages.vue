@@ -1,21 +1,18 @@
 <template>
   <!-- Header section -->
-  <div class="header">
+  <div class="page-header">
     <h1>Direct Messages</h1>
   </div>
 
   <!-- Main container for messages and chat -->
   <div class="message-container">
     <!-- Start new chat section -->
-    <div class="start-chat">
-      <h2>Start New Chat</h2>
-      <input
-        type="text"
-        v-model="newChatSearchQuery"
-        placeholder="Search users..."
-        class="search-input"
-      />
-      <ul>
+    <div class="container">
+      <div class="section-header">
+        <h2>Start New Chat</h2>
+      </div>
+      <input type="text" v-model="newChatSearchQuery" placeholder="Search users..." class="input" />
+      <ul class="user-list">
         <li v-for="user in newChatFilteredUsers" :key="user.id" @click="selectUser(user)">
           {{ user.email }}
         </li>
@@ -23,10 +20,12 @@
     </div>
 
     <!-- My Messages section -->
-    <div class="messages-list">
-      <h2>My Messages</h2>
-      <input type="text" v-model="searchQuery" placeholder="Search users..." class="search-input" />
-      <ul>
+    <div class="container">
+      <div class="section-header">
+        <h2>My Messages</h2>
+      </div>
+      <input type="text" v-model="searchQuery" placeholder="Search users..." class="input" />
+      <ul class="user-list">
         <li v-for="user in filteredUsers" :key="user.id" @click="selectUser(user)">
           {{ user.email }}
         </li>
@@ -34,42 +33,54 @@
     </div>
 
     <!-- Chat box section -->
-    <div class="chat-box" v-if="selectedUser && selectedUser.id !== currentUser?.id">
-      <h2>Chat with {{ selectedUser.email }}</h2>
+    <div class="container-chat chat-box" v-if="selectedUser && selectedUser.id !== currentUser?.id">
+      <div class="section-header">
+        <h2>Chat with {{ selectedUser.email }}</h2>
+      </div>
       <div class="messages" ref="messagesContainer">
-        <div
-          v-for="message in messages"
-          :key="message.id"
-          :class="{
-            sent: message.sender_id === currentUser?.id,
-            received: message.sender_id !== currentUser?.id,
-          }"
-        >
-          <p>{{ message.message }}</p>
-          <small>{{
-            new Date(message.timestamp).toLocaleString([], {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit',
-            })
-          }}</small>
+        <div v-for="message in messages" :key="message.id">
+          <div v-if="message.sender_id === currentUser?.id" class="user">
+            <p>{{ message.message }}</p>
+            <small class="timestamp">{{
+              new Date(message.timestamp).toLocaleString([], {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+            }}</small>
+          </div>
+          <div v-else class="bot">
+            <p>{{ message.message }}</p>
+            <small class="timestamp">{{
+              new Date(message.timestamp).toLocaleString([], {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+            }}</small>
+          </div>
         </div>
       </div>
-      <textarea v-model="newMessage" placeholder="Type your message..." class="textarea"></textarea>
-      <button @click="sendMessage" class="button button-success">Send</button>
+      <div class="chat-input">
+        <textarea
+          v-model="newMessage"
+          placeholder="Type your message..."
+          class="textarea"
+        ></textarea>
+        <button @click="sendMessage" class="button button-success">Send</button>
+      </div>
     </div>
     <SidebarMenu />
+    <floating-chat />
   </div>
-
-  <!-- Additional components -->
-  <ContactExpert />
-  <FloatingChat />
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
@@ -98,6 +109,8 @@ const newMessage = ref('')
 const searchQuery = ref('')
 const newChatSearchQuery = ref('')
 const messagesContainer = ref<HTMLElement | null>(null)
+const pollingInterval = ref<number | null>(null) // Store interval ID
+const POLLING_FREQUENCY = 3000 // Check for new messages every 3 seconds
 
 // Fetch users who have messaged the current user
 const fetchUsers = async () => {
@@ -152,6 +165,40 @@ onMounted(async () => {
   })
 })
 
+// Clean up polling interval when component unmounts
+onUnmounted(() => {
+  if (pollingInterval.value !== null) {
+    clearInterval(pollingInterval.value)
+  }
+})
+
+// Start polling for new messages
+const startPolling = () => {
+  // Clear any existing polling
+  if (pollingInterval.value !== null) {
+    clearInterval(pollingInterval.value)
+  }
+
+  // Set new polling interval
+  if (currentUser.value && selectedUser.value) {
+    pollingInterval.value = window.setInterval(async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/messages/${currentUser.value?.id}/${selectedUser.value?.id}`,
+        )
+
+        // Only update if there are new messages
+        if (response.data.length > messages.value.length) {
+          messages.value = response.data
+          nextTick(scrollToBottom)
+        }
+      } catch (error) {
+        console.error('Error polling messages:', error)
+      }
+    }, POLLING_FREQUENCY)
+  }
+}
+
 // Computed property to filter users based on search query
 const filteredUsers = computed(() => {
   return users.value.filter(
@@ -179,12 +226,24 @@ const selectUser = async (user: User) => {
         `http://localhost:5000/messages/${currentUser.value?.id}/${user.id}`,
       )
       messages.value = response.data
+
+      // Start polling for new messages with this user
+      startPolling()
     } catch (error) {
       console.error('Error fetching messages:', error)
     }
     nextTick(scrollToBottom)
   }
 }
+
+// Watch for changes to selectedUser and restart polling if needed
+watch(selectedUser, (newUser) => {
+  if (newUser) {
+    startPolling()
+  } else if (pollingInterval.value !== null) {
+    clearInterval(pollingInterval.value)
+  }
+})
 
 // Send a new message and fetch updated user list
 const sendMessage = async () => {
@@ -208,116 +267,80 @@ const sendMessage = async () => {
 </script>
 
 <style scoped>
-.header {
-  text-align: center;
-  margin-bottom: 20px;
-}
 .message-container {
   display: flex;
-  padding: 30px;
-  border-radius: 10px;
+  gap: 20px;
+  padding: 20px;
 }
 
-.messages-list {
-  width: 30%;
-  border-right: 1px solid #ccc;
-  padding-right: 30px;
-  padding-left: 10px;
+/* Extend container styles from base.css with specific sizing for this component */
+.container {
+  flex: 1;
+  max-height: 750px;
+  overflow-y: auto;
+  padding: 20px; /* Override padding from base.css to match original design */
+}
+
+/* Special container for chat that needs specific styling */
+.container-chat {
   background-color: #fff;
   border-radius: 10px;
-  margin-right: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-.messages-list h2 {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.messages-list ul {
-  list-style: none;
-  padding: 0;
-}
-
-.messages-list li {
-  padding: 10px;
-  cursor: pointer;
-  border-bottom: 1px solid #eee;
-}
-
-.messages-list li:hover {
-  background-color: #f0f0f0;
-}
-
-.search-input {
-  width: 98%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 20px;
+  flex: 2;
+  max-height: 750px;
+  overflow-y: auto;
 }
 
 .chat-box {
-  width: 70%;
-  padding-left: 20px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .messages {
-  max-height: 400px;
+  flex-grow: 1;
   overflow-y: auto;
-  margin-bottom: 10px;
-  padding: 5px;
-  border-radius: 10px;
-  max-width: 99%;
+  padding: 15px;
 }
 
-.messages .sent {
+.timestamp {
+  display: block;
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 5px;
   text-align: right;
-  background-color: #dcf8c6;
-  padding: 3px;
-  border-radius: 5px;
-  margin-bottom: 10px;
 }
 
-.messages .received {
-  text-align: left;
-  background-color: #fff;
-  padding: 3px;
-  border-radius: 5px;
-  margin-bottom: 10px;
-}
-
-.start-chat {
-  width: 30%;
-  border-right: 1px solid #ccc;
-  padding-right: 30px;
-  padding-left: 10px;
-  background-color: #fff;
-  border-radius: 10px;
-  margin-right: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.start-chat h2 {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.start-chat ul {
-  list-style: none;
-  padding: 0;
-}
-
-.start-chat li {
+.user {
+  text-align: right;
+  background: linear-gradient(90deg, #e3f2fd, #bbdefb);
   padding: 10px;
-  cursor: pointer;
-  border-bottom: 1px solid #eee;
+  margin: 8px 0;
+  border-radius: 12px 12px 0 12px;
+  color: #333;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  word-break: break-word;
 }
 
-.start-chat li:hover {
-  background-color: #f0f0f0;
+.bot {
+  text-align: left;
+  background: linear-gradient(90deg, #f5f5f5, #e0e0e0);
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 12px 12px 12px 0;
+  color: #333;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  word-break: break-word;
+}
+
+.bot p {
+  margin: 0 0 8px 0;
+}
+
+.chat-input {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
 }
 </style>

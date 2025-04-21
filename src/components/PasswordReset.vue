@@ -1,8 +1,10 @@
 <template>
-  <div class="header">Reset Your Password</div>
+  <div class="page-header">
+    <h1>Reset Your Password</h1>
+  </div>
   <div class="reset-container">
-    <div class="reset-box">
-      <p>Email: {{ email }}</p>
+    <div class="reset-box container">
+      <p class="email-display">Email: {{ email }}</p>
 
       <div class="form-group">
         <div class="password-wrapper">
@@ -11,11 +13,12 @@
             id="newPassword"
             v-model="newPassword"
             placeholder="Enter new password"
+            class="input"
             required
           />
           <span class="toggle-password" @click="togglePeakNewPassword">
-            <img v-if="!peakNewPassword" :src="eyeIcon" alt="Show password" width="16" height="16" />
-            <img v-else :src="eyeOffIcon" alt="Hide password" width="16" height="16" />
+            <img v-if="!peakNewPassword" src="../assets/eye.svg" alt="Show password" width="16" height="16" />
+            <img v-else src="../assets/eye-off.svg" alt="Hide password" width="16" height="16" />
           </span>
         </div>
       </div>
@@ -27,11 +30,12 @@
             id="confirmPassword"
             v-model="confirmPassword"
             placeholder="Confirm new password"
+            class="input"
             required
           />
           <span class="toggle-password" @click="togglePeakConfirmPassword">
-            <img v-if="!peakConfirmPassword" :src="eyeIcon" alt="Show password" width="16" height="16" />
-            <img v-else :src="eyeOffIcon" alt="Hide password" width="16" height="16" />
+            <img v-if="!peakConfirmPassword" src="../assets/eye.svg" alt="Show password" width="16" height="16" />
+            <img v-else src="../assets/eye-off.svg" alt="Hide password" width="16" height="16" />
           </span>
         </div>
       </div>
@@ -53,8 +57,6 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
-import eyeIcon from '../assets/eye.svg'
-import eyeOffIcon from '../assets/eye-off.svg'
 
 // variables
 const email = ref<string>(sessionStorage.getItem('recoverEmail') || '')
@@ -128,85 +130,36 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.header {
-  font-size: 2rem;
-  text-align: center;
-  margin-top: 30px;
-  color: #333;
-  background-color: #f0f0f0;
-}
-
 .reset-container {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  height: 100vh;
+  min-height: 70vh;
   padding-top: 30px;
   background-color: #f0f0f0;
 }
 
 .reset-box {
-  width: 350px;
+  width: 400px;
   padding: 30px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  text-align: center;
+}
+
+.email-display {
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #f9fbff;
+  border-radius: 8px;
+  font-weight: 500;
+  border-left: 3px solid #4c95e8;
 }
 
 .form-group {
-  overflow: hidden;
-  border-radius: 8px;
-  background-color: #fff;
   margin: 1rem 0 0.5rem;
   width: 100%;
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  color: #555;
-}
-
-.form-group input {
-  outline: none;
-  border: 1px solid #e5e7eb;
-  margin: 3px 0;
-  background-color: #fff;
-  padding: 1rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  width: 100%;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
-.password-wrapper {
-  position: relative;
-}
-
-.success-message,
-.error-message {
-  margin-top: 15px;
-  padding: 10px;
-  border-radius: 5px;
-  text-align: center;
-  font-size: 14px;
-}
-
-.success-message {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.error-message {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
 .full-width {
   width: 100%;
+  margin-top: 10px;
 }
 </style>

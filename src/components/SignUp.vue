@@ -1,7 +1,9 @@
 <template>
-  <div class="header">Create Account</div>
+  <div class="page-header">
+    <h1>Create Account</h1>
+  </div>
   <div class="login-container">
-    <div class="login-box">
+    <div class="container">
       <form @submit.prevent="handleSignUp">
         <div class="form-group">
           <input
@@ -9,6 +11,7 @@
             id="email"
             v-model="emailInput"
             placeholder="Enter your email"
+            class="input"
             required
           />
         </div>
@@ -19,11 +22,12 @@
               id="password"
               v-model="passwordInput"
               placeholder="Enter your password"
+              class="input"
               required
             />
             <span class="toggle-password" @click="togglePeakPassword">
-              <img v-if="!peakPassword" :src="eyeIcon" alt="Show password" width="16" height="16" />
-              <img v-else :src="eyeOffIcon" alt="Hide password" width="16" height="16" />
+              <img v-if="!peakPassword" src="../assets/eye.svg" alt="Show password" />
+              <img v-else src="../assets/eye-off.svg" alt="Hide password" />
             </span>
           </div>
         </div>
@@ -34,16 +38,17 @@
               id="password2"
               v-model="confirmPasswordInput"
               placeholder="Re-enter your password"
+              class="input"
               required
             />
             <span class="toggle-password" @click="togglePeakConfirmPassword">
-              <img v-if="!peakConfirmPassword" :src="eyeIcon" alt="Show password" width="16" height="16" />
-              <img v-else :src="eyeOffIcon" alt="Hide password" width="16" height="16" />
+              <img v-if="!peakConfirmPassword" src="../assets/eye.svg" alt="Show password" />
+              <img v-else src="../assets/eye-off.svg" alt="Hide password" />
             </span>
           </div>
         </div>
         <div class="form-group">
-          <select id="securityQuestion" v-model="securityChoice" required>
+          <select id="securityQuestion" v-model="securityChoice" class="input" required>
             <option value="" disabled>Select a Security Question</option>
             <option value="What was the name of your childhood pet?">
               What was the name of your childhood pet?
@@ -82,12 +87,13 @@
             id="securityAnswer"
             v-model="securityQuestionAnswer"
             placeholder="Enter your answer"
+            class="input"
             required
           />
         </div>
         <button type="submit" class="button button-success full-width">Create Account</button>
       </form>
-      <div v-if="message" class="message-box">{{ message }}</div>
+      <div v-if="message" class="error-message">{{ message }}</div>
     </div>
   </div>
 </template>
@@ -97,8 +103,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import eyeIcon from '../assets/eye.svg'
-import eyeOffIcon from '../assets/eye-off.svg'
 
 // variables
 const emailInput = ref('')
@@ -153,76 +157,26 @@ const handleSignUp = async () => {
 </script>
 
 <style scoped>
-.header {
-  font-size: 2rem;
+.container{
+  padding: 40px
+}
+.page-header {
   text-align: center;
-  margin-top: 30px;
-  color: #333;
-  background-color: #f0f0f0;
+  margin-bottom: 20px;
 }
 
 .login-container {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  height: 100vh;
-  padding-top: 30px;
-  background-color: #f0f0f0;
-}
-
-.login-box {
-  width: 350px;
-  padding: 30px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
-
-.form-group {
-  overflow: hidden;
-  border-radius: 8px;
-  background-color: #fff;
-  margin: 1rem 0 0.5rem;
-  width: 100%;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  color: #555;
-}
-.form-group input,
-.form-group select {
-  outline: none;
-  border: 1px solid #e5e7eb;
-  margin: 3px 0;
-  background-color: #fff;
-  padding: 1rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  width: 100%;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
-.password-wrapper {
-  position: relative;
-}
-
-.message-box {
-  margin-top: 15px;
-  padding: 10px;
-  border-radius: 5px;
-  text-align: center;
-  font-size: 14px;
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  padding: 50px;
 }
 
 .full-width {
   width: 100%;
 }
 
+.form-group {
+  margin-bottom: 15px; /* Add spacing between input boxes */
+}
 </style>

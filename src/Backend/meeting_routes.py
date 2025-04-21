@@ -42,20 +42,25 @@ def schedule_meeting():
 def get_meetings(user_id):
     try:
         cursor.execute('''
-            SELECT m.id, 
-                   strftime('%m/%d/%Y', m.date) as formatted_date, 
-                   m.time, m.meeting_type, 
-                   u.email as target_user_email, m.status
+            SELECT m.id,
+                   strftime('%m/%d/%Y', m.date) as formatted_date,
+                   m.time, m.meeting_type,
+                   CASE
+                       WHEN m.user_id = ? THEN u2.email
+                       ELSE u1.email
+                   END as target_user_email,
+                   m.status
             FROM meetings m
-            JOIN users u ON m.target_user_id = u.id
-            WHERE m.user_id = ?
+            LEFT JOIN users u1 ON m.user_id = u1.id
+            LEFT JOIN users u2 ON m.target_user_id = u2.id
+            WHERE m.user_id = ? OR m.target_user_id = ?
             ORDER BY m.date, m.time
-        ''', (user_id,))
+        ''', (user_id, user_id, user_id))
         meetings = cursor.fetchall()
         return jsonify([{
             'id': meeting[0],
-            'date': meeting[1],  
-            'time': meeting[2],  
+            'date': meeting[1],
+            'time': meeting[2],
             'meeting_type': meeting[3],
             'target_user_email': meeting[4],
             'status': meeting[5]
@@ -67,23 +72,23 @@ def get_meetings(user_id):
 def get_meeting_requests(target_user_id):
     try:
         cursor.execute('''
-            SELECT m.id, 
-                   strftime('%m/%d/%Y', m.date) as formatted_date, 
-                   strftime('%I:%M %p', m.time) as formatted_time, 
-                   u.email as user_email
+            SELECT m.id,
+                   strftime('%m/%d/%Y', m.date) as formatted_date,
+                   strftime('%I:%M %p', m.time) as formatted_time,
+                   u.email as user_email,
+                   m.meeting_type
             FROM meetings m
             JOIN users u ON m.user_id = u.id
-            WHERE m.target_user_id
-         = ? AND m.status = 'pending'
+            WHERE m.target_user_id = ? AND m.status = 'pending'
             ORDER BY m.date, m.time
-        ''', (target_user_id
-    ,))
+        ''', (target_user_id,))
         meetings = cursor.fetchall()
         return jsonify([{
             'id': meeting[0],
             'date': meeting[1],  # Use formatted_date for consistency
             'time': meeting[2],  # Use formatted_time for 12-hour format
-            'user_email': meeting[3]
+            'user_email': meeting[3],
+            'meeting_type': meeting[4]
         } for meeting in meetings])
     except sqlite3.OperationalError as e:
         return jsonify({'error': f'Database error: {e}'}), 500
@@ -104,33 +109,6 @@ def accept_meeting():
         ''', (meeting_id,))
         conn.commit()
         return jsonify({'message': 'Meeting accepted successfully.'})
-    except sqlite3.OperationalError as e:
-        return jsonify({'error': f'Database error: {e}'}), 500
-
-@meeting_routes.route('/accepted-meetings/<int:user_id>', methods=['GET'])
-def get_accepted_meetings(user_id):
-    try:
-        cursor.execute('''
-            SELECT m.id, 
-                   strftime('%m/%d/%Y', m.date) as formatted_date, 
-                   m.time, m.meeting_type, 
-                   u.email as user_email, m.status
-            FROM meetings m
-            JOIN users u ON (m.user_id = u.id OR m.target_user_id
-         = u.id)
-            WHERE (m.user_id = ? OR m.target_user_id
-         = ?) AND m.status = 'accepted'
-            ORDER BY m.date, m.time
-        ''', (user_id, user_id))
-        meetings = cursor.fetchall()
-        return jsonify([{
-            'id': meeting[0],
-            'date': meeting[1],
-            'time': meeting[2],
-            'meeting_type': meeting[3],
-            'user_email': meeting[4],
-            'status': meeting[5]
-        } for meeting in meetings])
     except sqlite3.OperationalError as e:
         return jsonify({'error': f'Database error: {e}'}), 500
 

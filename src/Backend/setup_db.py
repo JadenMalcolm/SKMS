@@ -77,6 +77,17 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS meetings (
     FOREIGN KEY (target_user_id) REFERENCES users (id) ON DELETE CASCADE
 )''')
 
+# Add feedback table
+cursor.execute('''CREATE TABLE IF NOT EXISTS feedback (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    feedback_type TEXT NOT NULL CHECK(feedback_type IN ('voice', 'report')),
+    feedback_text TEXT NOT NULL,
+    is_anonymous BOOLEAN NOT NULL,
+    timestamp DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP,'LOCALTIME')),
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL
+)''')
+
 # Enable foreign key constraints in SQLite
 cursor.execute('PRAGMA foreign_keys = ON')
 
@@ -91,7 +102,7 @@ if not os.path.exists(key_file):
 else:
     with open(key_file, 'rb') as f:
         key = f.read()
-    
+
 # Create admin user if not exists
 admin_email = 'admin@example.com'.lower()  # Convert to lowercase
 admin_password = 'Admin@123'
@@ -110,8 +121,8 @@ if not user_exists:
 
 # Create users for all expert categories if not exists
 expert_categories = [
-    'expert-asset', 'expert-threat', 'expert-securitygoal', 
-    'expert-countermeasure', 'expert-defensestrategy', 
+    'expert-asset', 'expert-threat', 'expert-securitygoal',
+    'expert-countermeasure', 'expert-defensestrategy',
     'expert-vulnerability'
 ]
 
