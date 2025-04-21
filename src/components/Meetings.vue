@@ -188,7 +188,8 @@ const myMeetings = ref<Meeting[]>([])
 const fetchAllUsers = async () => {
   try {
     const response = await axios.get('http://localhost:5000/all-users')
-    allUsers.value = response.data
+    // Filter out the current user from the list
+    allUsers.value = response.data.filter((user: { id: any }) => user.id !== currentUser.id)
     filteredUsers.value = allUsers.value
   } catch (error) {
     console.error('Error fetching all users:', error)
@@ -237,6 +238,7 @@ const scheduleMeeting = async () => {
       })
       feedbackMessage.value = response.data.message
       await fetchMeetingRequests()
+      await fetchMeetings()
     } catch (error) {
       feedbackMessage.value = 'Failed to schedule meeting. Please try again.'
     }
@@ -252,6 +254,7 @@ const acceptMeeting = async (meetingId: number) => {
     })
     feedbackMessage.value = response.data.message
     await fetchMeetingRequests()
+      await fetchMeetings()
   } catch (error) {
     feedbackMessage.value = 'Failed to accept meeting. Please try again.'
   }
@@ -264,6 +267,7 @@ const rejectMeeting = async (meetingId: number) => {
     })
     feedbackMessage.value = response.data.message
     await fetchMeetingRequests()
+    await fetchMeetings()
   } catch (error) {
     feedbackMessage.value = 'Failed to reject meeting. Please try again.'
   }
@@ -278,6 +282,7 @@ const rescheduleMeeting = async (request: MeetingRequest) => {
 
     feedbackMessage.value = `Please select ${request.user_email} to reschedule the meeting and set a new date and time.`
     await fetchMeetingRequests()
+      await fetchMeetings()
   } catch (error) {
     feedbackMessage.value = 'Failed to reschedule meeting. Please try again.'
   }
@@ -289,6 +294,7 @@ const handleMeetingAction = async (meetingId: number) => {
       meeting_id: meetingId,
     })
     feedbackMessage.value = response.data.message
+    await fetchMeetingRequests()
     await fetchMeetings()
   } catch (error) {
     feedbackMessage.value = 'Failed to process meeting action. Please try again.'
@@ -310,11 +316,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.page-header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
 .meetings-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -345,36 +346,10 @@ onMounted(async () => {
   width: 100%;
 }
 
-/* Fix meeting item alignment */
-.meeting-item {
-  max-width: 100%;
-  width: 100%;
-  margin-left: 0;
-  margin-right: 0;
-  box-sizing: border-box;
-}
-
 /* Meeting actions alignment */
 .meeting-actions {
   padding: 8px 16px 16px;
   text-align: right;
-}
-
-.section-header {
-  text-align: center;
-  margin-bottom: 15px;
-  color: #333;
-  font-weight: 600;
-  font-size: 1.25rem;
-}
-
-/* User search and list */
-.search-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
 }
 
 /* Meeting details form */
@@ -415,7 +390,6 @@ onMounted(async () => {
   outline: none;
   background-color: #fff;
 }
-
 .select-field {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
@@ -477,17 +451,6 @@ onMounted(async () => {
   font-size: 0.75rem;
   border-radius: 12px;
   box-shadow: none;
-}
-
-/* Ensure meetings list takes full height but scrolls */
-.meetings-list ul {
-  max-height: none;
-  overflow: visible;
-}
-
-/* Ensure meeting items don't exceed their container */
-.meeting-item {
-  max-width: 95%;
 }
 
 /* No meetings message styling */
