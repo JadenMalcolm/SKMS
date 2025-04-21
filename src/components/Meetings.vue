@@ -62,7 +62,7 @@
       <ul class="request-list">
         <li v-for="request in meetingRequests" :key="request.id" class="request-item">
           <p>
-            {{ request.user_email }} requested a {{ request.meeting_type }} meeting on
+            {{ request.user_email }} requested to meet {{ request.meeting_type }} on
             {{ formatDate(request.date) }} at
             {{ formatTime(request.time) }}
           </p>
@@ -159,9 +159,19 @@ interface Meeting {
   target_user_email: string
 }
 const formatTime = (time: string) => {
+  // Check if time already contains AM/PM
+  if (time.includes('AM') || time.includes('PM')) {
+    return time
+  }
+
+  // Otherwise, parse the time properly
   const [hour, minute] = time.split(':')
+  const hourInt = parseInt(hour)
+
+  // Create a date object with the correct time
   const date = new Date()
-  date.setHours(parseInt(hour), parseInt(minute))
+  date.setHours(hourInt, parseInt(minute))
+
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
 }
 

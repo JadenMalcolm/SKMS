@@ -41,7 +41,7 @@
         <div class="stat-card">
           <div class="stat-number">277</div>
           <div class="stat-description">
-            days - average time to identify and contain a breach
+            days on average to identify and contain a breach
             <div class="stat-source">
               <a href="https://www.ibm.com/reports/data-breach" target="_blank">IBM Cost of a Data Breach 2023</a>
             </div>

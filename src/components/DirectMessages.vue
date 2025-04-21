@@ -80,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
@@ -109,6 +109,8 @@ const newMessage = ref('')
 const searchQuery = ref('')
 const newChatSearchQuery = ref('')
 const messagesContainer = ref<HTMLElement | null>(null)
+const pollingInterval = ref<number | null>(null) // Store interval ID
+const POLLING_FREQUENCY = 3000 // Check for new messages every 3 seconds
 
 // Fetch users who have messaged the current user
 const fetchUsers = async () => {
@@ -163,6 +165,40 @@ onMounted(async () => {
   })
 })
 
+// Clean up polling interval when component unmounts
+onUnmounted(() => {
+  if (pollingInterval.value !== null) {
+    clearInterval(pollingInterval.value)
+  }
+})
+
+// Start polling for new messages
+const startPolling = () => {
+  // Clear any existing polling
+  if (pollingInterval.value !== null) {
+    clearInterval(pollingInterval.value)
+  }
+
+  // Set new polling interval
+  if (currentUser.value && selectedUser.value) {
+    pollingInterval.value = window.setInterval(async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/messages/${currentUser.value?.id}/${selectedUser.value?.id}`,
+        )
+
+        // Only update if there are new messages
+        if (response.data.length > messages.value.length) {
+          messages.value = response.data
+          nextTick(scrollToBottom)
+        }
+      } catch (error) {
+        console.error('Error polling messages:', error)
+      }
+    }, POLLING_FREQUENCY)
+  }
+}
+
 // Computed property to filter users based on search query
 const filteredUsers = computed(() => {
   return users.value.filter(
@@ -190,12 +226,24 @@ const selectUser = async (user: User) => {
         `http://localhost:5000/messages/${currentUser.value?.id}/${user.id}`,
       )
       messages.value = response.data
+
+      // Start polling for new messages with this user
+      startPolling()
     } catch (error) {
       console.error('Error fetching messages:', error)
     }
     nextTick(scrollToBottom)
   }
 }
+
+// Watch for changes to selectedUser and restart polling if needed
+watch(selectedUser, (newUser) => {
+  if (newUser) {
+    startPolling()
+  } else if (pollingInterval.value !== null) {
+    clearInterval(pollingInterval.value)
+  }
+})
 
 // Send a new message and fetch updated user list
 const sendMessage = async () => {
