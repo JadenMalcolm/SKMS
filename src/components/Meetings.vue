@@ -62,7 +62,8 @@
       <ul class="request-list">
         <li v-for="request in meetingRequests" :key="request.id" class="request-item">
           <p>
-            {{ request.user_email }} requested a meeting on {{ formatDate(request.date) }} at
+            {{ request.user_email }} requested a {{ request.meeting_type }} meeting on
+            {{ formatDate(request.date) }} at
             {{ formatTime(request.time) }}
           </p>
           <div class="request-actions">
@@ -138,6 +139,7 @@ interface MeetingRequest {
   user_id: number
   date: string
   time: string
+  meeting_type: string
 }
 
 interface User {
@@ -254,7 +256,7 @@ const acceptMeeting = async (meetingId: number) => {
     })
     feedbackMessage.value = response.data.message
     await fetchMeetingRequests()
-      await fetchMeetings()
+    await fetchMeetings()
   } catch (error) {
     feedbackMessage.value = 'Failed to accept meeting. Please try again.'
   }
@@ -282,7 +284,7 @@ const rescheduleMeeting = async (request: MeetingRequest) => {
 
     feedbackMessage.value = `Please select ${request.user_email} to reschedule the meeting and set a new date and time.`
     await fetchMeetingRequests()
-      await fetchMeetings()
+    await fetchMeetings()
   } catch (error) {
     feedbackMessage.value = 'Failed to reschedule meeting. Please try again.'
   }

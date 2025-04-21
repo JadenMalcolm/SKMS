@@ -75,7 +75,8 @@ def get_meeting_requests(target_user_id):
             SELECT m.id,
                    strftime('%m/%d/%Y', m.date) as formatted_date,
                    strftime('%I:%M %p', m.time) as formatted_time,
-                   u.email as user_email
+                   u.email as user_email,
+                   m.meeting_type
             FROM meetings m
             JOIN users u ON m.user_id = u.id
             WHERE m.target_user_id = ? AND m.status = 'pending'
@@ -86,7 +87,8 @@ def get_meeting_requests(target_user_id):
             'id': meeting[0],
             'date': meeting[1],  # Use formatted_date for consistency
             'time': meeting[2],  # Use formatted_time for 12-hour format
-            'user_email': meeting[3]
+            'user_email': meeting[3],
+            'meeting_type': meeting[4]
         } for meeting in meetings])
     except sqlite3.OperationalError as e:
         return jsonify({'error': f'Database error: {e}'}), 500
