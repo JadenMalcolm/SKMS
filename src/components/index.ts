@@ -12,8 +12,8 @@ import Meetings from './Meetings.vue'
 import Profile from './Profile.vue'
 import AdminPanel from './AdminPanel.vue'
 import Learn from '../components/Learn.vue'
-import Administration from './Administration.vue'
-
+import Staff from './Staff.vue'
+import Policies from './Policies.vue'
 
 
 const routes = [
@@ -35,7 +35,8 @@ const routes = [
   { path : '/profile', component: Profile }, // Profile page route
   { path: '/admin-panel', component: AdminPanel }, // Admin panel route
   { path: '/learn', component: Learn }, // Learn page route
-  { path: '/administration', component: Administration }, // Administration page route
+  { path: '/staff', component: Staff }, // Administration page route
+  { path: '/policies', component: Policies }, // Policies page route
 ]
 
 const router = createRouter({

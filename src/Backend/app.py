@@ -7,6 +7,7 @@ from question_routes import question_routes
 from auth_routes import auth_routes
 from meeting_routes import meeting_routes
 from feedback_routes import feedback_routes
+from users_routes import users_routes
 import sqlite3
 from flask_cors import CORS
 from flask import Flask
@@ -33,6 +34,7 @@ app.register_blueprint(chatbot_routes)
 app.register_blueprint(dm_routes)
 app.register_blueprint(meeting_routes)
 app.register_blueprint(feedback_routes)
+app.register_blueprint(users_routes)
 
 
 if __name__ == '__main__':
