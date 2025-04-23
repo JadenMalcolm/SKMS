@@ -10,13 +10,15 @@
         placeholder="Type your question here..."
         class="input"
       />
-      <button @click="submitQuestion" class="button button-success">Submit Question</button>
+      <button @click="submitQuestion(category)" class="button button-success">
+        Submit Question
+      </button>
       <div class="search-container">
         <div class="section-header">
           <h2>Search {{ category }} Questions</h2>
         </div>
         <input type="text" v-model="searchQuery" :placeholder="searchPlaceholder" class="input" />
-        <button @click="searchQuestions" class="button button-success">Search</button>
+        <button @click="searchQuestions(category)" class="button button-success">Search</button>
       </div>
       <div class="search-results">
         <h3 class="subsection-header">Search Results</h3>
@@ -65,104 +67,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, defineProps } from 'vue'
-import axios from 'axios'
+import { computed, onMounted, defineProps } from 'vue'
 import { useRouter } from 'vue-router'
-
-interface Question {
-  id: number
-  question: string
-  category: string
-  timestamp: string
-  user_email: string
-  isEditing?: boolean
-  editText?: string
-  report_count?: number
-}
-
-interface User {
-  id: number
-  email: string
-  role: string
-}
+import useCurrentUser from '../composables/useCurrentUser'
+import useQuestions from '../composables/useQuestions'
 
 const props = defineProps<{ category: string }>()
 const router = useRouter()
-const newQuestionText = ref('')
-const searchQuery = ref('')
-const allQuestions = ref<Question[]>([])
-const categoryQuestions = ref<Question[]>([])
-const searchResults = ref<Question[]>([])
-const currentUser = ref<User | null>(null)
+const { currentUser, loadCurrentUser } = useCurrentUser()
+const {
+  searchQuery,
+  allQuestions,
+  searchResults,
+  newQuestionText,
+  feedbackMessage,
+  fetchAllQuestions,
+  searchQuestions,
+  submitQuestion,
+  getCategoryQuestions,
+} = useQuestions(currentUser)
+
 const searchPlaceholder = computed(() => `Search ${props.category.toLowerCase()} questions...`)
-const feedbackMessage = ref('')
-
-onMounted(async () => {
-  const storedUser = sessionStorage.getItem('user')
-  if (storedUser) {
-    currentUser.value = JSON.parse(storedUser)
-  } else {
-    feedbackMessage.value = 'Session expired. Please log in again.'
-    router.push('/')
-  }
-
-  try {
-    const response = await axios.get('http://localhost:5000/questions')
-    allQuestions.value = response.data
-    categoryQuestions.value = allQuestions.value.filter((q) => q.category === props.category)
-  } catch (error) {
-    console.error('Error fetching questions:', error)
-    feedbackMessage.value = 'Error fetching questions.'
-  }
+const categoryQuestions = computed(() => {
+  return allQuestions.value.filter((q) => q.category === props.category)
 })
 
-const submitQuestion = async () => {
-  if (newQuestionText.value.trim()) {
-    try {
-      if (!currentUser.value) throw new Error('User not logged in.')
-
-      const response = await axios.post('http://localhost:5000/questions', {
-        userId: currentUser.value.id,
-        question: newQuestionText.value,
-        category: props.category,
-      })
-
-      const newQuestion = {
-        id: response.data.id,
-        question: newQuestionText.value,
-        category: props.category,
-        timestamp: new Date().toLocaleString(),
-        user_email: currentUser.value.email,
-        isEditing: false,
-        editText: newQuestionText.value,
-      }
-      allQuestions.value.unshift(newQuestion)
-      categoryQuestions.value.unshift(newQuestion)
-
-      feedbackMessage.value = `Your question was saved: ${newQuestionText.value}`
-      newQuestionText.value = ''
-    } catch (error) {
-      console.error('Error submitting question:', error)
-      feedbackMessage.value = 'Failed to save the question.'
-    }
-  } else {
-    feedbackMessage.value = 'Please enter a question to ask.'
+onMounted(async () => {
+  await loadCurrentUser()
+  if (!currentUser.value) {
+    router.push('/')
+    return
   }
-}
 
-const searchQuestions = async () => {
-  try {
-    const response = await axios.post('http://localhost:5000/questions/search', {
-      query: searchQuery.value,
-    })
-    searchResults.value = response.data.filter(
-      (q: { category: string }) => q.category === props.category,
-    )
-  } catch (error) {
-    console.error('Error searching questions:', error)
-    feedbackMessage.value = 'Error searching questions.'
-  }
-}
+  await fetchAllQuestions()
+})
 </script>
 
 <style scoped>
@@ -202,7 +140,8 @@ const searchQuestions = async () => {
   font-size: 1.2rem;
   color: #333;
 }
-.questions-box ul, .search-results ul {
+.questions-box ul,
+.search-results ul {
   list-style: none;
   padding: 0;
 }

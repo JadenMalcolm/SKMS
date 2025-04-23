@@ -17,7 +17,7 @@
         @input="filterUsers"
       />
       <ul class="user-list">
-        <li v-for="user in filteredUsers" :key="user.id" @click="selectUser(user)">
+        <li v-for="user in filteredAllUsers" :key="user.id" @click="selectUser(user)">
           {{ user.email }}
         </li>
       </ul>
@@ -50,7 +50,9 @@
             <option value="online">Online</option>
           </select>
         </div>
-        <button @click="scheduleMeeting" class="button button-success">Schedule Meeting</button>
+        <button @click="handleScheduleMeeting" class="button button-success">
+          Schedule Meeting
+        </button>
       </div>
     </div>
 
@@ -69,7 +71,7 @@
           <div class="request-actions">
             <button @click="acceptMeeting(request.id)" class="button button-success">Accept</button>
             <button @click="rejectMeeting(request.id)" class="button button-danger">Reject</button>
-            <button @click="rescheduleMeeting(request)" class="button button-warning">
+            <button @click="handleRescheduleMeeting(request)" class="button button-warning">
               Reschedule
             </button>
           </div>
@@ -106,7 +108,8 @@
           </div>
           <div class="meeting-actions">
             <button
-              @click="handleMeetingAction(meeting.id)"
+              v-if="meeting.id !== undefined"
+              @click="deleteMeeting(meeting.id)"
               class="button button-danger button-small"
             >
               {{ meeting.status === 'rejected' ? 'Delete' : 'Cancel' }}
@@ -131,193 +134,88 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import type { User } from '../composables/useUsers'
+import useUsers from '../composables/useUsers'
+import useMeetings from '../composables/useMeetings'
+import useFormatDate from '../composables/useFormatDate'
 
-interface MeetingRequest {
-  id: number
-  user_email: string
-  user_id: number
-  date: string
-  time: string
-  meeting_type: string
-}
+// Current user setup
+const currentUser = ref<User | null>(null)
 
-interface User {
-  id: number
-  email: string
-}
+// Load the user composable for user-related functionality
+const {
+  allUsers,
+  searchQuery,
+  filteredAllUsers, // Use filteredAllUsers instead of filteredUsers
+  fetchAllUsers,
+  selectedUser,
+  selectUser: selectUserOriginal,
+} = useUsers(currentUser)
 
-interface Meeting {
-  id: number
-  user_id: number
-  target_user_id: number
-  date: string
-  time: string
-  meeting_type: string
-  status: string
-  user_email: string
-  target_user_email: string
-}
-const formatTime = (time: string) => {
-  // Check if time already contains AM/PM
-  if (time.includes('AM') || time.includes('PM')) {
-    return time
-  }
+// Load the meetings composable for meeting-related functionality
+const {
+  myMeetings,
+  meetingRequests,
+  selectedDate,
+  selectedTime,
+  selectedMeetingType,
+  feedbackMessage,
+  fetchMeetings,
+  fetchMeetingRequests,
+  scheduleMeeting,
+  acceptMeeting,
+  rejectMeeting,
+  rescheduleMeeting,
+  deleteMeeting,
+} = useMeetings(currentUser)
 
-  // Otherwise, parse the time properly
-  const [hour, minute] = time.split(':')
-  const hourInt = parseInt(hour)
+// Load the date formatting composable
+const { formatDate, formatTime } = useFormatDate()
 
-  // Create a date object with the correct time
-  const date = new Date()
-  date.setHours(hourInt, parseInt(minute))
-
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
-}
-
-const formatDate = (date: string) => {
-  const parsedDate = new Date(date)
-  if (isNaN(parsedDate.getTime())) {
-    return date // Return the original string if parsing fails
-  }
-  const month = String(parsedDate.getMonth() + 1).padStart(2, '0')
-  const day = String(parsedDate.getDate()).padStart(2, '0')
-  const year = parsedDate.getFullYear()
-  return `${month}/${day}/${year}`
-}
-const selectedUser = ref<User | null>(null)
-const meetingRequests = ref<MeetingRequest[]>([])
-const selectedDate = ref('')
-const selectedTime = ref('')
-const selectedMeetingType = ref('in-person')
-const feedbackMessage = ref('')
-const searchQuery = ref('')
-const allUsers = ref<User[]>([])
-const filteredUsers = ref<User[]>([])
-const currentUser = JSON.parse(sessionStorage.getItem('user') || '{}')
-const myMeetings = ref<Meeting[]>([])
-
-const fetchAllUsers = async () => {
-  try {
-    const response = await axios.get('http://localhost:5000/all-users')
-    // Filter out the current user from the list
-    allUsers.value = response.data.filter((user: { id: any }) => user.id !== currentUser.id)
-    filteredUsers.value = allUsers.value
-  } catch (error) {
-    console.error('Error fetching all users:', error)
-  }
-}
-
-const fetchMeetings = async () => {
-  try {
-    const endpoint = `http://localhost:5000/meetings/${currentUser.id}`
-    const response = await axios.get(endpoint)
-    myMeetings.value = response.data
-  } catch (error) {
-    console.error('Error fetching meetings:', error)
-    feedbackMessage.value = 'Failed to load meetings. Please try again later.'
-  }
-}
-
-const fetchMeetingRequests = async () => {
-  try {
-    const response = await axios.get(`http://localhost:5000/meeting-requests/${currentUser.id}`)
-    meetingRequests.value = response.data
-  } catch (error) {
-    console.error('Error fetching meeting requests:', error)
-  }
-}
-
+// Filter users based on search query (overrides the default one if needed)
 const filterUsers = () => {
-  filteredUsers.value = allUsers.value.filter((user) =>
-    user.email.toLowerCase().includes(searchQuery.value.toLowerCase()),
-  )
+  // This is managed by the useUsers composable's computed property
 }
 
+// Wrapper function to select a user
 const selectUser = (user: User) => {
-  selectedUser.value = user
+  selectUserOriginal(user)
 }
 
-const scheduleMeeting = async () => {
-  if (selectedUser.value && selectedDate.value && selectedTime.value && selectedMeetingType.value) {
+// Meeting scheduling handler
+const handleScheduleMeeting = () => {
+  if (selectedUser.value) {
+    scheduleMeeting(selectedUser.value.id)
+  } else {
+    feedbackMessage.value = 'Please select a user first.'
+  }
+}
+
+// Rescheduling handler
+const handleRescheduleMeeting = async (request: any) => {
+  const success = await rescheduleMeeting(request)
+  if (success) {
+    // Clear selected user to prompt re-selection
+    selectUserOriginal(null)
+  }
+}
+
+// Component initialization
+onMounted(async () => {
+  const storedUser = sessionStorage.getItem('user')
+  if (storedUser) {
     try {
-      const response = await axios.post('http://localhost:5000/schedule-meeting', {
-        user_id: currentUser.id,
-        target_user_id: selectedUser.value.id,
-        date: selectedDate.value,
-        time: selectedTime.value,
-        meeting_type: selectedMeetingType.value,
-      })
-      feedbackMessage.value = response.data.message
+      currentUser.value = JSON.parse(storedUser)
+      await fetchAllUsers()
       await fetchMeetingRequests()
       await fetchMeetings()
     } catch (error) {
-      feedbackMessage.value = 'Failed to schedule meeting. Please try again.'
+      console.error('Error parsing stored user:', error)
+      feedbackMessage.value = 'User not logged in. Redirecting to login page.'
+      setTimeout(() => {
+        window.location.href = '/'
+      }, 2000)
     }
-  } else {
-    feedbackMessage.value = 'Please fill out all fields.'
-  }
-}
-
-const acceptMeeting = async (meetingId: number) => {
-  try {
-    const response = await axios.post('http://localhost:5000/accept-meeting', {
-      meeting_id: meetingId,
-    })
-    feedbackMessage.value = response.data.message
-    await fetchMeetingRequests()
-    await fetchMeetings()
-  } catch (error) {
-    feedbackMessage.value = 'Failed to accept meeting. Please try again.'
-  }
-}
-
-const rejectMeeting = async (meetingId: number) => {
-  try {
-    const response = await axios.post('http://localhost:5000/reject-meeting', {
-      meeting_id: meetingId,
-    })
-    feedbackMessage.value = response.data.message
-    await fetchMeetingRequests()
-    await fetchMeetings()
-  } catch (error) {
-    feedbackMessage.value = 'Failed to reject meeting. Please try again.'
-  }
-}
-
-const rescheduleMeeting = async (request: MeetingRequest) => {
-  try {
-    // Delete the original meeting request
-    await axios.post('http://localhost:5000/delete-meeting', { meeting_id: request.id })
-
-    selectedUser.value = null
-
-    feedbackMessage.value = `Please select ${request.user_email} to reschedule the meeting and set a new date and time.`
-    await fetchMeetingRequests()
-    await fetchMeetings()
-  } catch (error) {
-    feedbackMessage.value = 'Failed to reschedule meeting. Please try again.'
-  }
-}
-
-const handleMeetingAction = async (meetingId: number) => {
-  try {
-    const response = await axios.post('http://localhost:5000/delete-meeting', {
-      meeting_id: meetingId,
-    })
-    feedbackMessage.value = response.data.message
-    await fetchMeetingRequests()
-    await fetchMeetings()
-  } catch (error) {
-    feedbackMessage.value = 'Failed to process meeting action. Please try again.'
-  }
-}
-
-onMounted(async () => {
-  if (currentUser) {
-    await fetchAllUsers()
-    await fetchMeetingRequests()
-    await fetchMeetings()
   } else {
     feedbackMessage.value = 'User not logged in. Redirecting to login page.'
     setTimeout(() => {

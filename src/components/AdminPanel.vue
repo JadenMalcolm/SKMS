@@ -129,32 +129,15 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import useFeedback from '../composables/useFeedback'
+import useFormatDate from '../composables/useFormatDate'
 
 const router = useRouter()
-const loading = ref(true)
-
-interface FeedbackItem {
-  id: number
-  user_email?: string // Optional for anonymous feedback
-  feedback_text: string
-  timestamp: string
-  user_id?: number // Add user_id for directing messages
-}
-
-const categorizedFeedback = ref<{
-  identifiedVoice: FeedbackItem[]
-  anonymousVoice: FeedbackItem[]
-  identifiedReport: FeedbackItem[]
-  anonymousReport: FeedbackItem[]
-}>({
-  identifiedVoice: [],
-  anonymousVoice: [],
-  identifiedReport: [],
-  anonymousReport: [],
-})
+const { loading, categorizedFeedback, fetchFeedbackData, replyToFeedback, deleteFeedback } =
+  useFeedback()
+const { formatDate } = useFormatDate()
 
 onMounted(async () => {
   const currentUser = JSON.parse(sessionStorage.getItem('user') || 'null')
@@ -165,68 +148,6 @@ onMounted(async () => {
 
   await fetchFeedbackData()
 })
-
-const fetchFeedbackData = async () => {
-  try {
-    loading.value = true
-    const response = await axios.get('http://localhost:5000/feedback/categorized')
-    categorizedFeedback.value = response.data
-  } catch (error) {
-    console.error('Error fetching feedback data:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-const replyToFeedback = async (feedbackItem: FeedbackItem) => {
-  if (!feedbackItem.user_id) {
-    console.error('No user ID available for this feedback')
-    return
-  }
-  try {
-    await router.push('direct-messages')
-    await new Promise(resolve => setTimeout(resolve, 750))
-
-    // Dispatch a custom event to select the user
-    const event = new CustomEvent('open-chat', {
-      detail: { id: feedbackItem.user_id, email: feedbackItem.user_email },
-    })
-    window.dispatchEvent(event)
-  } catch (error) {
-    console.error('Error setting up reply:', error)
-  }
-}
-
-const deleteFeedback = async (item: FeedbackItem) => {
-  try {
-    await axios.delete(`http://localhost:5000/feedback/${item.id}`)
-
-    // Remove the deleted feedback from the list
-    const categories = ['identifiedVoice', 'anonymousVoice', 'identifiedReport', 'anonymousReport'] as const
-
-    categories.forEach(category => {
-      const key = category as keyof typeof categorizedFeedback.value;
-      categorizedFeedback.value[key] = categorizedFeedback.value[key].filter(
-        feedbackItem => feedbackItem.id !== item.id
-      )
-    })
-  } catch (error) {
-    console.error('Error deleting feedback:', error)
-  }
-}
-
-const formatDate = (timestamp: string | number | Date) => {
-  if (!timestamp) return 'N/A'
-
-  const date = new Date(timestamp)
-  return date.toLocaleString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
 </script>
 
 <style scoped>
@@ -300,7 +221,8 @@ const formatDate = (timestamp: string | number | Date) => {
   gap: 8px;
 }
 
-.reply-button, .delete-button {
+.reply-button,
+.delete-button {
   padding: 6px 12px;
   font-size: 0.85rem;
   border-radius: 16px;

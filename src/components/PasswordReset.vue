@@ -17,7 +17,13 @@
             required
           />
           <span class="toggle-password" @click="togglePeakNewPassword">
-            <img v-if="!peakNewPassword" src="../assets/eye.svg" alt="Show password" width="16" height="16" />
+            <img
+              v-if="!peakNewPassword"
+              src="../assets/eye.svg"
+              alt="Show password"
+              width="16"
+              height="16"
+            />
             <img v-else src="../assets/eye-off.svg" alt="Hide password" width="16" height="16" />
           </span>
         </div>
@@ -34,7 +40,13 @@
             required
           />
           <span class="toggle-password" @click="togglePeakConfirmPassword">
-            <img v-if="!peakConfirmPassword" src="../assets/eye.svg" alt="Show password" width="16" height="16" />
+            <img
+              v-if="!peakConfirmPassword"
+              src="../assets/eye.svg"
+              alt="Show password"
+              width="16"
+              height="16"
+            />
             <img v-else src="../assets/eye-off.svg" alt="Hide password" width="16" height="16" />
           </span>
         </div>
@@ -54,79 +66,25 @@
 
 <script setup lang="ts">
 // imports
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
-import { useRouter } from 'vue-router'
+import { onMounted } from 'vue'
+import usePasswordReset from '../composables/usePasswordReset'
 
-// variables
-const email = ref<string>(sessionStorage.getItem('recoverEmail') || '')
-const newPassword = ref<string>('')
-const confirmPassword = ref<string>('')
-const message = ref<string>('')
-const isError = ref<boolean>(false)
-const router = useRouter()
-const peakNewPassword = ref(false)
-const peakConfirmPassword = ref(false)
+// Use the password reset composable
+const {
+  email,
+  newPassword,
+  confirmPassword,
+  message,
+  isError,
+  peakNewPassword,
+  peakConfirmPassword,
+  togglePeakNewPassword,
+  togglePeakConfirmPassword,
+  resetPassword,
+  checkAuth,
+} = usePasswordReset()
 
-// functions to toggle password visibility
-const togglePeakNewPassword = () => {
-  peakNewPassword.value = !peakNewPassword.value
-}
-
-const togglePeakConfirmPassword = () => {
-  peakConfirmPassword.value = !peakConfirmPassword.value
-}
-
-// function to reset password
-const resetPassword = async () => {
-  if (newPassword.value !== confirmPassword.value) {
-    message.value = 'Passwords do not match!'
-    isError.value = true
-    return
-  }
-
-  try {
-    await axios.post('http://localhost:5000/reset_password', {
-      email: email.value,
-      newPassword: newPassword.value,
-    })
-
-    // Show success message
-    message.value = 'Password reset successfully! Redirecting...'
-    isError.value = false
-
-    setTimeout(() => {
-      sessionStorage.removeItem('user') // Log out the user
-      router.replace('/')
-    }, 1500)
-  } catch (error) {
-    if ((error as any).response?.data?.error) {
-      message.value = (error as any).response.data.error
-    } else {
-      message.value = 'Failed to reset password.'
-    }
-    isError.value = true
-  }
-}
-
-// function to log out user
-const logout = () => {
-  sessionStorage.removeItem('user')
-  message.value = 'Session expired. Please log in again.'
-  isError.value = true
-
-  setTimeout(() => {
-    router.replace('/')
-  }, 1500)
-}
-
-onMounted(() => {
-  // Check if user session exists
-  const storedUser = sessionStorage.getItem('user')
-  if (!storedUser) {
-    logout()
-  }
-})
+onMounted(checkAuth)
 </script>
 
 <style scoped>

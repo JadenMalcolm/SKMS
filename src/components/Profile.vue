@@ -13,11 +13,11 @@
         <div class="user-info">
           <div class="info-item">
             <label>Email:</label>
-            <span>{{ user?.email }}</span>
+            <span>{{ currentUser?.email }}</span>
           </div>
           <div class="info-item">
             <label>Role:</label>
-            <span>{{ user?.role }}</span>
+            <span>{{ currentUser?.role }}</span>
           </div>
         </div>
       </div>
@@ -27,7 +27,7 @@
         <div class="section-header">
           <h2>Change Password</h2>
         </div>
-        <form @submit.prevent="changePassword" class="password-form">
+        <form @submit.prevent="handleChangePassword" class="password-form">
           <div class="form-group">
             <label for="currentPassword">Current Password</label>
             <div class="password-wrapper">
@@ -123,7 +123,11 @@
       </div>
 
       <!-- Feedback Message -->
-      <div v-if="message" :class="{ 'success-message': !isError, 'error-message': isError }" class="feedback-message">
+      <div
+        v-if="message"
+        :class="{ 'success-message': !isError, 'error-message': isError }"
+        class="feedback-message"
+      >
         {{ message }}
       </div>
     </div>
@@ -133,83 +137,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import axios from 'axios'
+import { onMounted } from 'vue'
+import useCurrentUser from '../composables/useCurrentUser'
+import usePasswordReset from '../composables/usePasswordReset'
+import type { User } from '../composables/useUsers'
 
-interface User {
-  id: number
-  email: string
-  role: string
-}
+// Get current user
+const { currentUser, loadCurrentUser } = useCurrentUser()
 
-const router = useRouter()
-const user = ref<User | null>(null)
-const currentPassword = ref('')
-const newPassword = ref('')
-const confirmPassword = ref('')
-const message = ref('')
-const isError = ref(false)
-const peakCurrentPassword = ref(false)
-const peakNewPassword = ref(false)
-const peakConfirmPassword = ref(false)
+// Use password reset functionality
+const {
+  currentPassword,
+  newPassword,
+  confirmPassword,
+  message,
+  isError,
+  peakCurrentPassword,
+  peakNewPassword,
+  peakConfirmPassword,
+  togglePeakCurrentPassword,
+  togglePeakNewPassword,
+  togglePeakConfirmPassword,
+  changePassword,
+} = usePasswordReset()
 
-// Toggle password visibility functions
-const togglePeakCurrentPassword = () => {
-  peakCurrentPassword.value = !peakCurrentPassword.value
-}
-
-const togglePeakNewPassword = () => {
-  peakNewPassword.value = !peakNewPassword.value
-}
-
-const togglePeakConfirmPassword = () => {
-  peakConfirmPassword.value = !peakConfirmPassword.value
-}
-
-// Change password function
-const changePassword = async () => {
-  // Reset message
-  message.value = ''
-  isError.value = false
-
-  // Validate passwords
-  if (newPassword.value !== confirmPassword.value) {
-    message.value = 'New passwords do not match'
-    isError.value = true
-    return
-  }
-
-  try {
-    const response = await axios.post('http://localhost:5000/change-password', {
-      userId: user.value?.id,
-      currentPassword: currentPassword.value,
-      newPassword: newPassword.value
-    })
-
-    message.value = response.data.message || 'Password changed successfully'
-    isError.value = false
-
-    // Clear form
-    currentPassword.value = ''
-    newPassword.value = ''
-    confirmPassword.value = ''
-  } catch (error: any) {
-    // Display proper error message from the server if available
-    message.value = error.response?.data?.error || 'Failed to change password'
-    isError.value = true
+// Wrapper for changePassword that provides the user ID
+const handleChangePassword = () => {
+  if (currentUser.value && currentUser.value.id) {
+    changePassword(currentUser.value.id)
   }
 }
 
 onMounted(() => {
-  // Load user from session storage
-  const userString = sessionStorage.getItem('user')
-
-  if (userString) {
-    user.value = JSON.parse(userString)
-  } else {
-    router.push('/')
-  }
+  // Load user data
+  loadCurrentUser()
 })
 </script>
 

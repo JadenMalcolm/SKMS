@@ -59,60 +59,30 @@
 </template>
 
 <script setup lang="ts">
-// imports
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import axios from 'axios'
-// variables
-const email = ref('')
-const password = ref('')
-const peakPassword = ref(false) // renamed from showPassword
-const router = useRouter()
+import { onMounted } from 'vue'
+import useAuth from '../composables/useAuth'
 
-// New reactive properties for messages
-const loginMessage = ref('')
-const isError = ref(false)
+const {
+  email,
+  password,
+  peakPassword,
+  loginMessage,
+  isError,
+  togglePeakPassword,
+  handleLogin,
+  navigateToSignup,
+  navigateToRecover,
+  checkAuth,
+} = useAuth()
 
-// function to toggle password visibility
-const togglePeakPassword = () => {
-  peakPassword.value = !peakPassword.value
-}
-
-// function to handle login
-const handleLogin = async () => {
-  try {
-    const response = await axios.post('http://localhost:5000/login', {
-      email: email.value.toLowerCase(), // Convert email to lowercase
-      password: password.value,
-    })
-
-    const user = response.data.user
-    // storing user session
-    sessionStorage.setItem('user', JSON.stringify(user))
-
-    // Show success message
-    loginMessage.value = 'Login successful! Redirecting...'
-    isError.value = false
-
-    setTimeout(() => {
-      router.push('/dashboard') // Redirect after a short delay
-    }, 1500)
-  } catch (error) {
-    // Show error message
-    loginMessage.value = 'Login failed. Please check your credentials.'
-    isError.value = true
+// Check if already logged in
+onMounted(() => {
+  const user = checkAuth()
+  if (user) {
+    // User is already logged in, redirect to dashboard
+    window.location.href = '/dashboard'
   }
-}
-
-// function to navigate to signup page
-const navigateToSignup = () => {
-  router.push('/signup')
-}
-
-// function to navigate to recover password page
-const navigateToRecover = () => {
-  router.push('/recover')
-}
+})
 </script>
 
 <style scoped>
@@ -160,6 +130,4 @@ const navigateToRecover = () => {
   color: #0056b3;
   text-decoration: underline;
 }
-
-
 </style>

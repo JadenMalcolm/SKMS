@@ -41,27 +41,11 @@
         <div v-for="message in messages" :key="message.id">
           <div v-if="message.sender_id === currentUser?.id" class="user">
             <p>{{ message.message }}</p>
-            <small class="timestamp">{{
-              new Date(message.timestamp).toLocaleString([], {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-              })
-            }}</small>
+            <small class="timestamp">{{ formatDate(message.timestamp) }}</small>
           </div>
           <div v-else class="bot">
             <p>{{ message.message }}</p>
-            <small class="timestamp">{{
-              new Date(message.timestamp).toLocaleString([], {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-              })
-            }}</small>
+            <small class="timestamp">{{ formatDate(message.timestamp) }}</small>
           </div>
         </div>
       </div>
@@ -71,7 +55,7 @@
           placeholder="Type your message..."
           class="textarea"
         ></textarea>
-        <button @click="sendMessage" class="button button-success">Send</button>
+        <button @click="handleSendMessage" class="button button-success">Send</button>
       </div>
     </div>
     <SidebarMenu />
@@ -80,65 +64,51 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick, onUnmounted, watch } from 'vue'
+import { ref, onMounted, nextTick, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import useUsers from '../composables/useUsers'
+import type { User } from '../composables/useUsers'
+import useMessages from '../composables/useMessages'
+import useFormatDate from '../composables/useFormatDate'
 
-// Define interfaces for User and Message
-interface User {
+// Initialize router
+const router = useRouter()
+
+// Initialize with proper type to avoid TypeScript errors
+const currentUser = ref<User | null>(null)
+
+// Load the user composable
+const {
+  selectedUser,
+  searchQuery,
+  newChatSearchQuery,
+  filteredUsers,
+  newChatFilteredUsers,
+  fetchUsers,
+  fetchAllUsers,
+} = useUsers(currentUser)
+
+// Load the messages composable
+const {
+  messages,
+  newMessage,
+  messagesContainer,
+  selectUser,
+  sendMessage,
+  scrollToBottom,
+  cleanup,
+} = useMessages(currentUser, selectedUser)
+
+// Load date formatting composable
+const { formatDate } = useFormatDate()
+
+// Helper function to handle sending messages that calls the composable function
+const handleSendMessage = () => sendMessage(fetchUsers)
+
+// Define a type for our custom event
+interface OpenChatEventDetail {
   id: number
   email: string
-}
-
-interface Message {
-  id: number
-  sender_id: number
-  receiver_id: number
-  message: string
-  timestamp: string
-}
-
-// Initialize router and reactive variables
-const router = useRouter()
-const currentUser = ref<User | null>(null)
-const users = ref<User[]>([])
-const allUsers = ref<User[]>([])
-const selectedUser = ref<User | null>(null)
-const messages = ref<Message[]>([])
-const newMessage = ref('')
-const searchQuery = ref('')
-const newChatSearchQuery = ref('')
-const messagesContainer = ref<HTMLElement | null>(null)
-const pollingInterval = ref<number | null>(null) // Store interval ID
-const POLLING_FREQUENCY = 3000 // Check for new messages every 3 seconds
-
-// Fetch users who have messaged the current user
-const fetchUsers = async () => {
-  if (currentUser.value) {
-    try {
-      const response = await axios.get(`http://localhost:5000/users/${currentUser.value.id}`)
-      users.value = response.data
-    } catch (error) {
-      console.error('Error fetching users:', error)
-    }
-  }
-}
-
-// Fetch all users
-const fetchAllUsers = async () => {
-  try {
-    const response = await axios.get('http://localhost:5000/all-users')
-    allUsers.value = response.data
-  } catch (error) {
-    console.error('Error fetching all users:', error)
-  }
-}
-
-// Scroll to the bottom of the messages container
-const scrollToBottom = () => {
-  if (messagesContainer.value) {
-    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-  }
 }
 
 // On component mount, fetch user data and scroll to bottom
@@ -146,20 +116,31 @@ onMounted(async () => {
   // store user data in session storage
   const storedUser = sessionStorage.getItem('user')
   if (storedUser) {
-    currentUser.value = JSON.parse(storedUser)
+    try {
+      currentUser.value = JSON.parse(storedUser) as User
+    } catch (e) {
+      console.error('Error parsing user from sessionStorage:', e)
+      router.push('/')
+      return
+    }
   } else {
     router.push('/')
+    return
   }
+
   // Fetch users and all users
-  // scroll to bottom
   await fetchUsers()
   await fetchAllUsers()
   nextTick(scrollToBottom)
 
   // Listen for the open-chat event to start a chat with a specific user
   window.addEventListener('open-chat', async (event: Event) => {
-    const user = (event as CustomEvent).detail
-    if (user) {
+    const customEvent = event as CustomEvent<OpenChatEventDetail>
+    if (customEvent.detail && customEvent.detail.id) {
+      const user: User = {
+        id: customEvent.detail.id,
+        email: customEvent.detail.email || 'Unknown User',
+      }
       await selectUser(user)
     }
   })
@@ -167,103 +148,8 @@ onMounted(async () => {
 
 // Clean up polling interval when component unmounts
 onUnmounted(() => {
-  if (pollingInterval.value !== null) {
-    clearInterval(pollingInterval.value)
-  }
+  cleanup()
 })
-
-// Start polling for new messages
-const startPolling = () => {
-  // Clear any existing polling
-  if (pollingInterval.value !== null) {
-    clearInterval(pollingInterval.value)
-  }
-
-  // Set new polling interval
-  if (currentUser.value && selectedUser.value) {
-    pollingInterval.value = window.setInterval(async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:5000/messages/${currentUser.value?.id}/${selectedUser.value?.id}`,
-        )
-
-        // Only update if there are new messages
-        if (response.data.length > messages.value.length) {
-          messages.value = response.data
-          nextTick(scrollToBottom)
-        }
-      } catch (error) {
-        console.error('Error polling messages:', error)
-      }
-    }, POLLING_FREQUENCY)
-  }
-}
-
-// Computed property to filter users based on search query
-const filteredUsers = computed(() => {
-  return users.value.filter(
-    (user) =>
-      user.id !== currentUser.value?.id &&
-      user.email.toLowerCase().includes(searchQuery.value.toLowerCase()),
-  )
-})
-
-// Computed property to filter all users based on new chat search query
-const newChatFilteredUsers = computed(() => {
-  return allUsers.value.filter(
-    (user) =>
-      user.id !== currentUser.value?.id &&
-      user.email.toLowerCase().includes(newChatSearchQuery.value.toLowerCase()),
-  )
-})
-
-// Select a user to chat with and fetch messages
-const selectUser = async (user: User) => {
-  if (user.id !== currentUser.value?.id) {
-    selectedUser.value = user
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/messages/${currentUser.value?.id}/${user.id}`,
-      )
-      messages.value = response.data
-
-      // Start polling for new messages with this user
-      startPolling()
-    } catch (error) {
-      console.error('Error fetching messages:', error)
-    }
-    nextTick(scrollToBottom)
-  }
-}
-
-// Watch for changes to selectedUser and restart polling if needed
-watch(selectedUser, (newUser) => {
-  if (newUser) {
-    startPolling()
-  } else if (pollingInterval.value !== null) {
-    clearInterval(pollingInterval.value)
-  }
-})
-
-// Send a new message and fetch updated user list
-const sendMessage = async () => {
-  if (newMessage.value.trim() && selectedUser.value) {
-    try {
-      const response = await axios.post('http://localhost:5000/messages', {
-        sender_id: currentUser.value?.id,
-        receiver_id: selectedUser.value.id,
-        message: newMessage.value,
-      })
-      messages.value.push(response.data)
-      newMessage.value = ''
-
-      await fetchUsers()
-    } catch (error) {
-      console.error('Error sending message:', error)
-    }
-    nextTick(scrollToBottom)
-  }
-}
 </script>
 
 <style scoped>

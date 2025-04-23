@@ -35,7 +35,7 @@
 
         <div class="popup-actions">
           <button @click="submitFeedback" class="button button-success">Submit</button>
-          <button @click="emit('close')" class="button button-danger">Cancel</button>
+          <button @click="closePopup" class="button button-danger">Cancel</button>
         </div>
         <p v-if="feedbackMessage" class="feedback-message">{{ feedbackMessage }}</p>
       </div>
@@ -44,51 +44,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits } from 'vue'
-import axios from 'axios'
+import { defineProps, defineEmits } from 'vue'
+import useFeedback from '../composables/useFeedback'
 
 const props = defineProps({
   showPopup: Boolean,
 })
 
 const emit = defineEmits(['close'])
-const feedbackType = ref('voice')
-const feedbackText = ref('')
-const isAnonymous = ref(false)
-const feedbackMessage = ref('')
 
-const submitFeedback = async () => {
-  if (!feedbackText.value) {
-    feedbackMessage.value = 'Please enter your feedback before submitting.'
-    return
-  }
-
-  try {
-    const currentUser = JSON.parse(sessionStorage.getItem('user') || 'null')
-    const userId = currentUser?.id || null
-
-    const response = await axios.post('http://localhost:5000/feedback', {
-      type: feedbackType.value,
-      text: feedbackText.value,
-      anonymous: isAnonymous.value,
-      userId: isAnonymous.value ? null : userId,
-    })
-
-    feedbackMessage.value = 'Thank you for your feedback!'
-
-    // Reset form after successful submission
-    setTimeout(() => {
-      feedbackText.value = ''
-      feedbackType.value = 'voice'
-      isAnonymous.value = false
-      feedbackMessage.value = ''
-      emit('close')
-    }, 1500)
-  } catch (error) {
-    console.error('Error submitting feedback:', error)
-    feedbackMessage.value = 'Failed to submit feedback. Please try again later.'
-  }
+const closePopup = () => {
+  emit('close')
 }
+
+const { feedbackType, feedbackText, isAnonymous, feedbackMessage, submitFeedback } =
+  useFeedback(closePopup)
 </script>
 
 <style scoped>

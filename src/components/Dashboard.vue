@@ -47,15 +47,7 @@
             <ul>
               <li v-for="(q, index) in searchResults" :key="index" class="question-item">
                 <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
-                <small>{{
-                  new Date(q.timestamp).toLocaleString([], {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })
-                }}</small>
+                <small>{{ formatDate(q.timestamp) }}</small>
                 <small>Category: {{ q.category }}</small>
                 <small>Asked by: {{ q.user_email }}</small>
               </li>
@@ -70,15 +62,7 @@
           <ul>
             <li v-for="(q, index) in userQuestions" :key="index" class="question-item">
               <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
-              <small>{{
-                new Date(q.timestamp).toLocaleString([], {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })
-              }}</small>
+              <small>{{ formatDate(q.timestamp) }}</small>
               <small>Category: {{ q.category }}</small>
             </li>
           </ul>
@@ -91,15 +75,7 @@
           <ul>
             <li v-for="(q, index) in subscribedQuestions" :key="index" class="question-item">
               <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
-              <small>{{
-                new Date(q.timestamp).toLocaleString([], {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })
-              }}</small>
+              <small>{{ formatDate(q.timestamp) }}</small>
               <small>Category: {{ q.category }}</small>
               <small>Asked by: {{ q.user_email }}</small>
             </li>
@@ -147,130 +123,37 @@
 </template>
 
 <script setup lang="ts">
-// imports
-import { ref, onMounted, computed } from 'vue'
-import axios from 'axios'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import useCurrentUser from '../composables/useCurrentUser'
+import useQuestions from '../composables/useQuestions'
+import useSubscriptions from '../composables/useSubscriptions'
+import useMeetings from '../composables/useMeetings'
+import useFormatDate from '../composables/useFormatDate'
 
-// interfaces for Question and User
-interface Question {
-  id: number
-  question: string
-  category: string
-  timestamp: string
-  user_email: string
-  isEditing?: boolean
-  editText?: string
-  report_count?: number
-}
-
-interface User {
-  id: number
-  email: string
-  role: string
-}
-
-// Variables
+// Initialize router
 const router = useRouter()
-const searchQuery = ref('')
-const allQuestions = ref<Question[]>([])
-const searchResults = ref<Question[]>([])
-const userQuestions = ref<Question[]>([])
-const subscribedQuestions = ref<Question[]>([])
-const currentUser = ref<User | null>(null)
-interface Meeting {
-  category: string
-  date: string
-  time: string
-  meeting_type: string
-  target_user_email?: string
-  user_email?: string
-  status: string
-}
 
-const myMeetings = ref<Meeting[]>([])
+// Initialize user composable
+const { currentUser, loadCurrentUser } = useCurrentUser()
 
-// function to get subscribed questions
-const fetchSubscribedQuestions = async () => {
-  if (currentUser.value) {
-    try {
-      const subscribedResponse = await axios.get(
-        `http://localhost:5000/users/${currentUser.value.id}/subscriptions`,
-      )
-      subscribedQuestions.value = subscribedResponse.data
-    } catch (error) {
-      console.error('Error fetching subscribed questions:', error)
-    }
-  }
-}
-// function to handle question search
-const searchQuestions = async () => {
-  console.log(formatTime('14:30'))
-  try {
-    const response = await axios.post(`http://localhost:5000/questions/search`, {
-      query: searchQuery.value,
-    })
-    searchResults.value = response.data
-  } catch (error) {
-    console.error('Error searching questions:', error)
-  }
-}
+// Initialize other composables with the current user ref
+const { searchQuery, searchResults, userQuestions, fetchAllQuestions, searchQuestions: originalSearchQuestions } =
+  useQuestions(currentUser)
 
-const fetchMeetings = async () => {
-  if (currentUser.value) {
-    try {
-      const endpoint = `http://localhost:5000/meetings/${currentUser.value.id}`
-      const response = await axios.get(endpoint)
-      myMeetings.value = response.data
-    } catch (error) {
-      console.error('Error fetching meetings:', error)
-    }
-  }
-}
+// Wrap searchQuestions to handle @click event
+const searchQuestions = () => originalSearchQuestions()
+const { subscribedQuestions, fetchSubscribedQuestions } = useSubscriptions(currentUser)
+const { myMeetings, fetchMeetings } = useMeetings(currentUser)
+const { formatDate, formatTime } = useFormatDate()
 
-const formatTime = (time: string) => {
-  const [hour, minute] = time.split(':')
-  const date = new Date()
-  date.setHours(parseInt(hour), parseInt(minute))
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
-}
-
-const formatDate = (date: string) => {
-  const parsedDate = new Date(date)
-  if (isNaN(parsedDate.getTime())) {
-    return date // Return the original string if parsing fails
-  }
-  const month = String(parsedDate.getMonth() + 1).padStart(2, '0')
-  const day = String(parsedDate.getDate()).padStart(2, '0')
-  const year = parsedDate.getFullYear()
-  return `${month}/${day}/${year}`
-}
-
+// Load data on component mount
 onMounted(async () => {
-  // Check if user session exists
-  const storedUser = sessionStorage.getItem('user')
-  if (storedUser) {
-    // Parse the stored user data
-    currentUser.value = JSON.parse(storedUser)
-    if (currentUser.value) {
-      // Fetch all questions and filter them
-      // based on the current user's email
-      try {
-        const response = await axios.get(`http://localhost:5000/questions`)
-        allQuestions.value = response.data
-
-        userQuestions.value = allQuestions.value
-          .filter((q) => q.user_email === currentUser.value?.email)
-          .map((q) => ({ ...q, isEditing: false, editText: q.question }))
-
-        await fetchSubscribedQuestions()
-        await fetchMeetings()
-      } catch (error) {
-        console.error('Error fetching questions:', error)
-      }
-    }
-  } else {
-    router.push('/')
+  await loadCurrentUser()
+  if (currentUser.value) {
+    await fetchAllQuestions()
+    await fetchSubscribedQuestions()
+    await fetchMeetings()
   }
 })
 
