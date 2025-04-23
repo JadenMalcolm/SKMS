@@ -10,13 +10,25 @@ export default function useAuth() {
   const password = ref('')
   const peakPassword = ref(false)
 
+  // Sign up form inputs
+  const confirmPassword = ref('')
+  const securityChoice = ref('')
+  const securityQuestionAnswer = ref('')
+  const peakConfirmPassword = ref(false)
+
   // Status and messages
   const loginMessage = ref('')
+  const signupMessage = ref('')
   const isError = ref(false)
 
   // Toggle password visibility
   const togglePeakPassword = () => {
     peakPassword.value = !peakPassword.value
+  }
+
+  // Toggle confirm password visibility
+  const togglePeakConfirmPassword = () => {
+    peakConfirmPassword.value = !peakConfirmPassword.value
   }
 
   // Handle login
@@ -42,6 +54,36 @@ export default function useAuth() {
       // Show error message
       loginMessage.value = 'Login failed. Please check your credentials.'
       isError.value = true
+    }
+  }
+
+  // Handle signup
+  const handleSignUp = async () => {
+    if (password.value !== confirmPassword.value) {
+      signupMessage.value = 'Passwords do not match!'
+      return
+    }
+    try {
+      await axios.post('http://localhost:5000/signup', {
+        email: email.value.toLowerCase(), // Convert email to lowercase
+        password: password.value,
+        securityQuestion: securityChoice.value,
+        securityQuestionAnswer: securityQuestionAnswer.value,
+      })
+
+      signupMessage.value = 'New Account Created!'
+      router.push('/')
+    } catch (error) {
+      // Handle error response from the backend
+      if (
+        (error as any).response &&
+        (error as any).response.data &&
+        (error as any).response.data.error
+      ) {
+        signupMessage.value = (error as any).response.data.error // Display backend error message
+      } else {
+        signupMessage.value = 'Signup failed'
+      }
     }
   }
 
@@ -74,5 +116,14 @@ export default function useAuth() {
     navigateToSignup,
     navigateToRecover,
     checkAuth,
+
+    // Added for signup functionality
+    confirmPassword,
+    securityChoice,
+    securityQuestionAnswer,
+    peakConfirmPassword,
+    signupMessage,
+    togglePeakConfirmPassword,
+    handleSignUp,
   }
 }

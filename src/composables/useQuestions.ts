@@ -12,6 +12,11 @@ export default function useQuestions(currentUser: Ref<User | null>) {
   const newQuestionText = ref('')
   const feedbackMessage = ref('')
 
+  // For question details
+  const questionDetails = ref<Question | null>(null)
+  const isEditing = ref(false)
+  const editText = ref('')
+
   // Get questions filtered by category
   const getCategoryQuestions = (category: string) => {
     return computed(() => {
@@ -32,6 +37,20 @@ export default function useQuestions(currentUser: Ref<User | null>) {
     } catch (error) {
       console.error('Error fetching questions:', error)
       feedbackMessage.value = 'Error fetching questions.'
+    }
+  }
+
+  // Fetch details for a specific question
+  const fetchQuestionDetails = async (questionId: string | number) => {
+    try {
+      const response = await axios.get<Question>(`http://localhost:5000/questions/${questionId}`)
+      questionDetails.value = response.data
+      editText.value = questionDetails.value.question
+      return questionDetails.value
+    } catch (error) {
+      console.error('Error fetching question details:', error)
+      feedbackMessage.value = 'Error fetching question details.'
+      return null
     }
   }
 
@@ -88,6 +107,57 @@ export default function useQuestions(currentUser: Ref<User | null>) {
     }
   }
 
+  // Function to delete a question
+  const deleteQuestion = async (questionId: string | number) => {
+    try {
+      await axios.delete(`http://localhost:5000/questions/${questionId}`)
+      feedbackMessage.value = 'Question deleted successfully!'
+      return true
+    } catch (error) {
+      console.error('Error deleting question:', error)
+      feedbackMessage.value = 'Error deleting question.'
+      return false
+    }
+  }
+
+  // Function to toggle edit mode for the question
+  const toggleEdit = async (questionId?: string | number) => {
+    if (isEditing.value) {
+      if (!questionDetails.value || !currentUser.value) {
+        feedbackMessage.value = 'Missing question details or user information.'
+        return false
+      }
+
+      if (editText.value.length > 500) {
+        feedbackMessage.value = 'Question text exceeds the character limit of 500.'
+        return false
+      }
+
+      try {
+        // Use the provided questionId or fall back to the value in questionDetails
+        const id = questionId || questionDetails.value.id
+
+        await axios.put(`http://localhost:5000/questions/${id}`, {
+          question: editText.value,
+          category: questionDetails.value.category,
+          user_id: currentUser.value.id,
+        })
+
+        questionDetails.value.question = editText.value
+        feedbackMessage.value = 'Question updated successfully!'
+        isEditing.value = false
+        return true
+      } catch (error) {
+        console.error('Error updating question:', error)
+        feedbackMessage.value = 'Error updating question.'
+        return false
+      }
+    }
+
+    isEditing.value = !isEditing.value
+    return true
+  }
+
   return {
     searchQuery,
     allQuestions,
@@ -95,9 +165,15 @@ export default function useQuestions(currentUser: Ref<User | null>) {
     userQuestions,
     newQuestionText,
     feedbackMessage,
+    questionDetails,
+    isEditing,
+    editText,
     fetchAllQuestions,
+    fetchQuestionDetails,
     searchQuestions,
     submitQuestion,
+    deleteQuestion,
+    toggleEdit,
     getCategoryQuestions,
   }
 }

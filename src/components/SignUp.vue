@@ -9,7 +9,7 @@
           <input
             type="email"
             id="email"
-            v-model="emailInput"
+            v-model="email"
             placeholder="Enter your email"
             class="input"
             required
@@ -20,7 +20,7 @@
             <input
               :type="peakPassword ? 'text' : 'password'"
               id="password"
-              v-model="passwordInput"
+              v-model="password"
               placeholder="Enter your password"
               class="input"
               required
@@ -36,7 +36,7 @@
             <input
               :type="peakConfirmPassword ? 'text' : 'password'"
               id="password2"
-              v-model="confirmPasswordInput"
+              v-model="confirmPassword"
               placeholder="Re-enter your password"
               class="input"
               required
@@ -93,72 +93,33 @@
         </div>
         <button type="submit" class="button button-success full-width">Create Account</button>
       </form>
-      <div v-if="message" class="error-message">{{ message }}</div>
+      <div v-if="signupMessage" class="error-message">{{ signupMessage }}</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// imports
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import axios from 'axios'
+import useAuth from '../composables/useAuth'
 
-// variables
-const emailInput = ref('')
-const passwordInput = ref('')
-const confirmPasswordInput = ref('')
-const router = useRouter()
-const securityChoice = ref('')
-const securityQuestionAnswer = ref('')
-const message = ref('')
-const peakPassword = ref(false)
-const peakConfirmPassword = ref(false)
-
-// function to toggle password visibility
-const togglePeakPassword = () => {
-  peakPassword.value = !peakPassword.value
-}
-
-// function to toggle confirm password visibility
-const togglePeakConfirmPassword = () => {
-  peakConfirmPassword.value = !peakConfirmPassword.value
-}
-
-// function to handle sign up
-const handleSignUp = async () => {
-  if (passwordInput.value !== confirmPasswordInput.value) {
-    message.value = 'Passwords do not match!'
-    return
-  }
-  try {
-    await axios.post('http://localhost:5000/signup', {
-      email: emailInput.value.toLowerCase(), // Convert email to lowercase
-      password: passwordInput.value,
-      securityQuestion: securityChoice.value,
-      securityQuestionAnswer: securityQuestionAnswer.value,
-    })
-
-    message.value = 'New Account Created!'
-    router.push('/')
-  } catch (error) {
-    // Handle error response from the backend
-    if (
-      (error as any).response &&
-      (error as any).response.data &&
-      (error as any).response.data.error
-    ) {
-      message.value = (error as any).response.data.error // Display backend error message
-    } else {
-      message.value = 'Signup failed'
-    }
-  }
-}
+// Use the auth composable
+const {
+  email,
+  password,
+  confirmPassword,
+  securityChoice,
+  securityQuestionAnswer,
+  signupMessage,
+  peakPassword,
+  peakConfirmPassword,
+  togglePeakPassword,
+  togglePeakConfirmPassword,
+  handleSignUp,
+} = useAuth()
 </script>
 
 <style scoped>
-.container{
-  padding: 40px
+.container {
+  padding: 40px;
 }
 .page-header {
   text-align: center;

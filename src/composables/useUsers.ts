@@ -8,6 +8,12 @@ export interface User {
   role?: string
 }
 
+export interface CategorizedUsers {
+  admins: User[]
+  experts: User[]
+  employees: User[]
+}
+
 export default function useUsers(currentUser: Ref<User | null>) {
   const users = ref<User[]>([])
   const allUsers = ref<User[]>([])
@@ -75,6 +81,46 @@ export default function useUsers(currentUser: Ref<User | null>) {
     )
   })
 
+  // Staff management
+  const categorizedUsers = ref<CategorizedUsers>({
+    admins: [],
+    experts: [],
+    employees: [],
+  })
+  const isLoadingStaff = ref(false)
+
+  // Fetch users by role categories (for Staff.vue)
+  const fetchUsersByRole = async () => {
+    try {
+      isLoadingStaff.value = true
+
+      const [adminsResponse, expertsResponse, employeesResponse] = await Promise.all([
+        axios.get('http://localhost:5000/users/admins'),
+        axios.get('http://localhost:5000/users/experts'),
+        axios.get('http://localhost:5000/users/employees'),
+      ])
+
+      categorizedUsers.value = {
+        admins: adminsResponse.data,
+        experts: expertsResponse.data,
+        employees: employeesResponse.data,
+      }
+    } catch (error) {
+      console.error('Error fetching user data by roles:', error)
+    } finally {
+      isLoadingStaff.value = false
+    }
+  }
+
+  // Format expert role for display (remove prefix and capitalize)
+  const formatExpertRole = (role: string): string => {
+    if (!role.startsWith('expert-')) return role
+
+    // Remove 'expert-' prefix and capitalize
+    const domain = role.substring(7)
+    return domain.charAt(0).toUpperCase() + domain.slice(1)
+  }
+
   return {
     users,
     allUsers,
@@ -82,10 +128,14 @@ export default function useUsers(currentUser: Ref<User | null>) {
     searchQuery,
     newChatSearchQuery,
     filteredUsers,
-    filteredAllUsers, // Add the new computed property to the returned object
+    filteredAllUsers,
     newChatFilteredUsers,
     fetchUsers,
     fetchAllUsers,
     selectUser,
+    categorizedUsers,
+    isLoadingStaff,
+    fetchUsersByRole,
+    formatExpertRole,
   }
 }

@@ -17,8 +17,24 @@ export default function useFormatDate() {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
   }
 
+  // Add this new function for formatting date and time together
+  const formatDateTime = (timestamp: string) => {
+    const parsedDate = new Date(timestamp)
+    if (isNaN(parsedDate.getTime())) {
+      return timestamp // Return the original string if parsing fails
+    }
+    return parsedDate.toLocaleString([], {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
+
   return {
     formatDate,
     formatTime,
+    formatDateTime,
   }
 }

@@ -4,7 +4,7 @@
   </div>
   <div class="recover-container">
     <div class="recover-box container">
-      <form @submit.prevent="handleRecover">
+      <form @submit.prevent="submitRecover">
         <div class="form-group">
           <input
             type="email"
@@ -28,38 +28,13 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import axios from 'axios'
+import usePasswordReset from '../composables/usePasswordReset'
 
 const email = ref('')
-const message = ref('')
-const isError = ref(false)
-const router = useRouter()
+const { handleRecover, message, isError } = usePasswordReset()
 
-const handleRecover = async () => {
-  try {
-    const response = await axios.post('http://localhost:5000/recover', {
-      email: email.value.toLowerCase(), // Convert email to lowercase
-    })
-
-    if (response.data.securityQuestion) {
-      sessionStorage.setItem('recoverEmail', email.value)
-      sessionStorage.setItem('user', JSON.stringify({ email: email.value })) // Store user session
-
-      message.value = 'Recovery email sent. Redirecting...'
-      isError.value = false
-
-      setTimeout(() => {
-        router.push('/reset')
-      }, 1500)
-    } else {
-      message.value = 'Recovery failed. Please check your email.'
-      isError.value = true
-    }
-  } catch (error) {
-    message.value = 'Error: Unable to process recovery request.'
-    isError.value = true
-  }
+const submitRecover = () => {
+  handleRecover(email.value)
 }
 </script>
 
@@ -86,19 +61,6 @@ const handleRecover = async () => {
   margin: 1rem 0 1.5rem;
 }
 
-.success-message,
-.error-message {
-  margin-top: 15px;
-  padding: 10px;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 14px;
-}
-
-.success-message {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
 
 .error-message {
   background-color: #ffebee;

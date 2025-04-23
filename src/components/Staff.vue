@@ -3,7 +3,7 @@
     <header class="page-header">
       <h1>Staff</h1>
     </header>
-    <div v-if="loading" class="loading-indicator">
+    <div v-if="isLoadingStaff" class="loading-indicator">
       <p>Loading user data...</p>
     </div>
 
@@ -11,9 +11,11 @@
       <!-- Admins -->
       <div class="container">
         <div class="subsection-header">Administrators</div>
-        <div v-if="users.admins.length === 0" class="empty-state">No administrators found</div>
+        <div v-if="categorizedUsers.admins.length === 0" class="empty-state">
+          No administrators found
+        </div>
         <ul v-else class="user-list">
-          <li v-for="user in users.admins" :key="user.id">
+          <li v-for="user in categorizedUsers.admins" :key="user.id">
             {{ user.email }}
             <span class="role-badge">Admin</span>
           </li>
@@ -23,11 +25,11 @@
       <!-- Experts -->
       <div class="container">
         <div class="subsection-header">Experts</div>
-        <div v-if="users.experts.length === 0" class="empty-state">No experts found</div>
+        <div v-if="categorizedUsers.experts.length === 0" class="empty-state">No experts found</div>
         <ul v-else class="user-list">
-          <li v-for="user in users.experts" :key="user.id">
+          <li v-for="user in categorizedUsers.experts" :key="user.id">
             {{ user.email }}
-            <span class="role-badge">{{ formatExpertRole(user.role) }}</span>
+            <span class="role-badge">{{ formatExpertRole(user.role || 'Unknown') }}</span>
           </li>
         </ul>
       </div>
@@ -35,9 +37,11 @@
       <!-- Employees -->
       <div class="container">
         <div class="subsection-header">Employees</div>
-        <div v-if="users.employees.length === 0" class="empty-state">No employees found</div>
+        <div v-if="categorizedUsers.employees.length === 0" class="empty-state">
+          No employees found
+        </div>
         <ul v-else class="user-list">
-          <li v-for="user in users.employees" :key="user.id">
+          <li v-for="user in categorizedUsers.employees" :key="user.id">
             {{ user.email }}
             <span class="role-badge">Employee</span>
           </li>
@@ -51,64 +55,20 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import axios from 'axios'
+import useCurrentUser from '../composables/useCurrentUser'
+import useUsers from '../composables/useUsers'
 
-const loading = ref(true)
+// Get current user
+const { currentUser, loadCurrentUser } = useCurrentUser()
 
-interface User {
-  id: number
-  email: string
-  role: string
-}
-
-const users = ref<{
-  admins: User[]
-  experts: User[]
-  employees: User[]
-}>({
-  admins: [],
-  experts: [],
-  employees: [],
-})
+// Use the users composable
+const { categorizedUsers, isLoadingStaff, fetchUsersByRole, formatExpertRole } =
+  useUsers(currentUser)
 
 onMounted(async () => {
-  await fetchUserData()
+  await loadCurrentUser()
+  await fetchUsersByRole()
 })
-
-const fetchUserData = async () => {
-  try {
-    loading.value = true
-    console.log('Fetching user data...')
-
-    const [adminsResponse, expertsResponse, employeesResponse] = await Promise.all([
-      axios.get('http://localhost:5000/users/admins'),
-      axios.get('http://localhost:5000/users/experts'),
-      axios.get('http://localhost:5000/users/employees'),
-    ])
-
-    console.log('Admin data:', adminsResponse.data)
-    console.log('Expert data:', expertsResponse.data)
-    console.log('Employee data:', employeesResponse.data)
-
-    users.value = {
-      admins: adminsResponse.data,
-      experts: expertsResponse.data,
-      employees: employeesResponse.data,
-    }
-  } catch (error) {
-    console.error('Error fetching user data:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-const formatExpertRole = (role: string): string => {
-  if (!role.startsWith('expert-')) return role
-
-  // Remove 'expert-' prefix and capitalize
-  const domain = role.substring(7)
-  return domain.charAt(0).toUpperCase() + domain.slice(1)
-}
 </script>
 
 <style scoped>

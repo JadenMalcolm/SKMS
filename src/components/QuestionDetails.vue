@@ -10,7 +10,7 @@
           <p v-if="!isEditing" class="question-text">{{ questionDetails.question }}</p>
           <textarea v-else v-model="editText" class="textarea" maxlength="500"></textarea>
           <div class="question-meta">
-            <small>Asked on: {{ formatDate(questionDetails.timestamp) }}</small>
+            <small>Asked on: {{ formatDateTime(questionDetails.timestamp) }}</small>
             <small>Asked by: {{ questionDetails.user_email }}</small>
             <small>Category: {{ questionDetails.category }}</small>
           </div>
@@ -32,22 +32,26 @@
           >
             Unsubscribe
           </button>
-          <button v-if="isQuestionOwner" @click="toggleEdit" class="button button-primary">
+          <button v-if="isQuestionOwner" @click="handleToggleEdit" class="button button-primary">
             {{ isEditing ? 'Save' : 'Edit' }}
           </button>
-          <button v-if="canDeleteQuestion" @click="deleteQuestion" class="button button-danger">
+          <button
+            v-if="canDeleteQuestion"
+            @click="handleDeleteQuestion"
+            class="button button-danger"
+          >
             Delete Question
           </button>
 
-            <button @click="handleVote('upvote')" class="button button-success">
-              Upvote ({{ upvoteCount }})
-            </button>
-            <button @click="handleVote('downvote')" class="button button-danger">
-              Downvote ({{ downvoteCount }})
-            </button>
-            <button @click="handleVote('report')" class="button button-warning">
-              Report ({{ reportCount }})
-            </button>
+          <button @click="handleQuestionVote('upvote')" class="button button-success">
+            Upvote ({{ upvoteCount }})
+          </button>
+          <button @click="handleQuestionVote('downvote')" class="button button-danger">
+            Downvote ({{ downvoteCount }})
+          </button>
+          <button @click="handleQuestionVote('report')" class="button button-warning">
+            Report ({{ reportCount }})
+          </button>
         </div>
 
         <!-- Response Section -->
@@ -69,16 +73,15 @@
         <div class="subsection-header">
           <h3>Responses ({{ responseList.length }})</h3>
         </div>
-        <div v-for="response in responseList" :key="response.id" class="question-item response-item">
+        <div
+          v-for="response in responseList"
+          :key="response.id"
+          class="question-item response-item"
+        >
           <p v-if="!response.isEditing">{{ response.response }}</p>
-          <textarea
-            v-else
-            v-model="response.editText"
-            class="textarea"
-            maxlength="500"
-          ></textarea>
+          <textarea v-else v-model="response.editText" class="textarea" maxlength="500"></textarea>
           <div class="response-meta">
-            <small>Responded on: {{ formatDate(response.timestamp) }}</small>
+            <small>Responded on: {{ formatDateTime(response.timestamp) }}</small>
             <small>Responded by: {{ response.user_email }}</small>
           </div>
           <div class="response-actions">
@@ -91,7 +94,9 @@
             </button>
             <button
               v-if="response.user_email === currentUser?.email || isAdmin"
-              @click="deleteResponse(response.id)"
+              @click="
+                deleteResponse(response.id);feedbackMessage = responseMessage
+              "
               class="button button-danger button-small"
             >
               Delete
@@ -117,47 +122,59 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
-
-// Define interfaces for Question, Response, and User
-interface Question {
-  id: number
-  question: string
-  category: string
-  timestamp: string
-  user_email: string
-}
-
-interface Response {
-  id: number
-  response: string
-  timestamp: string
-  user_email: string
-  isEditing?: boolean
-  editText?: string
-}
-
-interface User {
-  id: number
-  email: string
-  role: string
-}
+import useSubscriptions from '../composables/useSubscriptions'
+import useResponses from '../composables/useResponses'
+import useVotes from '../composables/useVotes'
+import useQuestions from '../composables/useQuestions'
+import useCurrentUser from '../composables/useCurrentUser'
+import useFormatDate from '../composables/useFormatDate'
 
 const route = useRoute()
 const router = useRouter()
-const questionDetails = ref<Question | null>(null)
-const newResponseText = ref('')
-const responseList = ref<Response[]>([])
-const currentUser = ref<User | null>(null)
-const isSubscribedToQuestion = ref(false)
-const isEditing = ref(false)
-const editText = ref('')
-const upvoteCount = ref(0)
-const downvoteCount = ref(0)
-const reportCount = ref(0)
-const feedbackMessage = ref('')
+
+// Initialize the current user
+const { currentUser, loadCurrentUser } = useCurrentUser()
+onMounted(loadCurrentUser)
+
+// Initialize the questions composable
+const {
+  questionDetails,
+  isEditing,
+  editText,
+  feedbackMessage,
+  fetchQuestionDetails,
+  deleteQuestion,
+  toggleEdit,
+} = useQuestions(currentUser)
+
+// Initialize the subscription composable
+const {
+  isSubscribed: isSubscribedToQuestion,
+  subscriptionMessage,
+  checkSubscriptionStatus,
+  subscribeToQuestion: subscribe,
+  unsubscribeFromQuestion: unsubscribe,
+} = useSubscriptions(currentUser)
+
+// Initialize the responses composable
+const {
+  responseList,
+  newResponseText,
+  responseMessage,
+  fetchResponses,
+  postResponse: submitResponse,
+  editResponse,
+  deleteResponse,
+} = useResponses(currentUser)
+
+// Initialize the votes composable
+const { upvoteCount, downvoteCount, reportCount, voteMessage, fetchVoteCounts, handleVote } =
+  useVotes(currentUser)
+
+// Initialize the formatDate composable
+const { formatDateTime } = useFormatDate()
 
 // Computed properties for common logic
 const isAdmin = computed(() => currentUser.value?.role === 'admin')
@@ -172,198 +189,61 @@ const canDeleteQuestion = computed(() => {
   )
 })
 
-// Utility function to format dates
-const formatDate = (timestamp: string) => {
-  return new Date(timestamp).toLocaleString([], {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
 // Fetch data on mount
 onMounted(async () => {
-  const storedUser = sessionStorage.getItem('user')
-  if (storedUser) currentUser.value = JSON.parse(storedUser)
-
   const questionId = route.params.id
   try {
-    const [questionResponse, responsesResponse, countsResponse] = await Promise.all([
-      axios.get<Question>(`http://localhost:5000/questions/${questionId}`),
-      axios.get<Response[]>(`http://localhost:5000/questions/${questionId}/responses`),
-      axios.get(`http://localhost:5000/questions/${questionId}/counts`),
-    ])
-    questionDetails.value = questionResponse.data
-    editText.value = questionDetails.value.question
-    responseList.value = responsesResponse.data.map((response) => ({
-      ...response,
-      isEditing: false,
-      editText: response.response,
-    }))
-    upvoteCount.value = countsResponse.data.upvotes
-    downvoteCount.value = countsResponse.data.downvotes
-    reportCount.value = countsResponse.data.reports
+    await fetchQuestionDetails(String(questionId))
+    await fetchResponses(String(questionId))
+    await fetchVoteCounts(String(questionId))
 
+    // Check subscription status using the composable
     if (currentUser.value) {
-      const subscriptionResponse = await axios.get<boolean>(
-        `http://localhost:5000/subscriptions/${currentUser.value.id}/${questionId}`,
-      )
-      isSubscribedToQuestion.value = subscriptionResponse.data
+      await checkSubscriptionStatus(String(questionId))
     }
   } catch (error) {
     console.error('Error fetching data:', error)
   }
 })
 
-// Consolidated vote handling
-const handleVote = async (type: 'upvote' | 'downvote' | 'report') => {
-  try {
-    if (!currentUser.value) throw new Error('User not logged in.')
-    await axios.post(`http://localhost:5000/questions/${route.params.id}/${type}`, {
-      user_id: currentUser.value.id,
-    })
-    const countsResponse = await axios.get(
-      `http://localhost:5000/questions/${route.params.id}/counts`,
-    )
-    upvoteCount.value = countsResponse.data.upvotes
-    downvoteCount.value = countsResponse.data.downvotes
-    reportCount.value = countsResponse.data.reports
-    feedbackMessage.value = `Question ${type}d successfully!`
-  } catch (error) {
-    console.error(`Error handling ${type}:`, error)
-    feedbackMessage.value = `Error handling ${type}.`
-  }
+// Using the vote composable to handle voting
+const handleQuestionVote = async (type: 'upvote' | 'downvote' | 'report') => {
+  const result = await handleVote(String(route.params.id), type)
+  feedbackMessage.value = voteMessage.value
 }
 
-// Other functions remain unchanged
+// Using the composable for response handling
 const postResponse = async () => {
-  if (!newResponseText.value.trim() || newResponseText.value.length > 500) return
-  try {
-    if (!currentUser.value) throw new Error('User not logged in.')
-    const response = await axios.post(`http://localhost:5000/responses`, {
-      question_id: route.params.id,
-      user_id: currentUser.value.id,
-      response: newResponseText.value,
-    })
-    responseList.value.unshift({
-      id: response.data.id,
-      response: newResponseText.value,
-      timestamp: new Date().toISOString(),
-      user_email: currentUser.value.email,
-      isEditing: false,
-      editText: newResponseText.value,
-    })
-    newResponseText.value = ''
-    feedbackMessage.value = 'Response posted successfully!'
-  } catch (error) {
-    console.error('Error posting response:', error)
-    feedbackMessage.value = 'Error posting response.'
-  }
+  const result = await submitResponse(String(route.params.id))
+  feedbackMessage.value = responseMessage.value
 }
 
-// Function to edit a response
-const editResponse = async (response: Response) => {
-  if (response.isEditing) {
-    if (response.editText && response.editText.length > 500) {
-      feedbackMessage.value = 'Response text exceeds the character limit of 500.'
-      return
-    }
-    try {
-      await axios.put(`http://localhost:5000/responses/${response.id}`, {
-        response: response.editText,
-      })
-      response.response = response.editText || response.response
-      response.isEditing = false
-      feedbackMessage.value = 'Response updated successfully!'
-    } catch (error) {
-      console.error('Error updating response:', error)
-      feedbackMessage.value = 'Error updating response.'
-    }
-  } else {
-    response.isEditing = true
-  }
+// Handle question editing
+const handleToggleEdit = async () => {
+  // Pass the question ID explicitly to ensure it's available
+  await toggleEdit(String(route.params.id))
 }
 
-// Function to delete a response
-const deleteResponse = async (responseId: number) => {
-  try {
-    await axios.delete(`http://localhost:5000/responses/${responseId}`)
-    responseList.value = responseList.value.filter((response) => response.id !== responseId)
-    feedbackMessage.value = 'Response deleted successfully!'
-  } catch (error) {
-    console.error('Error deleting response:', error)
-    feedbackMessage.value = 'Error deleting response.'
-  }
-}
-
-// Function to delete a question
-const deleteQuestion = async () => {
-  try {
-    await axios.delete(`http://localhost:5000/questions/${route.params.id}`)
-    feedbackMessage.value = 'Question deleted successfully!'
+// Handle question deletion
+const handleDeleteQuestion = async () => {
+  const result = await deleteQuestion(String(route.params.id))
+  if (result) {
     router.push('/dashboard')
-  } catch (error) {
-    console.error('Error deleting question:', error)
-    feedbackMessage.value = 'Error deleting question.'
   }
 }
 
-// Function to toggle edit mode for the question
-const toggleEdit = async () => {
-  if (isEditing.value) {
-    if (editText.value.length > 500) {
-      feedbackMessage.value = 'Question text exceeds the character limit of 500.'
-      return
-    }
-    try {
-      await axios.put(`http://localhost:5000/questions/${route.params.id}`, {
-        question: editText.value,
-        category: questionDetails.value!.category,
-        user_id: currentUser.value!.id,
-      })
-      questionDetails.value!.question = editText.value
-      feedbackMessage.value = 'Question updated successfully!'
-    } catch (error) {
-      console.error('Error updating question:', error)
-      feedbackMessage.value = 'Error updating question.'
-    }
-  }
-  isEditing.value = !isEditing.value
-}
-
-// Function to subscribe to a question
+// Using the composable's subscription functions
 const subscribeToQuestion = async () => {
-  try {
-    if (!currentUser.value) throw new Error('User not logged in.')
-    await axios.post(`http://localhost:5000/subscriptions`, {
-      user_id: currentUser.value.id,
-      question_id: route.params.id,
-    })
-    isSubscribedToQuestion.value = true
-    feedbackMessage.value = 'Subscribed to question successfully!'
-  } catch (error) {
-    console.error('Error subscribing to question:', error)
-    feedbackMessage.value = 'Error subscribing to question.'
+  const result = await subscribe(String(route.params.id))
+  if (result) {
+    feedbackMessage.value = subscriptionMessage.value
   }
 }
 
-// Function to unsubscribe from a question
 const unsubscribeFromQuestion = async () => {
-  try {
-    if (!currentUser.value) throw new Error('User not logged in.')
-    await axios.delete(`http://localhost:5000/subscriptions`, {
-      data: {
-        user_id: currentUser.value.id,
-        question_id: route.params.id,
-      },
-    })
-    isSubscribedToQuestion.value = false
-    feedbackMessage.value = 'Unsubscribed from question successfully!'
-  } catch (error) {
-    console.error('Error unsubscribing from question:', error)
-    feedbackMessage.value = 'Error unsubscribing from question.'
+  const result = await unsubscribe(String(route.params.id))
+  if (result) {
+    feedbackMessage.value = subscriptionMessage.value
   }
 }
 </script>
@@ -479,12 +359,13 @@ const unsubscribeFromQuestion = async () => {
 }
 
 @media (max-width: 600px) {
-  .action-buttons, .vote-buttons {
+  .action-buttons,
+  .vote-buttons {
     flex-direction: column;
     width: 100%;
   }
 
-  .action-buttons .button{
+  .action-buttons .button {
     width: 100%;
   }
 }
