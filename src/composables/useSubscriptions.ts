@@ -2,17 +2,7 @@ import { ref } from 'vue'
 import type { Ref } from 'vue'
 import axios from 'axios'
 import type { User } from './useUsers'
-
-export interface Question {
-  id: number
-  question: string
-  category: string
-  timestamp: string
-  user_email: string
-  isEditing?: boolean
-  editText?: string
-  report_count?: number
-}
+import type { Question } from './useQuestions'
 
 export default function useSubscriptions(currentUser: Ref<User | null>) {
   const subscribedQuestions = ref<Question[]>([])

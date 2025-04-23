@@ -22,7 +22,7 @@ export default function useUsers(currentUser: Ref<User | null>) {
   const newChatSearchQuery = ref('')
 
   // Fetch users who have messaged the current user
-  const fetchUsers = async () => {
+  const fetchMessagedUsers = async () => {
     if (currentUser.value) {
       try {
         const response = await axios.get(`http://localhost:5000/users/${currentUser.value.id}`)
@@ -130,7 +130,7 @@ export default function useUsers(currentUser: Ref<User | null>) {
     filteredUsers,
     filteredAllUsers,
     newChatFilteredUsers,
-    fetchUsers,
+    fetchMessagedUsers,
     fetchAllUsers,
     selectUser,
     categorizedUsers,

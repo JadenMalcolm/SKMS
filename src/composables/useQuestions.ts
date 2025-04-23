@@ -2,7 +2,17 @@ import { ref, computed } from 'vue'
 import type { Ref } from 'vue'
 import axios from 'axios'
 import type { User } from './useUsers'
-import type { Question } from './useSubscriptions'
+
+export interface Question {
+  id: number
+  question: string
+  category: string
+  timestamp: string
+  user_email: string
+  isEditing?: boolean
+  editText?: string
+  report_count?: number
+}
 
 export default function useQuestions(currentUser: Ref<User | null>) {
   const searchQuery = ref('')

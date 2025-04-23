@@ -1,14 +1,11 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-
-// Generic toggle function similar to useAuth's togglePeakPassword
-const togglePasswordVisibility = (passwordRef: { value: boolean }): void => {
-  passwordRef.value = !passwordRef.value
-}
+import usePeakPassword from './usePeakPassword'
 
 export default function usePasswordReset() {
   const router = useRouter()
+  const { usePasswordVisibility } = usePeakPassword()
 
   // State variables
   const email = ref(sessionStorage.getItem('recoverEmail') || '')
@@ -25,14 +22,11 @@ export default function usePasswordReset() {
   const successMessage = ref<string>('')
 
   // Password visibility toggles
-  const peakCurrentPassword = ref(false)
-  const peakNewPassword = ref(false)
-  const peakConfirmPassword = ref(false)
-
-  // Toggle functions
-  const togglePeakCurrentPassword = () => togglePasswordVisibility(peakCurrentPassword)
-  const togglePeakNewPassword = () => togglePasswordVisibility(peakNewPassword)
-  const togglePeakConfirmPassword = () => togglePasswordVisibility(peakConfirmPassword)
+  const { visible: peakCurrentPassword, toggle: togglePeakCurrentPassword } =
+    usePasswordVisibility()
+  const { visible: peakNewPassword, toggle: togglePeakNewPassword } = usePasswordVisibility()
+  const { visible: peakConfirmPassword, toggle: togglePeakConfirmPassword } =
+    usePasswordVisibility()
 
   // Function to reset password (for password recovery)
   const resetPassword = async () => {

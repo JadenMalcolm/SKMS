@@ -84,7 +84,7 @@ const {
   newChatSearchQuery,
   filteredUsers,
   newChatFilteredUsers,
-  fetchUsers,
+  fetchMessagedUsers,
   fetchAllUsers,
 } = useUsers(currentUser)
 
@@ -103,7 +103,7 @@ const {
 const { formatDate } = useFormatDate()
 
 // Helper function to handle sending messages that calls the composable function
-const handleSendMessage = () => sendMessage(fetchUsers)
+const handleSendMessage = () => sendMessage(fetchMessagedUsers)
 
 // Define a type for our custom event
 interface OpenChatEventDetail {
@@ -129,7 +129,7 @@ onMounted(async () => {
   }
 
   // Fetch users and all users
-  await fetchUsers()
+  await fetchMessagedUsers()
   await fetchAllUsers()
   nextTick(scrollToBottom)
 

@@ -45,7 +45,7 @@ export default function useFeedback(closePopup?: () => void) {
       const currentUser = JSON.parse(sessionStorage.getItem('user') || 'null')
       const userId = currentUser?.id || null
 
-      const response = await axios.post('http://localhost:5000/feedback', {
+      await axios.post('http://localhost:5000/feedback', {
         type: feedbackType.value,
         text: feedbackText.value,
         anonymous: isAnonymous.value,

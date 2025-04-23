@@ -1,35 +1,28 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import usePeakPassword from './usePeakPassword'
 
 export default function useAuth() {
   const router = useRouter()
+  const { usePasswordVisibility } = usePeakPassword()
 
   // Form inputs
   const email = ref('')
   const password = ref('')
-  const peakPassword = ref(false)
+  const { visible: peakPassword, toggle: togglePeakPassword } = usePasswordVisibility()
 
   // Sign up form inputs
   const confirmPassword = ref('')
   const securityChoice = ref('')
   const securityQuestionAnswer = ref('')
-  const peakConfirmPassword = ref(false)
+  const { visible: peakConfirmPassword, toggle: togglePeakConfirmPassword } =
+    usePasswordVisibility()
 
   // Status and messages
   const loginMessage = ref('')
   const signupMessage = ref('')
   const isError = ref(false)
-
-  // Toggle password visibility
-  const togglePeakPassword = () => {
-    peakPassword.value = !peakPassword.value
-  }
-
-  // Toggle confirm password visibility
-  const togglePeakConfirmPassword = () => {
-    peakConfirmPassword.value = !peakConfirmPassword.value
-  }
 
   // Handle login
   const handleLogin = async () => {
