@@ -6,8 +6,15 @@ import type { Question } from './useQuestions'
 import useApiUrl from './useApiUrl'
 
 export default function useSubscriptions(currentUser: Ref<User | null>) {
-  const { getBaseUrl } = useApiUrl()
+  const { getBaseUrl, getSecretKey } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
+  const apiKey = getSecretKey()
+
+  // Create request headers with API key
+  const authHeaders = {
+    'X-API-Key': apiKey,
+  }
+
   const subscribedQuestions = ref<Question[]>([])
   const isSubscribed = ref(false)
   const subscriptionMessage = ref('')
@@ -18,6 +25,7 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
     try {
       const subscribedResponse = await axios.get(
         `${apiBaseUrl}/users/${currentUser.value.id}/subscriptions`,
+        { headers: authHeaders }
       )
       subscribedQuestions.value = subscribedResponse.data
     } catch (error) {
@@ -31,6 +39,7 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
     try {
       const response = await axios.get<boolean>(
         `${apiBaseUrl}/subscriptions/${currentUser.value.id}/${questionId}`,
+        { headers: authHeaders }
       )
       isSubscribed.value = response.data
       return response.data
@@ -44,10 +53,14 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
     try {
       if (!currentUser.value) throw new Error('User not logged in.')
 
-      await axios.post(`${apiBaseUrl}/subscriptions`, {
-        user_id: currentUser.value.id,
-        question_id: questionId,
-      })
+      await axios.post(
+        `${apiBaseUrl}/subscriptions`,
+        {
+          user_id: currentUser.value.id,
+          question_id: questionId,
+        },
+        { headers: authHeaders }
+      )
 
       isSubscribed.value = true
       subscriptionMessage.value = 'Subscribed to question successfully!'
@@ -68,6 +81,7 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
       if (!currentUser.value) throw new Error('User not logged in.')
 
       await axios.delete(`${apiBaseUrl}/subscriptions`, {
+        headers: authHeaders,
         data: {
           user_id: currentUser.value.id,
           question_id: questionId,

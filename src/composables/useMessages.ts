@@ -13,8 +13,15 @@ export interface Message {
 }
 
 export default function useMessages(currentUser: Ref<User | null>, selectedUser: Ref<User | null>) {
-  const { getBaseUrl } = useApiUrl()
+  const { getBaseUrl, getSecretKey } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
+  const apiKey = getSecretKey()
+
+  // Create request headers with API key
+  const authHeaders = {
+    'X-API-Key': apiKey
+  }
+
   const messages = ref<Message[]>([])
   const newMessage = ref('')
   const messagesContainer = ref<HTMLElement | null>(null)
@@ -41,6 +48,7 @@ export default function useMessages(currentUser: Ref<User | null>, selectedUser:
         try {
           const response = await axios.get(
             `${apiBaseUrl}/messages/${currentUser.value?.id}/${selectedUser.value?.id}`,
+            { headers: authHeaders }
           )
 
           // Only update if there are new messages
@@ -62,6 +70,7 @@ export default function useMessages(currentUser: Ref<User | null>, selectedUser:
       try {
         const response = await axios.get(
           `${apiBaseUrl}/messages/${currentUser.value?.id}/${user.id}`,
+          { headers: authHeaders }
         )
         messages.value = response.data
 
@@ -78,11 +87,15 @@ export default function useMessages(currentUser: Ref<User | null>, selectedUser:
   const sendMessage = async (fetchUsers: () => Promise<void>) => {
     if (newMessage.value.trim() && selectedUser.value && currentUser.value) {
       try {
-        const response = await axios.post(`${apiBaseUrl}/messages`, {
-          sender_id: currentUser.value.id,
-          receiver_id: selectedUser.value.id,
-          message: newMessage.value,
-        })
+        const response = await axios.post(
+          `${apiBaseUrl}/messages`,
+          {
+            sender_id: currentUser.value.id,
+            receiver_id: selectedUser.value.id,
+            message: newMessage.value,
+          },
+          { headers: authHeaders }
+        )
         messages.value.push(response.data)
         newMessage.value = ''
 

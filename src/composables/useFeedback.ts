@@ -19,8 +19,14 @@ export interface CategorizedFeedback {
 }
 
 export default function useFeedback(closePopup?: () => void) {
-  const { getBaseUrl } = useApiUrl()
+  const { getBaseUrl, getSecretKey } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
+  const apiKey = getSecretKey()
+
+  // Create request headers with API key
+  const authHeaders = {
+    'X-API-Key': apiKey,
+  }
 
   // User feedback submission state
   const feedbackType = ref('voice')
@@ -49,12 +55,16 @@ export default function useFeedback(closePopup?: () => void) {
       const currentUser = JSON.parse(sessionStorage.getItem('user') || 'null')
       const userId = currentUser?.id || null
 
-      await axios.post(`${apiBaseUrl}/feedback`, {
-        type: feedbackType.value,
-        text: feedbackText.value,
-        anonymous: isAnonymous.value,
-        userId: isAnonymous.value ? null : userId,
-      })
+      await axios.post(
+        `${apiBaseUrl}/feedback`,
+        {
+          type: feedbackType.value,
+          text: feedbackText.value,
+          anonymous: isAnonymous.value,
+          userId: isAnonymous.value ? null : userId,
+        },
+        { headers: authHeaders },
+      )
 
       feedbackMessage.value = 'Thank you for your feedback!'
 
@@ -76,7 +86,7 @@ export default function useFeedback(closePopup?: () => void) {
   const fetchFeedbackData = async () => {
     try {
       loading.value = true
-      const response = await axios.get(`${apiBaseUrl}/feedback/categorized`)
+      const response = await axios.get(`${apiBaseUrl}/feedback/categorized`, { headers: authHeaders })
       categorizedFeedback.value = response.data
     } catch (error) {
       console.error('Error fetching feedback data:', error)
@@ -108,7 +118,7 @@ export default function useFeedback(closePopup?: () => void) {
   // Admin function: Delete feedback
   const deleteFeedback = async (item: FeedbackItem) => {
     try {
-      await axios.delete(`${apiBaseUrl}/feedback/${item.id}`)
+      await axios.delete(`${apiBaseUrl}/feedback/${item.id}`, { headers: authHeaders })
 
       // Remove the deleted feedback from the list
       const categories = [

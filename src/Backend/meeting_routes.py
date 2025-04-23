@@ -4,6 +4,7 @@
 ###############################################################################
 from flask import Blueprint, request, jsonify
 import sqlite3
+from auth_helper import require_api_key
 
 meeting_routes = Blueprint('meeting_routes', __name__)
 
@@ -12,6 +13,7 @@ conn = sqlite3.connect('users.db', check_same_thread=False)
 cursor = conn.cursor()
 
 @meeting_routes.route('/schedule-meeting', methods=['POST'])
+@require_api_key
 def schedule_meeting():
     # Schedule a new meeting between users
     data = request.get_json()
@@ -47,6 +49,7 @@ def schedule_meeting():
         return jsonify({'error': f'Database error: {e}'}), 500
 
 @meeting_routes.route('/meetings/<int:user_id>', methods=['GET'])
+@require_api_key
 def get_meetings(user_id):
     # Get all meetings for a specific user
     try:
@@ -78,6 +81,7 @@ def get_meetings(user_id):
         return jsonify({'error': f'Database error: {e}'}), 500
 
 @meeting_routes.route('/meeting-requests/<int:target_user_id>', methods=['GET'])
+@require_api_key
 def get_meeting_requests(target_user_id):
     # Get pending meeting requests sent to a user
     try:
@@ -104,6 +108,7 @@ def get_meeting_requests(target_user_id):
         return jsonify({'error': f'Database error: {e}'}), 500
 
 @meeting_routes.route('/accept-meeting', methods=['POST'])
+@require_api_key
 def accept_meeting():
     # Accept a pending meeting request
     data = request.get_json()
@@ -126,6 +131,7 @@ def accept_meeting():
         return jsonify({'error': f'Database error: {e}'}), 500
 
 @meeting_routes.route('/reject-meeting', methods=['POST'])
+@require_api_key
 def reject_meeting():
     # Reject a pending meeting request
     data = request.get_json()
@@ -148,6 +154,7 @@ def reject_meeting():
         return jsonify({'error': f'Database error: {e}'}), 500
 
 @meeting_routes.route('/delete-meeting', methods=['POST'])
+@require_api_key
 def delete_meeting():
     # Delete a meeting
     data = request.get_json()

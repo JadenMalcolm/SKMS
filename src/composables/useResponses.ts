@@ -18,8 +18,15 @@ export default function useResponses(
   currentUser: Ref<User | null>,
   responseList: Ref<Response[]> = ref([]),
 ) {
-  const { getBaseUrl } = useApiUrl()
+  const { getBaseUrl, getSecretKey } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
+  const apiKey = getSecretKey()
+
+  // Create request headers with API key
+  const authHeaders = {
+    'X-API-Key': apiKey,
+  }
+
   const newResponseText = ref('')
   const responseMessage = ref('')
   const isLoading = ref(false)
@@ -30,6 +37,7 @@ export default function useResponses(
     try {
       const response = await axios.get<Response[]>(
         `${apiBaseUrl}/questions/${questionId}/responses`,
+        { headers: authHeaders },
       )
       responseList.value = response.data.map((item) => ({
         ...item,
@@ -57,11 +65,15 @@ export default function useResponses(
     try {
       if (!currentUser.value) throw new Error('User not logged in.')
 
-      const response = await axios.post(`${apiBaseUrl}/responses`, {
-        question_id: questionId,
-        user_id: currentUser.value.id,
-        response: newResponseText.value,
-      })
+      const response = await axios.post(
+        `${apiBaseUrl}/responses`,
+        {
+          question_id: questionId,
+          user_id: currentUser.value.id,
+          response: newResponseText.value,
+        },
+        { headers: authHeaders },
+      )
 
       responseList.value.unshift({
         id: response.data.id,
@@ -95,9 +107,13 @@ export default function useResponses(
 
       isLoading.value = true
       try {
-        await axios.put(`${apiBaseUrl}/responses/${response.id}`, {
-          response: response.editText,
-        })
+        await axios.put(
+          `${apiBaseUrl}/responses/${response.id}`,
+          {
+            response: response.editText,
+          },
+          { headers: authHeaders },
+        )
 
         response.response = response.editText || response.response
         response.isEditing = false
@@ -120,7 +136,7 @@ export default function useResponses(
   const deleteResponse = async (responseId: number) => {
     isLoading.value = true
     try {
-      await axios.delete(`${apiBaseUrl}/responses/${responseId}`)
+      await axios.delete(`${apiBaseUrl}/responses/${responseId}`, { headers: authHeaders })
       responseList.value = responseList.value.filter((response) => response.id !== responseId)
       responseMessage.value = 'Response deleted successfully!'
       return true

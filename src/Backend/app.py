@@ -17,6 +17,12 @@ from flask_cors import CORS
 from flask import Flask
 import sys
 import os
+from waitress import serve
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.dont_write_bytecode = True
 
@@ -42,4 +48,4 @@ app.register_blueprint(users_routes)
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    serve(app, host='0.0.0.0', port=5000, threads=4, url_prefix='/api')

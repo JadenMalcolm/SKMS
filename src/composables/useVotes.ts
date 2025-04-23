@@ -5,8 +5,15 @@ import type { User } from './useUsers'
 import useApiUrl from './useApiUrl'
 
 export default function useVotes(currentUser: Ref<User | null>) {
-  const { getBaseUrl } = useApiUrl()
+  const { getBaseUrl, getSecretKey } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
+  const apiKey = getSecretKey()
+
+  // Create request headers with API key
+  const authHeaders = {
+    'X-API-Key': apiKey
+  }
+
   const upvoteCount = ref(0)
   const downvoteCount = ref(0)
   const reportCount = ref(0)
@@ -17,7 +24,10 @@ export default function useVotes(currentUser: Ref<User | null>) {
   const fetchVoteCounts = async (questionId: string | number) => {
     isLoading.value = true
     try {
-      const countsResponse = await axios.get(`${apiBaseUrl}/questions/${questionId}/counts`)
+      const countsResponse = await axios.get(
+        `${apiBaseUrl}/questions/${questionId}/counts`,
+        { headers: authHeaders }
+      )
       upvoteCount.value = countsResponse.data.upvotes
       downvoteCount.value = countsResponse.data.downvotes
       reportCount.value = countsResponse.data.reports
@@ -47,9 +57,12 @@ export default function useVotes(currentUser: Ref<User | null>) {
 
     isLoading.value = true
     try {
-      await axios.post(`${apiBaseUrl}/questions/${questionId}/${type}`, {
-        user_id: currentUser.value.id,
-      })
+      await axios.post(`${apiBaseUrl}/questions/${questionId}/${type}`,
+        {
+          user_id: currentUser.value.id,
+        },
+        { headers: authHeaders }
+      )
 
       // Refresh vote counts after voting
       await fetchVoteCounts(questionId)

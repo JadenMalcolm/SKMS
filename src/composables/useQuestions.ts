@@ -16,8 +16,15 @@ export interface Question {
 }
 
 export default function useQuestions(currentUser: Ref<User | null>) {
-  const { getBaseUrl } = useApiUrl()
+  const { getBaseUrl, getSecretKey } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
+  const apiKey = getSecretKey()
+
+  // Create request headers with API key
+  const authHeaders = {
+    'X-API-Key': apiKey
+  }
+
   const searchQuery = ref('')
   const allQuestions = ref<Question[]>([])
   const searchResults = ref<Question[]>([])
@@ -41,7 +48,9 @@ export default function useQuestions(currentUser: Ref<User | null>) {
     if (!currentUser.value) return
 
     try {
-      const response = await axios.get(`${apiBaseUrl}/questions`)
+      const response = await axios.get(`${apiBaseUrl}/questions`,
+        { headers: authHeaders }
+      )
       allQuestions.value = response.data
 
       userQuestions.value = allQuestions.value
@@ -56,7 +65,10 @@ export default function useQuestions(currentUser: Ref<User | null>) {
   // Fetch details for a specific question
   const fetchQuestionDetails = async (questionId: string | number) => {
     try {
-      const response = await axios.get<Question>(`${apiBaseUrl}/questions/${questionId}`)
+      const response = await axios.get<Question>(
+        `${apiBaseUrl}/questions/${questionId}`,
+        { headers: authHeaders }
+      )
       questionDetails.value = response.data
       editText.value = questionDetails.value.question
       return questionDetails.value
@@ -69,9 +81,12 @@ export default function useQuestions(currentUser: Ref<User | null>) {
 
   const searchQuestions = async (category?: string) => {
     try {
-      const response = await axios.post(`${apiBaseUrl}/questions/search`, {
-        query: searchQuery.value,
-      })
+      const response = await axios.post(`${apiBaseUrl}/questions/search`,
+        {
+          query: searchQuery.value,
+        },
+        { headers: authHeaders }
+      )
 
       if (category) {
         searchResults.value = response.data.filter((q: Question) => q.category === category)
@@ -92,11 +107,14 @@ export default function useQuestions(currentUser: Ref<User | null>) {
           return
         }
 
-        const response = await axios.post(`${apiBaseUrl}/questions`, {
-          userId: currentUser.value.id,
-          question: newQuestionText.value,
-          category: category,
-        })
+        const response = await axios.post(`${apiBaseUrl}/questions`,
+          {
+            userId: currentUser.value.id,
+            question: newQuestionText.value,
+            category: category,
+          },
+          { headers: authHeaders }
+        )
 
         const newQuestion = {
           id: response.data.id,
@@ -123,7 +141,9 @@ export default function useQuestions(currentUser: Ref<User | null>) {
   // Function to delete a question
   const deleteQuestion = async (questionId: string | number) => {
     try {
-      await axios.delete(`${apiBaseUrl}/questions/${questionId}`)
+      await axios.delete(`${apiBaseUrl}/questions/${questionId}`,
+        { headers: authHeaders }
+      )
       feedbackMessage.value = 'Question deleted successfully!'
       return true
     } catch (error) {
@@ -150,11 +170,14 @@ export default function useQuestions(currentUser: Ref<User | null>) {
         // Use the provided questionId or fall back to the value in questionDetails
         const id = questionId || questionDetails.value.id
 
-        await axios.put(`${apiBaseUrl}/questions/${id}`, {
-          question: editText.value,
-          category: questionDetails.value.category,
-          user_id: currentUser.value.id,
-        })
+        await axios.put(`${apiBaseUrl}/questions/${id}`,
+          {
+            question: editText.value,
+            category: questionDetails.value.category,
+            user_id: currentUser.value.id,
+          },
+          { headers: authHeaders }
+        )
 
         questionDetails.value.question = editText.value
         feedbackMessage.value = 'Question updated successfully!'

@@ -4,6 +4,7 @@
 ###############################################################################
 from flask import Blueprint, request, jsonify
 import sqlite3
+from auth_helper import require_api_key
 
 feedback_routes = Blueprint('feedback_routes', __name__)
 
@@ -15,6 +16,7 @@ def get_db_connection():
     return conn
 
 @feedback_routes.route('/feedback', methods=['POST'])
+@require_api_key
 def submit_feedback():
     # Submit new user feedback
     data = request.json
@@ -48,6 +50,7 @@ def submit_feedback():
         conn.close()
 
 @feedback_routes.route('/feedback', methods=['GET'])
+@require_api_key
 def get_feedback():
     # Retrieve all feedback (admin access)
     # This endpoint should be restricted to admins in a real application
@@ -78,6 +81,7 @@ def get_feedback():
         conn.close()
 
 @feedback_routes.route('/feedback/categorized', methods=['GET'])
+@require_api_key
 def get_categorized_feedback():
     # Get feedback organized by type and anonymity status
     conn = get_db_connection()
@@ -127,6 +131,7 @@ def get_categorized_feedback():
         conn.close()
 
 @feedback_routes.route('/feedback/<int:feedback_id>', methods=['DELETE'])
+@require_api_key
 def delete_feedback(feedback_id):
     # Delete a feedback item by ID
     # In a real application, check if the user is an admin first

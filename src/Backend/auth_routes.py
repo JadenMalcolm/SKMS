@@ -6,6 +6,7 @@ from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import re
+from auth_helper import require_api_key
 
 auth_routes = Blueprint('auth_routes', __name__)
 
@@ -27,6 +28,7 @@ def is_strong_password(password):
     return has_upper and has_lower and has_digit and long
 
 @auth_routes.route('/signup', methods=['POST'])
+@require_api_key
 def signup():
     # Register a new user
     data = request.get_json()
@@ -51,6 +53,7 @@ def signup():
         return jsonify({'error': 'Email already exists'}), 400
 
 @auth_routes.route('/login', methods=['POST'])
+@require_api_key
 def login():
     # Authenticate user login
     data = request.get_json()
@@ -65,6 +68,7 @@ def login():
     return jsonify({'error': 'Invalid email or password'}), 401
 
 @auth_routes.route('/recover', methods=['POST'])
+@require_api_key
 def recover():
     # Initiate password recovery process
     data = request.get_json()
@@ -78,6 +82,7 @@ def recover():
     return jsonify({'error': 'Email not found'}), 404
 
 @auth_routes.route('/verify_answer', methods=['POST'])
+@require_api_key
 def verify_answer():
     # Verify security question answer
     data = request.get_json()
@@ -92,6 +97,7 @@ def verify_answer():
     return jsonify({'error': 'Incorrect answer'}), 401
 
 @auth_routes.route('/reset_password', methods=['POST'])
+@require_api_key
 def reset_password():
     # Reset user password
     data = request.get_json()
@@ -116,6 +122,7 @@ def reset_password():
     return jsonify({'message': 'Password reset successfully'}), 200
 
 @auth_routes.route('/change-password', methods=['POST'])
+@require_api_key
 def change_password():
     # Change user password (when logged in)
     data = request.get_json()

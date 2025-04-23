@@ -27,8 +27,15 @@ export interface MeetingRequest {
 }
 
 export default function useMeetings(currentUser: Ref<User | null>) {
-  const { getBaseUrl } = useApiUrl()
+  const { getBaseUrl, getSecretKey } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
+  const apiKey = getSecretKey()
+
+  // Create request headers with API key
+  const authHeaders = {
+    'X-API-Key': apiKey
+  }
+
   // State
   const myMeetings = ref<Meeting[]>([])
   const meetingRequests = ref<MeetingRequest[]>([])
@@ -43,7 +50,7 @@ export default function useMeetings(currentUser: Ref<User | null>) {
 
     try {
       const endpoint = `${apiBaseUrl}/meetings/${currentUser.value.id}`
-      const response = await axios.get(endpoint)
+      const response = await axios.get(endpoint, { headers: authHeaders })
       myMeetings.value = response.data
     } catch (error) {
       console.error('Error fetching meetings:', error)
@@ -56,7 +63,7 @@ export default function useMeetings(currentUser: Ref<User | null>) {
     if (!currentUser.value) return
 
     try {
-      const response = await axios.get(`${apiBaseUrl}/meeting-requests/${currentUser.value.id}`)
+      const response = await axios.get(`${apiBaseUrl}/meeting-requests/${currentUser.value.id}`, { headers: authHeaders })
       meetingRequests.value = response.data
     } catch (error) {
       console.error('Error fetching meeting requests:', error)
@@ -77,7 +84,7 @@ export default function useMeetings(currentUser: Ref<User | null>) {
         date: selectedDate.value,
         time: selectedTime.value,
         meeting_type: selectedMeetingType.value,
-      })
+      }, { headers: authHeaders })
       feedbackMessage.value = response.data.message
       await fetchMeetingRequests()
       await fetchMeetings()
@@ -91,7 +98,7 @@ export default function useMeetings(currentUser: Ref<User | null>) {
     try {
       const response = await axios.post(`${apiBaseUrl}/accept-meeting`, {
         meeting_id: meetingId,
-      })
+      }, { headers: authHeaders })
       feedbackMessage.value = response.data.message
       await fetchMeetingRequests()
       await fetchMeetings()
@@ -105,7 +112,7 @@ export default function useMeetings(currentUser: Ref<User | null>) {
     try {
       const response = await axios.post(`${apiBaseUrl}/reject-meeting`, {
         meeting_id: meetingId,
-      })
+      }, { headers: authHeaders })
       feedbackMessage.value = response.data.message
       await fetchMeetingRequests()
       await fetchMeetings()
@@ -118,7 +125,7 @@ export default function useMeetings(currentUser: Ref<User | null>) {
   const rescheduleMeeting = async (request: MeetingRequest) => {
     try {
       // Delete the original meeting request
-      await axios.post(`${apiBaseUrl}/delete-meeting`, { meeting_id: request.id })
+      await axios.post(`${apiBaseUrl}/delete-meeting`, { meeting_id: request.id }, { headers: authHeaders })
       feedbackMessage.value = `Please select ${request.user_email} to reschedule the meeting and set a new date and time.`
       await fetchMeetingRequests()
       await fetchMeetings()
@@ -134,7 +141,7 @@ export default function useMeetings(currentUser: Ref<User | null>) {
     try {
       const response = await axios.post(`${apiBaseUrl}/delete-meeting`, {
         meeting_id: meetingId,
-      })
+      }, { headers: authHeaders })
       feedbackMessage.value = response.data.message
       await fetchMeetingRequests()
       await fetchMeetings()

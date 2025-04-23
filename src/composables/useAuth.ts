@@ -7,8 +7,14 @@ import useApiUrl from './useApiUrl'
 export default function useAuth() {
   const router = useRouter()
   const { usePasswordVisibility } = usePeakPassword()
-  const { getBaseUrl } = useApiUrl()
+  const { getBaseUrl, getSecretKey } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
+  const apiKey = getSecretKey()
+
+  // Create request headers with API key
+  const authHeaders = {
+    'X-API-Key': apiKey,
+  }
 
   // Form inputs
   const email = ref('')
@@ -30,10 +36,14 @@ export default function useAuth() {
   // Handle login
   const handleLogin = async () => {
     try {
-      const response = await axios.post(`${apiBaseUrl}/login`, {
-        email: email.value.toLowerCase(), // Convert email to lowercase
-        password: password.value,
-      })
+      const response = await axios.post(
+        `${apiBaseUrl}/login`,
+        {
+          email: email.value.toLowerCase(), // Convert email to lowercase
+          password: password.value,
+        },
+        { headers: authHeaders }
+      )
 
       const user = response.data.user
       // storing user session
@@ -60,12 +70,16 @@ export default function useAuth() {
       return
     }
     try {
-      await axios.post(`${apiBaseUrl}/signup`, {
-        email: email.value.toLowerCase(), // Convert email to lowercase
-        password: password.value,
-        securityQuestion: securityChoice.value,
-        securityQuestionAnswer: securityQuestionAnswer.value,
-      })
+      await axios.post(
+        `${apiBaseUrl}/signup`,
+        {
+          email: email.value.toLowerCase(), // Convert email to lowercase
+          password: password.value,
+          securityQuestion: securityChoice.value,
+          securityQuestionAnswer: securityQuestionAnswer.value,
+        },
+        { headers: authHeaders }
+      )
 
       signupMessage.value = 'New Account Created!'
       router.push('/')

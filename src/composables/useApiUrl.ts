@@ -10,7 +10,13 @@ export default function useApiUrl() {
     return import.meta.env.VITE_API_URL
   }
 
+  // Get the API key from environment variables
+  const getSecretKey = (): string => {
+    return import.meta.env.VITE_SECRET_KEY
+  }
+
   return {
     getBaseUrl,
+    getSecretKey
   }
 }
