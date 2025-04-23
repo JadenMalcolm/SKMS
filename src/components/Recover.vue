@@ -1,25 +1,18 @@
 <template>
-  <div class="page-header">
-    <h1>Recover Password</h1>
-  </div>
+  <header class="page-header"><h1>Recover Password</h1></header>
   <div class="recover-container">
     <div class="recover-box container">
-      <form @submit.prevent="submitRecover">
-        <div class="form-group">
-          <input
-            type="email"
-            id="email"
-            v-model="email"
-            placeholder="Enter your email"
-            required
-            class="input"
-          />
-        </div>
+      <form @submit.prevent="handleRecover(email)">
+        <input
+          type="email"
+          v-model="email"
+          placeholder="Enter your email"
+          required
+          class="input mb-20"
+        />
         <button type="submit" class="button button-success full-width">Submit</button>
       </form>
-
-      <!-- Message Display -->
-      <p v-if="message" :class="{ 'error-message': isError, 'success-message': !isError }">
+      <p v-if="message" :class="isError ? 'error-message' : 'success-message'">
         {{ message }}
       </p>
     </div>
@@ -32,10 +25,6 @@ import usePasswordReset from '../composables/usePasswordReset'
 
 const email = ref('')
 const { handleRecover, message, isError } = usePasswordReset()
-
-const submitRecover = () => {
-  handleRecover(email.value)
-}
 </script>
 
 <style scoped>
@@ -53,17 +42,12 @@ const submitRecover = () => {
   padding: 30px;
   text-align: center;
 }
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
 .full-width {
   width: 100%;
-}
-
-.form-group {
-  margin: 1rem 0 1.5rem;
-}
-
-
-.error-message {
-  background-color: #ffebee;
-  color: #c62828;
 }
 </style>

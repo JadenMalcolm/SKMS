@@ -1,3 +1,7 @@
+###############################################################################
+# Response routes module.
+# Manages responses to questions, including CRUD operations.
+###############################################################################
 from flask import Blueprint, request, jsonify
 import sqlite3
 
@@ -9,20 +13,24 @@ cursor = conn.cursor()
 
 @response_routes.route('/responses', methods=['POST'])
 def save_response():
+    # Save a new response to a question
     data = request.get_json()
     question_id = data.get('question_id')
     user_id = data.get('user_id')
     response_text = data.get('response')
 
+    # Validate required fields
     if not question_id or not user_id or not response_text:
         return jsonify({'error': 'Question ID, User ID, and response are required.'}), 400
 
+    # Insert the new response
     cursor.execute("INSERT INTO responses (question_id, user_id, response) VALUES (?, ?, ?)", (question_id, user_id, response_text))
     conn.commit()
     return jsonify({'message': 'Response saved successfully!', 'id': cursor.lastrowid}), 201
 
 @response_routes.route('/questions/<int:id>/responses', methods=['GET'])
 def get_responses(id):
+    # Get all responses for a specific question
     cursor.execute('''
         SELECT r.id, r.response, r.timestamp, u.email
         FROM responses r
@@ -38,7 +46,9 @@ def get_responses(id):
 
 @response_routes.route('/responses/<int:response_id>', methods=['PUT', 'DELETE'])
 def manage_response(response_id):
+    # Update or delete a specific response
     if request.method == 'PUT':
+        # Update response text
         data = request.get_json()
         response_text = data.get('response')
 
@@ -50,6 +60,7 @@ def manage_response(response_id):
         return jsonify({'message': 'Response updated successfully!'}), 200
 
     if request.method == 'DELETE':
+        # Delete response
         cursor.execute("DELETE FROM responses WHERE id = ?", (response_id,))
         conn.commit()
         return jsonify({'message': 'Response deleted successfully!'}), 200

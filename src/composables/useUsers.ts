@@ -39,7 +39,7 @@ export default function useUsers(currentUser: Ref<User | null>) {
   // Fetch all users
   const fetchAllUsers = async () => {
     try {
-      const response = await axios.get(`${apiBaseUrl}/all-users`)
+      const response = await axios.get(`${apiBaseUrl}/users/all`)
       // Filter out the current user from the list
       if (currentUser.value) {
         allUsers.value = response.data.filter((user: User) => user.id !== currentUser.value?.id)

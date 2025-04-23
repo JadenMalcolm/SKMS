@@ -1,3 +1,7 @@
+###############################################################################
+# Main Flask application entry point.
+# Configures and starts the Flask server with all route blueprints registered.
+###############################################################################
 from dm_routes import dm_routes
 from chatbot_routes import chatbot_routes
 from vote_routes import vote_routes

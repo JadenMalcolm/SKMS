@@ -1,3 +1,7 @@
+###############################################################################
+# Question routes module.
+# Handles creating, retrieving, updating and deleting questions.
+###############################################################################
 from flask import Blueprint, request, jsonify
 import sqlite3
 
@@ -9,20 +13,24 @@ cursor = conn.cursor()
 
 @question_routes.route('/questions', methods=['POST'])
 def save_question():
+    # Create a new question
     data = request.get_json()
     user_id = data.get('userId')
     question_text = data.get('question')
     category = data.get('category')
 
+    # Validate required fields
     if not user_id or not question_text:
         return jsonify({'error': 'User ID, question, and category are required.'}), 400
 
+    # Insert question into database
     cursor.execute("INSERT INTO questions (user_id, question, category) VALUES (?, ?, ?)", (user_id, question_text, category))
     conn.commit()
     return jsonify({'message': 'Question saved successfully!', 'id': cursor.lastrowid}), 201
 
 @question_routes.route('/questions', methods=['GET'])
 def get_all_questions():
+    # Retrieve all questions
     cursor.execute('''
         SELECT q.id, q.question, q.category, q.timestamp, u.email
         FROM questions q
@@ -37,9 +45,12 @@ def get_all_questions():
 
 @question_routes.route('/questions/search', methods=['POST'])
 def search_questions():
+    # Search questions by keywords
     data = request.get_json()
     query = data.get('query', '')
     keywords = query.split()
+    
+    # Build search query with relevance ranking
     sql_query = '''
         SELECT q.id, q.question, q.category, q.timestamp, u.email,
                CASE WHEN q.question LIKE ? THEN 1 ELSE 0 END AS relevance
@@ -59,6 +70,7 @@ def search_questions():
 @question_routes.route('/questions/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def question(id):
     if request.method == 'GET':
+        # Get a specific question
         cursor.execute('''
             SELECT q.question, q.category, q.timestamp, u.email
             FROM questions q
@@ -72,6 +84,7 @@ def question(id):
         return jsonify({'error': 'Question not found'}), 404
 
     if request.method == 'PUT':
+        # Update a specific question
         data = request.get_json()
         print(f"Received data: {data}")  # Debugging log
 
@@ -79,17 +92,19 @@ def question(id):
         question_text = data.get('question')
         category = data.get('category')
 
+        # Validate inputs
         if not user_id or not question_text or category is None:  # Allow empty category but not None
             print(f"Validation failed: {data}")  # Debugging log
             return jsonify({'error': 'User ID, question text, and category are required.'}), 400
 
-        # Fix: Update question using `id` (question ID), not `user_id`
+        # Update question
         cursor.execute("UPDATE questions SET question = ?, category = ? WHERE id = ?", (question_text, category, id))
         conn.commit()
         
         return jsonify({'message': 'Question updated successfully!'}), 200
 
     if request.method == 'DELETE':
+        # Delete a specific question
         cursor.execute("DELETE FROM questions WHERE id = ?", (id,))
         conn.commit()
         return jsonify({'message': 'Question deleted successfully!'}), 200

@@ -3,125 +3,34 @@
     <header class="page-header">
       <h1>Admin Panel</h1>
     </header>
-
     <div class="section-header">
       <h2>Feedback Management</h2>
     </div>
 
-    <div v-if="loading" class="loading-indicator">
-      <p>Loading feedback data...</p>
-    </div>
+    <p v-if="loading" class="loading-indicator">Loading feedback data...</p>
 
     <div v-else class="feedback-categories">
-      <!-- Identified Voice Feedback -->
-      <div class="feedback-card container">
-        <div class="subsection-header">Identified Voice Feedback</div>
-        <div class="feedback-items">
-          <div v-if="categorizedFeedback.identifiedVoice.length === 0" class="empty-state">
-            No identified voice feedback available
-          </div>
-          <div
-            v-for="item in categorizedFeedback.identifiedVoice"
-            :key="item.id"
-            class="question-item"
-          >
-            <div class="feedback-item-header">
-              <span class="feedback-from">From: {{ item.user_email }}</span>
-              <span class="feedback-date">{{ formatDate(item.timestamp) }}</span>
+      <template v-for="(config, category) in feedbackTypes" :key="category">
+        <div class="feedback-card container">
+          <div class="subsection-header">{{ config.title }}</div>
+          <div class="feedback-items">
+            <div v-if="!categorizedFeedback[category].length" class="empty-state">
+              No {{ config.title.toLowerCase() }} available
             </div>
-            <div class="feedback-content">{{ item.feedback_text }}</div>
-            <div class="feedback-actions">
-              <button @click="replyToFeedback(item)" class="button button-primary reply-button">
-                Reply
-              </button>
-              <button @click="deleteFeedback(item)" class="button button-danger delete-button">
-                Delete
-              </button>
+            <div v-else v-for="item in categorizedFeedback[category]" :key="item.id" class="question-item">
+              <div class="feedback-item-header">
+                <span class="feedback-from">From: {{ config.identified ? item.user_email : 'Anonymous' }}</span>
+                <span class="feedback-date">{{ formatDate(item.timestamp) }}</span>
+              </div>
+              <div class="feedback-content">{{ item.feedback_text }}</div>
+              <div class="feedback-actions">
+                <button v-if="config.identified" @click="replyToFeedback(item)" class="button button-primary reply-button">Reply</button>
+                <button @click="deleteFeedback(item)" class="button button-danger delete-button">Delete</button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Anonymous Voice Feedback -->
-      <div class="feedback-card container">
-        <div class="subsection-header">Anonymous Voice Feedback</div>
-        <div class="feedback-items">
-          <div v-if="categorizedFeedback.anonymousVoice.length === 0" class="empty-state">
-            No anonymous voice feedback available
-          </div>
-          <div
-            v-for="item in categorizedFeedback.anonymousVoice"
-            :key="item.id"
-            class="question-item"
-          >
-            <div class="feedback-item-header">
-              <span class="feedback-from">From: Anonymous</span>
-              <span class="feedback-date">{{ formatDate(item.timestamp) }}</span>
-            </div>
-            <div class="feedback-content">{{ item.feedback_text }}</div>
-            <div class="feedback-actions">
-              <button @click="deleteFeedback(item)" class="button button-danger delete-button">
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Identified Report Feedback -->
-      <div class="feedback-card container">
-        <div class="subsection-header">Identified Reports</div>
-        <div class="feedback-items">
-          <div v-if="categorizedFeedback.identifiedReport.length === 0" class="empty-state">
-            No identified reports available
-          </div>
-          <div
-            v-for="item in categorizedFeedback.identifiedReport"
-            :key="item.id"
-            class="question-item"
-          >
-            <div class="feedback-item-header">
-              <span class="feedback-from">From: {{ item.user_email }}</span>
-              <span class="feedback-date">{{ formatDate(item.timestamp) }}</span>
-            </div>
-            <div class="feedback-content">{{ item.feedback_text }}</div>
-            <div class="feedback-actions">
-              <button @click="replyToFeedback(item)" class="button button-primary reply-button">
-                Reply
-              </button>
-              <button @click="deleteFeedback(item)" class="button button-danger delete-button">
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Anonymous Report Feedback -->
-      <div class="feedback-card container">
-        <div class="subsection-header">Anonymous Reports</div>
-        <div class="feedback-items">
-          <div v-if="categorizedFeedback.anonymousReport.length === 0" class="empty-state">
-            No anonymous reports available
-          </div>
-          <div
-            v-for="item in categorizedFeedback.anonymousReport"
-            :key="item.id"
-            class="question-item"
-          >
-            <div class="feedback-item-header">
-              <span class="feedback-from">From: Anonymous</span>
-              <span class="feedback-date">{{ formatDate(item.timestamp) }}</span>
-            </div>
-            <div class="feedback-content">{{ item.feedback_text }}</div>
-            <div class="feedback-actions">
-              <button @click="deleteFeedback(item)" class="button button-danger delete-button">
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      </template>
     </div>
   </div>
   <floating-chat />
@@ -135,17 +44,22 @@ import useFeedback from '../composables/useFeedback'
 import useFormatDate from '../composables/useFormatDate'
 
 const router = useRouter()
-const { loading, categorizedFeedback, fetchFeedbackData, replyToFeedback, deleteFeedback } =
-  useFeedback()
+const { loading, categorizedFeedback, fetchFeedbackData, replyToFeedback, deleteFeedback } = useFeedback()
 const { formatDate } = useFormatDate()
+
+const feedbackTypes = {
+  identifiedVoice: { title: 'Identified Voice Feedback', identified: true },
+  anonymousVoice: { title: 'Anonymous Voice Feedback', identified: false },
+  identifiedReport: { title: 'Identified Reports', identified: true },
+  anonymousReport: { title: 'Anonymous Reports', identified: false }
+}
 
 onMounted(async () => {
   const currentUser = JSON.parse(sessionStorage.getItem('user') || 'null')
   if (!currentUser || currentUser.role !== 'admin') {
-    router.push('/') // Redirect to home if not admin
+    router.push('/')
     return
   }
-
   await fetchFeedbackData()
 })
 </script>

@@ -28,6 +28,7 @@
           <h2>Change Password</h2>
         </div>
         <form @submit.prevent="handleChangePassword" class="password-form">
+          <!-- Current Password -->
           <div class="form-group">
             <label for="currentPassword">Current Password</label>
             <div class="password-wrapper">
@@ -58,6 +59,7 @@
             </div>
           </div>
 
+          <!-- New Password -->
           <div class="form-group">
             <label for="newPassword">New Password</label>
             <div class="password-wrapper">
@@ -88,6 +90,7 @@
             </div>
           </div>
 
+          <!-- Confirm New Password -->
           <div class="form-group">
             <label for="confirmPassword">Confirm New Password</label>
             <div class="password-wrapper">
@@ -125,8 +128,7 @@
       <!-- Feedback Message -->
       <div
         v-if="message"
-        :class="{ 'success-message': !isError, 'error-message': isError }"
-        class="feedback-message"
+        :class="['feedback-message', isError ? 'error-message' : 'success-message']"
       >
         {{ message }}
       </div>
@@ -140,52 +142,28 @@
 import { onMounted } from 'vue'
 import useCurrentUser from '../composables/useCurrentUser'
 import usePasswordReset from '../composables/usePasswordReset'
-import type { User } from '../composables/useUsers'
 
-// Get current user
+// Load current user
 const { currentUser, loadCurrentUser } = useCurrentUser()
 
-// Use password reset functionality
+// Use password reset composable
 const {
-  currentPassword,
-  newPassword,
-  confirmPassword,
-  message,
-  isError,
-  peakCurrentPassword,
-  peakNewPassword,
-  peakConfirmPassword,
-  togglePeakCurrentPassword,
-  togglePeakNewPassword,
-  togglePeakConfirmPassword,
-  changePassword,
+  currentPassword, newPassword, confirmPassword,
+  message, isError,
+  peakCurrentPassword, peakNewPassword, peakConfirmPassword,
+  togglePeakCurrentPassword, togglePeakNewPassword, togglePeakConfirmPassword,
+  changePassword
 } = usePasswordReset()
 
-// Wrapper for changePassword that provides the user ID
-const handleChangePassword = () => {
-  if (currentUser.value && currentUser.value.id) {
-    changePassword(currentUser.value.id)
-  }
-}
+// Handle password change with user ID check
+const handleChangePassword = () => currentUser.value?.id && changePassword(currentUser.value.id)
 
-onMounted(() => {
-  // Load user data
-  loadCurrentUser()
-})
+onMounted(loadCurrentUser)
 </script>
 
 <style scoped>
-.profile-container {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 20px;
-}
-
-.profile-content {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
+.profile-container { max-width: 800px; margin: 20px auto; padding: 20px; }
+.profile-content { display: flex; flex-direction: column; gap: 30px; }
 
 .profile-section {
   background-color: #fff;
@@ -194,68 +172,34 @@ onMounted(() => {
   padding: 20px;
 }
 
-.user-info {
-  margin-top: 20px;
-}
-
+/* User information styling */
+.user-info { margin-top: 20px; }
 .info-item {
   display: flex;
   margin-bottom: 15px;
   padding-bottom: 10px;
   border-bottom: 1px solid #f0f0f0;
 }
+.info-item label { width: 100px; font-weight: 600; color: #555; }
+.info-item span { flex: 1; color: #333; }
 
-.info-item label {
-  width: 100px;
-  font-weight: 600;
-  color: #555;
-}
+/* Form styling */
+.password-form { margin-top: 20px; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #555; }
 
-.info-item span {
-  flex: 1;
-  color: #333;
-}
-
-.password-form {
-  margin-top: 20px;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: #555;
-}
-
+/* Message styling */
 .feedback-message {
   margin-top: 20px;
   padding: 12px 15px;
   border-radius: 8px;
   text-align: center;
 }
-
-.success-message {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
-
-.error-message {
-  background-color: #ffebee;
-  color: #c62828;
-}
+.success-message { background-color: #e8f5e9; color: #2e7d32; }
+.error-message { background-color: #ffebee; color: #c62828; }
 
 @media (max-width: 600px) {
-  .info-item {
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .info-item label {
-    width: 100%;
-  }
+  .info-item { flex-direction: column; gap: 5px; }
+  .info-item label { width: 100%; }
 }
 </style>

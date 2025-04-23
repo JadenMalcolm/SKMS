@@ -4,7 +4,7 @@
   </div>
 
   <div class="meetings-container">
-    <!-- Start Meeting Section -->
+    <!-- Schedule Meeting -->
     <div class="meetings-panel">
       <div class="section-header">
         <h2>Schedule a Meeting</h2>
@@ -14,7 +14,6 @@
         v-model="searchQuery"
         placeholder="Search users..."
         class="search-input"
-        @input="filterUsers"
       />
       <ul class="user-list">
         <li v-for="user in filteredAllUsers" :key="user.id" @click="selectUser(user)">
@@ -23,7 +22,7 @@
       </ul>
     </div>
 
-    <!-- Meeting Details Section -->
+    <!-- Meeting Details -->
     <div v-if="selectedUser" class="meetings-panel">
       <div class="section-header">
         <h2>Meeting with {{ selectedUser.email }}</h2>
@@ -35,13 +34,7 @@
         </div>
         <div class="form-group">
           <label for="meeting-time">Time</label>
-          <input
-            type="time"
-            id="meeting-time"
-            v-model="selectedTime"
-            step="1800"
-            class="input-field"
-          />
+          <input type="time" id="meeting-time" v-model="selectedTime" step="1800" class="input-field" />
         </div>
         <div class="form-group">
           <label for="meeting-type">Meeting Type</label>
@@ -50,36 +43,44 @@
             <option value="online">Online</option>
           </select>
         </div>
-        <button @click="handleScheduleMeeting" class="button button-success">
+        <button
+          @click="selectedUser && scheduleMeeting(selectedUser.id)"
+          class="button button-success"
+        >
           Schedule Meeting
         </button>
       </div>
     </div>
 
-    <!-- Meeting Requests Section -->
+    <!-- Meeting Requests -->
     <div class="meetings-panel meeting-requests">
       <div class="section-header">
         <h2>Meeting Requests</h2>
       </div>
-      <ul class="request-list">
+      <ul class="request-list" v-if="meetingRequests && meetingRequests.length > 0">
         <li v-for="request in meetingRequests" :key="request.id" class="request-item">
           <p>
             {{ request.user_email }} requested to meet {{ request.meeting_type }} on
-            {{ formatDate(request.date) }} at
-            {{ formatTime(request.time) }}
+            {{ formatDate(request.date) }} at {{ formatTime(request.time) }}
           </p>
           <div class="request-actions">
             <button @click="acceptMeeting(request.id)" class="button button-success">Accept</button>
             <button @click="rejectMeeting(request.id)" class="button button-danger">Reject</button>
-            <button @click="handleRescheduleMeeting(request)" class="button button-warning">
+            <button
+              @click="async () => { if(await rescheduleMeeting(request)) selectUser(null) }"
+              class="button button-warning"
+            >
               Reschedule
             </button>
           </div>
         </li>
       </ul>
+      <div v-else class="no-meetings">
+        <p>No meeting requests at this time.</p>
+      </div>
     </div>
 
-    <!-- Meetings Section -->
+    <!-- Meetings List -->
     <div class="meetings-panel meetings-list">
       <div class="section-header">
         <h2>Meetings</h2>
@@ -88,9 +89,9 @@
         <li v-for="(meeting, index) in myMeetings" :key="index" class="meeting-item">
           <div class="meeting-header">
             <span class="meeting-type">{{ meeting.meeting_type }}</span>
-            <span :class="['meeting-status', `status-${meeting.status.toLowerCase()}`]">{{
-              meeting.status
-            }}</span>
+            <span :class="['meeting-status', `status-${meeting.status.toLowerCase()}`]">
+              {{ meeting.status }}
+            </span>
           </div>
           <div class="meeting-details">
             <div class="meeting-detail">
@@ -117,7 +118,6 @@
           </div>
         </li>
       </ul>
-
       <div v-else class="no-meetings">
         <p>No meetings available. Schedule one to get started!</p>
       </div>
@@ -139,88 +139,45 @@ import useUsers from '../composables/useUsers'
 import useMeetings from '../composables/useMeetings'
 import useFormatDate from '../composables/useFormatDate'
 
-// Current user setup
 const currentUser = ref<User | null>(null)
 
-// Load the user composable for user-related functionality
+// Load composables
+const { searchQuery, filteredAllUsers, fetchAllUsers, selectedUser, selectUser } = useUsers(currentUser)
 const {
-  allUsers,
-  searchQuery,
-  filteredAllUsers, // Use filteredAllUsers instead of filteredUsers
-  fetchAllUsers,
-  selectedUser,
-  selectUser: selectUserOriginal,
-} = useUsers(currentUser)
-
-// Load the meetings composable for meeting-related functionality
-const {
-  myMeetings,
-  meetingRequests,
-  selectedDate,
-  selectedTime,
-  selectedMeetingType,
-  feedbackMessage,
-  fetchMeetings,
-  fetchMeetingRequests,
-  scheduleMeeting,
-  acceptMeeting,
-  rejectMeeting,
-  rescheduleMeeting,
-  deleteMeeting,
+  myMeetings, meetingRequests, selectedDate, selectedTime, selectedMeetingType,
+  feedbackMessage, fetchMeetings, fetchMeetingRequests, scheduleMeeting,
+  acceptMeeting, rejectMeeting, rescheduleMeeting, deleteMeeting
 } = useMeetings(currentUser)
-
-// Load the date formatting composable
 const { formatDate, formatTime } = useFormatDate()
 
-// Filter users based on search query (overrides the default one if needed)
-const filterUsers = () => {
-  // This is managed by the useUsers composable's computed property
-}
-
-// Wrapper function to select a user
-const selectUser = (user: User) => {
-  selectUserOriginal(user)
-}
-
-// Meeting scheduling handler
-const handleScheduleMeeting = () => {
-  if (selectedUser.value) {
-    scheduleMeeting(selectedUser.value.id)
-  } else {
-    feedbackMessage.value = 'Please select a user first.'
-  }
-}
-
-// Rescheduling handler
-const handleRescheduleMeeting = async (request: any) => {
-  const success = await rescheduleMeeting(request)
-  if (success) {
-    // Clear selected user to prompt re-selection
-    selectUserOriginal(null)
-  }
-}
-
-// Component initialization
 onMounted(async () => {
   const storedUser = sessionStorage.getItem('user')
   if (storedUser) {
     try {
       currentUser.value = JSON.parse(storedUser)
+
+      // Call fetchAllUsers first to ensure we have users loaded before handling meetings
       await fetchAllUsers()
-      await fetchMeetingRequests()
-      await fetchMeetings()
+
+      // Fetch meeting data with proper error handling
+      try {
+        const results = await Promise.all([
+          fetchMeetingRequests(),
+          fetchMeetings()
+        ])
+        console.log('Meeting requests loaded:', meetingRequests.value.length)
+      } catch (fetchError) {
+        console.error('Error fetching meeting data:', fetchError)
+        feedbackMessage.value = 'Failed to load meeting data. Please try refreshing.'
+      }
     } catch (error) {
       console.error('Error parsing stored user:', error)
       feedbackMessage.value = 'User not logged in. Redirecting to login page.'
-      setTimeout(() => {
-        window.location.href = '/'
-      }, 2000)
+      setTimeout(() => window.location.href = '/', 2000)
     }
   } else {
     feedbackMessage.value = 'User not logged in. Redirecting to login page.'
-    setTimeout(() => {
-      window.location.href = '/'
-    }, 2000)
+    setTimeout(() => window.location.href = '/', 2000)
   }
 })
 </script>
@@ -247,7 +204,6 @@ onMounted(async () => {
   overflow-y: auto;
 }
 
-/* Ensure meetings list has proper padding for items */
 .meetings-list ul {
   max-height: none;
   overflow: visible;
@@ -256,13 +212,9 @@ onMounted(async () => {
   width: 100%;
 }
 
-/* Meeting actions alignment */
-.meeting-actions {
-  padding: 8px 16px 16px;
-  text-align: right;
-}
+.meeting-actions { padding: 8px 16px 16px; text-align: right; }
 
-/* Meeting details form */
+/* Forms */
 .meeting-form {
   display: flex;
   flex-direction: column;
@@ -300,6 +252,7 @@ onMounted(async () => {
   outline: none;
   background-color: #fff;
 }
+
 .select-field {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
@@ -311,10 +264,7 @@ onMounted(async () => {
 }
 
 /* Request items */
-.request-list {
-  list-style: none;
-  padding: 0;
-}
+.request-list { list-style: none; padding: 0; }
 
 .request-item {
   background-color: #f9fbff;
@@ -323,8 +273,6 @@ onMounted(async () => {
   margin-bottom: 12px;
   border-left: 3px solid #4c95e8;
   transition: all 0.2s ease-in-out;
-  position: relative;
-  overflow: hidden;
 }
 
 .request-item:hover {
@@ -333,18 +281,10 @@ onMounted(async () => {
   transform: translateY(-2px);
 }
 
-.request-item p {
-  margin-bottom: 10px;
-  color: #333;
-}
+.request-item p { margin-bottom: 10px; color: #333; }
+.request-actions { display: flex; flex-wrap: wrap; gap: 5px; }
 
-.request-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-
-/* Feedback message */
+/* Feedback */
 .feedback-box {
   width: 80%;
   margin: 10px auto;
@@ -363,7 +303,6 @@ onMounted(async () => {
   box-shadow: none;
 }
 
-/* No meetings message styling */
 .no-meetings {
   text-align: center;
   padding: 20px;
@@ -372,12 +311,12 @@ onMounted(async () => {
   background-color: #f9fbff;
   border-radius: 8px;
   border: 1px dashed #ccc;
+  margin: 10px 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Make sure grid items in meeting details don't overflow at small widths */
 @media (max-width: 1200px) {
-  .meeting-details {
-    grid-template-columns: 1fr;
-  }
+  .meeting-details { grid-template-columns: 1fr; }
 }
 </style>

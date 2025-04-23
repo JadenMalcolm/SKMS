@@ -1,64 +1,52 @@
 <template>
-  <div>
-    <div v-if="showPopup" class="popup-container">
-      <div class="popup container">
-        <div class="section-header">
-          <h2>Give Feedback</h2>
-        </div>
+  <div v-if="showPopup" class="popup-container">
+    <div class="popup container">
+      <div class="section-header"><h2>Give Feedback</h2></div>
 
-        <div class="form-group">
-          <label>Feedback Type:</label>
-          <div class="radio-group">
-            <label> <input type="radio" v-model="feedbackType" value="voice" /> Voice </label>
-            <label> <input type="radio" v-model="feedbackType" value="report" /> Report </label>
-          </div>
+      <div class="form-group">
+        <label>Feedback Type:</label>
+        <div class="radio-group">
+          <label><input type="radio" v-model="feedbackType" value="voice" /> Voice</label>
+          <label><input type="radio" v-model="feedbackType" value="report" /> Report</label>
         </div>
-
-        <div class="form-group">
-          <label for="feedbackText">Your Feedback:</label>
-          <textarea
-            v-model="feedbackText"
-            id="feedbackText"
-            class="input"
-            rows="5"
-            placeholder="Please share your thoughts with us..."
-          ></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Submission Type:</label>
-          <div class="radio-group">
-            <label> <input type="radio" v-model="isAnonymous" :value="true" /> Anonymous </label>
-            <label> <input type="radio" v-model="isAnonymous" :value="false" /> Identified </label>
-          </div>
-        </div>
-
-        <div class="popup-actions">
-          <button @click="submitFeedback" class="button button-success">Submit</button>
-          <button @click="closePopup" class="button button-danger">Cancel</button>
-        </div>
-        <p v-if="feedbackMessage" class="feedback-message">{{ feedbackMessage }}</p>
       </div>
+
+      <div class="form-group">
+        <label for="feedbackText">Your Feedback:</label>
+        <textarea
+          v-model="feedbackText"
+          id="feedbackText"
+          class="input textarea"
+          rows="5"
+          placeholder="Please share your thoughts with us..."
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Submission Type:</label>
+        <div class="radio-group">
+          <label><input type="radio" v-model="isAnonymous" :value="true" /> Anonymous</label>
+          <label><input type="radio" v-model="isAnonymous" :value="false" /> Identified</label>
+        </div>
+      </div>
+
+      <div class="popup-actions">
+        <button @click="submitFeedback" class="button button-success">Submit</button>
+        <button @click="emit('close')" class="button button-danger">Cancel</button>
+      </div>
+
+      <p v-if="feedbackMessage" class="feedback-message">{{ feedbackMessage }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue'
 import useFeedback from '../composables/useFeedback'
 
-const props = defineProps({
-  showPopup: Boolean,
-})
-
+const props = defineProps({ showPopup: Boolean })
 const emit = defineEmits(['close'])
-
-const closePopup = () => {
-  emit('close')
-}
-
 const { feedbackType, feedbackText, isAnonymous, feedbackMessage, submitFeedback } =
-  useFeedback(closePopup)
+  useFeedback(() => emit('close'))
 </script>
 
 <style scoped>
@@ -78,12 +66,6 @@ const { feedbackType, feedbackText, isAnonymous, feedbackMessage, submitFeedback
 .popup {
   width: 500px;
   padding: 25px;
-}
-
-.section-header {
-  font-size: 1.2rem;
-  color: var(--color-heading);
-  margin-bottom: 1.5rem;
 }
 
 .form-group {
@@ -112,16 +94,6 @@ const { feedbackType, feedbackText, isAnonymous, feedbackMessage, submitFeedback
 
 .radio-group input {
   margin-right: 8px;
-}
-
-.input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-family: inherit;
-  font-size: 1rem;
-  resize: vertical;
 }
 
 .popup-actions {

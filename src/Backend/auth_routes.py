@@ -1,3 +1,7 @@
+###############################################################################
+# Authentication routes module.
+# Handles user authentication, signup, password recovery and management.
+###############################################################################
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
@@ -10,9 +14,11 @@ conn = sqlite3.connect('users.db', check_same_thread=False)
 cursor = conn.cursor()
 
 def is_strong_password(password):
+    # Validate password strength
     if not password:
         return False
 
+    # Check for uppercase, lowercase, digit, and length
     has_upper = bool(re.search(r"[A-Z]", password))
     has_lower = bool(re.search(r"[a-z]", password))
     has_digit = bool(re.search(r"\d", password))
@@ -22,6 +28,7 @@ def is_strong_password(password):
 
 @auth_routes.route('/signup', methods=['POST'])
 def signup():
+    # Register a new user
     data = request.get_json()
     email = data.get('email').lower()  # Convert email to lowercase
     password = data.get('password')
@@ -32,6 +39,7 @@ def signup():
     if not is_strong_password(password):
         return jsonify({'error': 'Password must contain at least one uppercase letter, one lowercase letter, and one digit and be longer than 8 characters'}), 400
 
+    # Hash password and security answer for secure storage
     hashed_password = generate_password_hash(password)
     hashed_security_answer = generate_password_hash(security_question_answer)
 
@@ -44,10 +52,12 @@ def signup():
 
 @auth_routes.route('/login', methods=['POST'])
 def login():
+    # Authenticate user login
     data = request.get_json()
     email = data.get('email').lower()  # Convert email to lowercase
     password = data.get('password')
 
+    # Verify credentials
     cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
     if user and check_password_hash(user[2], password):
@@ -56,9 +66,11 @@ def login():
 
 @auth_routes.route('/recover', methods=['POST'])
 def recover():
+    # Initiate password recovery process
     data = request.get_json()
     email = data.get('email').lower()  # Convert email to lowercase
 
+    # Fetch security question for user
     cursor.execute("SELECT securityQuestion FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
     if user:
@@ -67,10 +79,12 @@ def recover():
 
 @auth_routes.route('/verify_answer', methods=['POST'])
 def verify_answer():
+    # Verify security question answer
     data = request.get_json()
     email = data.get('email').lower()  # Convert email to lowercase
     security_question_answer = data.get('securityQuestionAnswer').replace(" ", "").lower()
 
+    # Check answer against stored hash
     cursor.execute("SELECT securityQuestionAnswer FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
     if user and check_password_hash(user[0], security_question_answer):
@@ -79,20 +93,23 @@ def verify_answer():
 
 @auth_routes.route('/reset_password', methods=['POST'])
 def reset_password():
+    # Reset user password
     data = request.get_json()
     email = data.get('email').lower()  # Convert email to lowercase
     new_password = data.get('newPassword')
 
+    # Validate new password strength
     if not is_strong_password(new_password):
         return jsonify({'error': 'Password must contain at least one uppercase letter, one lowercase letter, and one digit'}), 400
 
+    # Ensure password is different from current
     cursor.execute("SELECT password FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
     if user and check_password_hash(user[0], new_password):
         return jsonify({'error': 'New password must be different from the old password'}), 400
 
+    # Update password
     hashed_password = generate_password_hash(new_password)
-
     cursor.execute("UPDATE users SET password = ? WHERE email = ?", (hashed_password, email))
     conn.commit()
 
@@ -100,6 +117,7 @@ def reset_password():
 
 @auth_routes.route('/change-password', methods=['POST'])
 def change_password():
+    # Change user password (when logged in)
     data = request.get_json()
     user_id = data.get('userId')
     current_password = data.get('currentPassword')

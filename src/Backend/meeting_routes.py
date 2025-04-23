@@ -1,3 +1,7 @@
+###############################################################################
+# Meeting routes module.
+# Handles scheduling, retrieving, and managing meetings between users.
+###############################################################################
 from flask import Blueprint, request, jsonify
 import sqlite3
 
@@ -9,6 +13,7 @@ cursor = conn.cursor()
 
 @meeting_routes.route('/schedule-meeting', methods=['POST'])
 def schedule_meeting():
+    # Schedule a new meeting between users
     data = request.get_json()
 
     user_id = data.get('user_id')
@@ -17,10 +22,12 @@ def schedule_meeting():
     time = data.get('time')
     meeting_type = data.get('meeting_type')
 
+    # Validate required fields
     if not user_id or not target_user_id or not date or not time or not meeting_type:
         return jsonify({'error': 'All fields are required.'}), 400
 
     try:
+        # Check if target user exists
         cursor.execute('''
             SELECT email FROM users WHERE id = ?
         ''', (target_user_id,))
@@ -29,6 +36,7 @@ def schedule_meeting():
         if not target_user_email:
             return jsonify({'error': 'Target user not found.'}), 404
 
+        # Create meeting entry
         cursor.execute('''
             INSERT INTO meetings (user_id, target_user_id, date, time, meeting_type)
             VALUES (?, ?, ?, ?, ?)
@@ -40,6 +48,7 @@ def schedule_meeting():
 
 @meeting_routes.route('/meetings/<int:user_id>', methods=['GET'])
 def get_meetings(user_id):
+    # Get all meetings for a specific user
     try:
         cursor.execute('''
             SELECT m.id,
@@ -70,6 +79,7 @@ def get_meetings(user_id):
 
 @meeting_routes.route('/meeting-requests/<int:target_user_id>', methods=['GET'])
 def get_meeting_requests(target_user_id):
+    # Get pending meeting requests sent to a user
     try:
         cursor.execute('''
             SELECT m.id,
@@ -95,13 +105,16 @@ def get_meeting_requests(target_user_id):
 
 @meeting_routes.route('/accept-meeting', methods=['POST'])
 def accept_meeting():
+    # Accept a pending meeting request
     data = request.get_json()
     meeting_id = data.get('meeting_id')
 
+    # Validate required fields
     if not meeting_id:
         return jsonify({'error': 'Meeting ID is required.'}), 400
 
     try:
+        # Update meeting status
         cursor.execute('''
             UPDATE meetings
             SET status = 'accepted'
@@ -114,13 +127,16 @@ def accept_meeting():
 
 @meeting_routes.route('/reject-meeting', methods=['POST'])
 def reject_meeting():
+    # Reject a pending meeting request
     data = request.get_json()
     meeting_id = data.get('meeting_id')
 
+    # Validate required fields
     if not meeting_id:
         return jsonify({'error': 'Meeting ID is required.'}), 400
 
     try:
+        # Update meeting status
         cursor.execute('''
             UPDATE meetings
             SET status = 'rejected'
@@ -133,13 +149,16 @@ def reject_meeting():
 
 @meeting_routes.route('/delete-meeting', methods=['POST'])
 def delete_meeting():
+    # Delete a meeting
     data = request.get_json()
     meeting_id = data.get('meeting_id')
 
+    # Validate required fields
     if not meeting_id:
         return jsonify({'error': 'Meeting ID is required.'}), 400
 
     try:
+        # Delete meeting
         cursor.execute('''
             DELETE FROM meetings
             WHERE id = ?

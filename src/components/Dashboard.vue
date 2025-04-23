@@ -1,46 +1,31 @@
 <template>
   <div class="dashboard-container">
-    <div class="page-header">
+    <header class="page-header">
       <h1>Security Knowledge Management System</h1>
       <p>Welcome, {{ currentUser?.email }}! You are logged in as an {{ currentUser?.role }}</p>
-    </div>
+    </header>
 
     <div class="dashboard-content">
       <section class="dashboard-card container">
-        <div class="section-header">
-          <h2>Categories</h2>
-        </div>
+        <div class="section-header"><h2>Categories</h2></div>
         <div class="categories-grid">
-          <button @click="navigateToAsset" class="button button-primary">Asset</button>
-          <button @click="navigateToThreat" class="button button-primary">Threat</button>
-          <button @click="navigateToSecurityGoal" class="button button-primary">
-            Security Goal
-          </button>
-          <button @click="navigateToCountermeasure" class="button button-primary">
-            Countermeasure
-          </button>
-          <button @click="navigateToDefenseStrategy" class="button button-primary">
-            Defense Strategy
-          </button>
-          <button @click="navigateToVulnerability" class="button button-primary">
-            Vulnerability
+          <button
+            v-for="category in categories"
+            :key="category.route"
+            @click="navigateTo(category.route)"
+            class="button button-primary"
+          >
+            {{ category.label }}
           </button>
         </div>
       </section>
 
       <div class="dashboard-grid">
         <section class="dashboard-card container">
-          <div class="section-header">
-            <h2>Search Questions</h2>
-          </div>
+          <div class="section-header"><h2>Search Questions</h2></div>
           <div class="search-box">
-            <input
-              type="text"
-              v-model="searchQuery"
-              placeholder="Search questions..."
-              class="input"
-            />
-            <button @click="searchQuestions" class="button button-success">Search</button>
+            <input type="text" v-model="searchQuery" placeholder="Search questions..." class="input" />
+            <button @click="searchQuestions()" class="button button-success">Search</button>
           </div>
           <div class="results-box">
             <h3 class="subsection-header">Search Results</h3>
@@ -56,9 +41,7 @@
         </section>
 
         <section class="dashboard-card container">
-          <div class="section-header">
-            <h2>My Questions</h2>
-          </div>
+          <div class="section-header"><h2>My Questions</h2></div>
           <ul>
             <li v-for="(q, index) in userQuestions" :key="index" class="question-item">
               <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
@@ -69,9 +52,7 @@
         </section>
 
         <section class="dashboard-card container">
-          <div class="section-header">
-            <h2>Subscribed Questions</h2>
-          </div>
+          <div class="section-header"><h2>Subscribed Questions</h2></div>
           <ul>
             <li v-for="(q, index) in subscribedQuestions" :key="index" class="question-item">
               <router-link :to="`/question/${q.id}`">{{ q.question }}</router-link>
@@ -83,16 +64,14 @@
         </section>
 
         <section class="dashboard-card container">
-          <div class="section-header">
-            <h2>My Meetings</h2>
-          </div>
+          <div class="section-header"><h2>My Meetings</h2></div>
           <ul>
             <li v-for="(meeting, index) in myMeetings" :key="index" class="meeting-item">
               <div class="meeting-header">
                 <span class="meeting-type">{{ meeting.meeting_type }}</span>
-                <span :class="['meeting-status', `status-${meeting.status.toLowerCase()}`]">{{
-                  meeting.status
-                }}</span>
+                <span :class="['meeting-status', `status-${meeting.status.toLowerCase()}`]">
+                  {{ meeting.status }}
+                </span>
               </div>
               <div class="meeting-details">
                 <div class="meeting-detail">
@@ -124,62 +103,43 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, type RouteLocationAsPathGeneric, type RouteLocationAsRelativeGeneric } from 'vue-router'
 import useCurrentUser from '../composables/useCurrentUser'
 import useQuestions from '../composables/useQuestions'
 import useSubscriptions from '../composables/useSubscriptions'
 import useMeetings from '../composables/useMeetings'
 import useFormatDate from '../composables/useFormatDate'
 
-// Initialize router
 const router = useRouter()
-
-// Initialize user composable
 const { currentUser, loadCurrentUser } = useCurrentUser()
-
-// Initialize other composables with the current user ref
-const { searchQuery, searchResults, userQuestions, fetchAllQuestions, searchQuestions: originalSearchQuestions } =
-  useQuestions(currentUser)
-
-// Wrap searchQuestions to handle @click event
-const searchQuestions = () => originalSearchQuestions()
+const { searchQuery, searchResults, userQuestions, fetchAllQuestions, searchQuestions } = useQuestions(currentUser)
 const { subscribedQuestions, fetchSubscribedQuestions } = useSubscriptions(currentUser)
 const { myMeetings, fetchMeetings } = useMeetings(currentUser)
 const { formatDate, formatTime } = useFormatDate()
 
-// Load data on component mount
+// Define categories for navigation
+const categories = [
+  { label: 'Asset', route: '/asset' },
+  { label: 'Threat', route: '/threat' },
+  { label: 'Security Goal', route: '/security-goal' },
+  { label: 'Countermeasure', route: '/countermeasure' },
+  { label: 'Defense Strategy', route: '/defense-strategy' },
+  { label: 'Vulnerability', route: '/vulnerability' }
+]
+
+// Single navigation function to replace multiple similar functions
+const navigateTo = (route: import('vue-router').RouteLocationRaw) => router.push(route)
+
 onMounted(async () => {
   await loadCurrentUser()
   if (currentUser.value) {
-    await fetchAllQuestions()
-    await fetchSubscribedQuestions()
-    await fetchMeetings()
+    await Promise.all([
+      fetchAllQuestions(),
+      fetchSubscribedQuestions(),
+      fetchMeetings()
+    ])
   }
 })
-
-// navigate to different pages
-const navigateToAsset = () => {
-  router.push('/asset')
-}
-const navigateToThreat = () => {
-  router.push('/threat')
-}
-
-const navigateToSecurityGoal = () => {
-  router.push('/security-goal')
-}
-
-const navigateToCountermeasure = () => {
-  router.push('/countermeasure')
-}
-
-const navigateToDefenseStrategy = () => {
-  router.push('/defense-strategy')
-}
-
-const navigateToVulnerability = () => {
-  router.push('/vulnerability')
-}
 </script>
 
 <style scoped>

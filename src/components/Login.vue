@@ -1,57 +1,48 @@
 <template>
-  <div class="page-header">
+  <header class="page-header">
     <h1>Security Knowledge Management System</h1>
-  </div>
+  </header>
   <div class="login-container">
     <div class="login-box container">
-      <div class="section-header">
-        <h2>Login</h2>
-      </div>
+      <div class="section-header"><h2>Login</h2></div>
       <form @submit.prevent="handleLogin">
-        <div class="form-group">
+        <input
+          type="email"
+          v-model="email"
+          placeholder="Enter your email"
+          required
+          class="input mb-20"
+        />
+        <div class="password-wrapper">
           <input
-            type="email"
-            id="email"
-            v-model="email"
-            placeholder="Enter your email"
+            :type="peakPassword ? 'text' : 'password'"
+            v-model="password"
+            placeholder="Enter your password"
             required
             class="input"
           />
-        </div>
-        <div class="form-group">
-          <div class="password-wrapper">
-            <input
-              :type="peakPassword ? 'text' : 'password'"
-              id="password"
-              v-model="password"
-              placeholder="Enter your password"
-              required
-              class="input"
+          <span class="toggle-password" @click="togglePeakPassword">
+            <img
+              v-if="!peakPassword"
+              src="../assets/eye.svg"
+              alt="Show password"
+              width="16"
+              height="16"
             />
-            <span class="toggle-password" @click="togglePeakPassword">
-              <img
-                v-if="!peakPassword"
-                src="../assets/eye.svg"
-                alt="Show password"
-                width="16"
-                height="16"
-              />
-              <img v-else src="../assets/eye-off.svg" alt="Hide password" width="16" height="16" />
-            </span>
-          </div>
+            <img v-else src="../assets/eye-off.svg" alt="Hide password" width="16" height="16" />
+          </span>
         </div>
         <button type="submit" class="button button-success full-width">Login</button>
       </form>
 
-      <!-- Message Box for Login Status -->
       <p v-if="loginMessage" :class="{ 'error-message': isError, 'success-message': !isError }">
         {{ loginMessage }}
       </p>
 
-      <p class="signup-link">
+      <p class="auth-link">
         Don't have an account? <a href="/signup" @click.prevent="navigateToSignup">Sign up</a>
       </p>
-      <p class="recover-link">
+      <p class="auth-link">
         Forgot Password? <a href="/recover" @click.prevent="navigateToRecover">Reset Password</a>
       </p>
     </div>
@@ -62,26 +53,12 @@
 import { onMounted } from 'vue'
 import useAuth from '../composables/useAuth'
 
-const {
-  email,
-  password,
-  peakPassword,
-  loginMessage,
-  isError,
-  togglePeakPassword,
-  handleLogin,
-  navigateToSignup,
-  navigateToRecover,
-  checkAuth,
-} = useAuth()
+const { email, password, peakPassword, loginMessage, isError, togglePeakPassword,
+        handleLogin, navigateToSignup, navigateToRecover, checkAuth } = useAuth()
 
-// Check if already logged in
 onMounted(() => {
   const user = checkAuth()
-  if (user) {
-    // User is already logged in, redirect to dashboard
-    window.location.href = '/dashboard'
-  }
+  if (user) window.location.href = '/dashboard'
 })
 </script>
 
@@ -100,33 +77,26 @@ onMounted(() => {
   padding: 30px;
 }
 
-.form-group {
-  margin-bottom: 20px;
+.button{
+  margin-top: 20px;
 }
 
-.full-width {
-  width: 100%;
-}
-.section-header h2 {
-  font-size: 2rem;
-}
+.mb-20 { margin-bottom: 20px; }
+.full-width { width: 100%; }
 
-.signup-link,
-.recover-link {
+.auth-link {
   text-align: center;
   margin-top: 15px;
   color: #555;
 }
 
-.signup-link a,
-.recover-link a {
+.auth-link a {
   color: #1976d2;
   text-decoration: none;
   font-weight: 500;
 }
 
-.signup-link a:hover,
-.recover-link a:hover {
+.auth-link a:hover {
   color: #0056b3;
   text-decoration: underline;
 }

@@ -1,19 +1,17 @@
 <template>
-  <div class="page-header">
-    <h1>Reset Password</h1>
-  </div>
+  <header class="page-header"><h1>Reset Password</h1></header>
   <div class="reset-container">
     <div class="reset-box container">
-      <div class="question-info">
+      <div class="info-box">
         <p><strong>Email:</strong> {{ email }}</p>
         <p><strong>Security Question:</strong> {{ securityQuestion }}</p>
       </div>
-      <div class="form-group">
-        <input v-model="answer" placeholder="Enter your answer" class="input" />
-      </div>
+      <input v-model="answer" placeholder="Enter your answer" class="input mb-20" />
       <button class="button button-success full-width" @click="checkAnswer">Submit</button>
-      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-      <p v-if="successMessage" class="success-message">{{ successMessage }}</p>
+      <p v-if="errorMessage || successMessage"
+         :class="errorMessage ? 'error-message' : 'success-message'">
+        {{ errorMessage || successMessage }}
+      </p>
     </div>
   </div>
 </template>
@@ -22,18 +20,8 @@
 import { onMounted } from 'vue'
 import usePasswordReset from '../composables/usePasswordReset'
 
-// Use the composable
-const {
-  email,
-  securityQuestion,
-  answer,
-  errorMessage,
-  successMessage,
-  fetchSecurityQuestion,
-  checkAnswer,
-  logout,
-  checkAuth,
-} = usePasswordReset()
+const { email, securityQuestion, answer, errorMessage, successMessage,
+        fetchSecurityQuestion, checkAnswer, checkAuth } = usePasswordReset()
 
 onMounted(() => {
   checkAuth()
@@ -56,7 +44,7 @@ onMounted(() => {
   padding: 30px;
 }
 
-.question-info {
+.info-box {
   margin-bottom: 20px;
   text-align: left;
   padding: 10px;
@@ -64,28 +52,11 @@ onMounted(() => {
   border-radius: 8px;
   border-left: 3px solid #4c95e8;
 }
-.form-group {
-  margin: 1rem 0 1.5rem;
+
+.mb-20 {
+  margin-bottom: 20px;
 }
 
-.success-message,
-.error-message {
-  margin-top: 15px;
-  padding: 10px;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 14px;
-}
-
-.success-message {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
-
-.error-message {
-  background-color: #ffebee;
-  color: #c62828;
-}
 .full-width {
   width: 100%;
 }

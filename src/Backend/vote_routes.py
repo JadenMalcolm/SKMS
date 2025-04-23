@@ -1,19 +1,31 @@
+###############################################################################
+# Vote Routes Module
+# Handles all voting-related API endpoints including upvotes, downvotes,
+# and reports for questions. Manages vote toggling and counting.
+###############################################################################
+
 from flask import Blueprint, request, jsonify
 import sqlite3
 
+# Create a Blueprint for organizing vote-related routes
 vote_routes = Blueprint('vote_report_routes', __name__)
 
-# Initialize SQLite database
+# Initialize SQLite database connection with thread safety
 conn = sqlite3.connect('users.db', check_same_thread=False)
 cursor = conn.cursor()
 
 # Helper function to execute vote actions
 def execute_vote_action(user_id, question_id, vote_types):
+
+    # Processes votes and reports on questions with toggle functionality
+    # Handles multiple vote types in a single transaction
+    # Returns status messages for the frontend
+    
     try:
         # Set busy timeout (milliseconds) in case of database lock
         cursor.execute('PRAGMA busy_timeout = 5000')
 
-        # Begin transaction
+        # Begin transaction to ensure data integrity
         cursor.execute('BEGIN TRANSACTION')
 
         for vote_type in vote_types:
@@ -25,7 +37,7 @@ def execute_vote_action(user_id, question_id, vote_types):
                 # Remove the existing vote (toggle behavior)
                 cursor.execute("DELETE FROM user_votes WHERE user_id = ? AND question_id = ? AND vote_type = ?", (user_id, question_id, vote_type))
                 
-                # Decrement the vote count
+                # Decrement the vote count in the questions table
                 if vote_type == 'upvote':
                     cursor.execute("UPDATE questions SET upvotes = upvotes - 1 WHERE id = ?", (question_id,))
                 elif vote_type == 'downvote':
@@ -47,18 +59,25 @@ def execute_vote_action(user_id, question_id, vote_types):
         # Commit all changes in the transaction
         conn.commit()
         
+        # Return success message with capitalized vote types
         return {'message': f'{", ".join([vote.capitalize() for vote in vote_types])} processed successfully!'}, 201
     except sqlite3.OperationalError as e:
         # Rollback if an error occurs
         conn.rollback()
         return {'error': f'Database error: {e}'}, 500
 
+###############################################################################
+# Vote API Endpoints
+###############################################################################
+
 # Upvote Route
 @vote_routes.route('/questions/<int:id>/upvote', methods=['POST'])
 def upvote_question(id):
+    # Extract user ID from request JSON
     data = request.get_json()
     user_id = data.get('user_id')
 
+    # Validate user ID
     if not user_id:
         return jsonify({'error': 'User ID is required.'}), 400
 
@@ -69,9 +88,11 @@ def upvote_question(id):
 # Downvote Route
 @vote_routes.route('/questions/<int:id>/downvote', methods=['POST'])
 def downvote_question(id):
+    # Extract user ID from request JSON
     data = request.get_json()
     user_id = data.get('user_id')
 
+    # Validate user ID
     if not user_id:
         return jsonify({'error': 'User ID is required.'}), 400
 
@@ -82,9 +103,11 @@ def downvote_question(id):
 # Report Route
 @vote_routes.route('/questions/<int:id>/report', methods=['POST'])
 def report_question(id):
+    # Extract user ID from request JSON
     data = request.get_json()
     user_id = data.get('user_id')
 
+    # Validate user ID
     if not user_id:
         return jsonify({'error': 'User ID is required.'}), 400
 
@@ -95,9 +118,11 @@ def report_question(id):
 # Downvote and Report together Route
 @vote_routes.route('/questions/<int:id>/downvote_report', methods=['POST'])
 def downvote_report_question(id):
+    # Extract user ID from request JSON
     data = request.get_json()
     user_id = data.get('user_id')
 
+    # Validate user ID
     if not user_id:
         return jsonify({'error': 'User ID is required.'}), 400
 
@@ -109,15 +134,19 @@ def downvote_report_question(id):
 @vote_routes.route('/questions/<int:question_id>/counts', methods=['GET'])
 def get_all_counts(question_id):
     try:
+        # Query to get all vote counts for a specific question
         cursor.execute('SELECT upvotes, downvotes, reports FROM questions WHERE id = ?', (question_id,))
         counts = cursor.fetchone()
         if counts:
+            # Return JSON with all counts
             return jsonify({
                 'upvotes': counts[0],
                 'downvotes': counts[1],
                 'reports': counts[2]
             })
         else:
+            # Question not found
             return jsonify({'error': 'Question not found.'}), 404
     except sqlite3.OperationalError as e:
+        # Handle database errors
         return jsonify({'error': f'Database error: {e}'}), 500

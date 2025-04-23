@@ -33,5 +33,6 @@ venv/
 .venv
 env/
 __pycache__/
+.env
 
 *.tsbuildinfo
