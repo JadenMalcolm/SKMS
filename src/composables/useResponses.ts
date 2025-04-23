@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import type { Ref } from 'vue'
 import axios from 'axios'
 import type { User } from './useUsers'
+import useApiUrl from './useApiUrl'
 
 export interface Response {
   id: number
@@ -17,6 +18,8 @@ export default function useResponses(
   currentUser: Ref<User | null>,
   responseList: Ref<Response[]> = ref([]),
 ) {
+  const { getBaseUrl } = useApiUrl()
+  const apiBaseUrl = getBaseUrl()
   const newResponseText = ref('')
   const responseMessage = ref('')
   const isLoading = ref(false)
@@ -26,7 +29,7 @@ export default function useResponses(
     isLoading.value = true
     try {
       const response = await axios.get<Response[]>(
-        `http://localhost:5000/questions/${questionId}/responses`,
+        `${apiBaseUrl}/questions/${questionId}/responses`,
       )
       responseList.value = response.data.map((item) => ({
         ...item,
@@ -54,7 +57,7 @@ export default function useResponses(
     try {
       if (!currentUser.value) throw new Error('User not logged in.')
 
-      const response = await axios.post(`http://localhost:5000/responses`, {
+      const response = await axios.post(`${apiBaseUrl}/responses`, {
         question_id: questionId,
         user_id: currentUser.value.id,
         response: newResponseText.value,
@@ -92,7 +95,7 @@ export default function useResponses(
 
       isLoading.value = true
       try {
-        await axios.put(`http://localhost:5000/responses/${response.id}`, {
+        await axios.put(`${apiBaseUrl}/responses/${response.id}`, {
           response: response.editText,
         })
 
@@ -117,7 +120,7 @@ export default function useResponses(
   const deleteResponse = async (responseId: number) => {
     isLoading.value = true
     try {
-      await axios.delete(`http://localhost:5000/responses/${responseId}`)
+      await axios.delete(`${apiBaseUrl}/responses/${responseId}`)
       responseList.value = responseList.value.filter((response) => response.id !== responseId)
       responseMessage.value = 'Response deleted successfully!'
       return true

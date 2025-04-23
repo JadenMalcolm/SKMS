@@ -2,10 +2,13 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import usePeakPassword from './usePeakPassword'
+import useApiUrl from './useApiUrl'
 
 export default function useAuth() {
   const router = useRouter()
   const { usePasswordVisibility } = usePeakPassword()
+  const { getBaseUrl } = useApiUrl()
+  const apiBaseUrl = getBaseUrl()
 
   // Form inputs
   const email = ref('')
@@ -27,7 +30,7 @@ export default function useAuth() {
   // Handle login
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/login', {
+      const response = await axios.post(`${apiBaseUrl}/login`, {
         email: email.value.toLowerCase(), // Convert email to lowercase
         password: password.value,
       })
@@ -57,7 +60,7 @@ export default function useAuth() {
       return
     }
     try {
-      await axios.post('http://localhost:5000/signup', {
+      await axios.post(`${apiBaseUrl}/signup`, {
         email: email.value.toLowerCase(), // Convert email to lowercase
         password: password.value,
         securityQuestion: securityChoice.value,

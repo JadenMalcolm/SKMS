@@ -2,10 +2,13 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import usePeakPassword from './usePeakPassword'
+import useApiUrl from './useApiUrl'
 
 export default function usePasswordReset() {
   const router = useRouter()
   const { usePasswordVisibility } = usePeakPassword()
+  const { getBaseUrl } = useApiUrl()
+  const apiBaseUrl = getBaseUrl()
 
   // State variables
   const email = ref(sessionStorage.getItem('recoverEmail') || '')
@@ -37,7 +40,7 @@ export default function usePasswordReset() {
     }
 
     try {
-      await axios.post('http://localhost:5000/reset_password', {
+      await axios.post(`${apiBaseUrl}/reset_password`, {
         email: email.value,
         newPassword: newPassword.value,
       })
@@ -74,7 +77,7 @@ export default function usePasswordReset() {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/change-password', {
+      const response = await axios.post(`${apiBaseUrl}/change-password`, {
         userId: userId,
         currentPassword: currentPassword.value,
         newPassword: newPassword.value,
@@ -116,7 +119,7 @@ export default function usePasswordReset() {
   // Function to handle password recovery request
   const handleRecover = async (emailValue: string) => {
     try {
-      const response = await axios.post('http://localhost:5000/recover', {
+      const response = await axios.post(`${apiBaseUrl}/recover`, {
         email: emailValue.toLowerCase(), // Convert email to lowercase
       })
 
@@ -143,7 +146,7 @@ export default function usePasswordReset() {
   // Function to fetch security question
   const fetchSecurityQuestion = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/recover', {
+      const response = await axios.post(`${apiBaseUrl}/recover`, {
         email: email.value,
       })
       // Check if the response contains a security question
@@ -165,7 +168,7 @@ export default function usePasswordReset() {
   const checkAnswer = async () => {
     try {
       // Check if the answer is correct
-      const response = await axios.post('http://localhost:5000/verify_answer', {
+      const response = await axios.post(`${apiBaseUrl}/verify_answer`, {
         email: email.value,
         securityQuestionAnswer: answer.value,
       })

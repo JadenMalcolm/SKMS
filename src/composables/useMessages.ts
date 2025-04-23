@@ -2,6 +2,7 @@ import { ref, nextTick, watch } from 'vue'
 import type { Ref } from 'vue'
 import axios from 'axios'
 import type { User } from './useUsers'
+import useApiUrl from './useApiUrl'
 
 export interface Message {
   id: number
@@ -12,6 +13,8 @@ export interface Message {
 }
 
 export default function useMessages(currentUser: Ref<User | null>, selectedUser: Ref<User | null>) {
+  const { getBaseUrl } = useApiUrl()
+  const apiBaseUrl = getBaseUrl()
   const messages = ref<Message[]>([])
   const newMessage = ref('')
   const messagesContainer = ref<HTMLElement | null>(null)
@@ -37,7 +40,7 @@ export default function useMessages(currentUser: Ref<User | null>, selectedUser:
       pollingInterval.value = window.setInterval(async () => {
         try {
           const response = await axios.get(
-            `http://localhost:5000/messages/${currentUser.value?.id}/${selectedUser.value?.id}`,
+            `${apiBaseUrl}/messages/${currentUser.value?.id}/${selectedUser.value?.id}`,
           )
 
           // Only update if there are new messages
@@ -58,7 +61,7 @@ export default function useMessages(currentUser: Ref<User | null>, selectedUser:
       selectedUser.value = user
       try {
         const response = await axios.get(
-          `http://localhost:5000/messages/${currentUser.value?.id}/${user.id}`,
+          `${apiBaseUrl}/messages/${currentUser.value?.id}/${user.id}`,
         )
         messages.value = response.data
 
@@ -75,7 +78,7 @@ export default function useMessages(currentUser: Ref<User | null>, selectedUser:
   const sendMessage = async (fetchUsers: () => Promise<void>) => {
     if (newMessage.value.trim() && selectedUser.value && currentUser.value) {
       try {
-        const response = await axios.post('http://localhost:5000/messages', {
+        const response = await axios.post(`${apiBaseUrl}/messages`, {
           sender_id: currentUser.value.id,
           receiver_id: selectedUser.value.id,
           message: newMessage.value,

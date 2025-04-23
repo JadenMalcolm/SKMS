@@ -3,8 +3,11 @@ import type { Ref } from 'vue'
 import axios from 'axios'
 import type { User } from './useUsers'
 import type { Question } from './useQuestions'
+import useApiUrl from './useApiUrl'
 
 export default function useSubscriptions(currentUser: Ref<User | null>) {
+  const { getBaseUrl } = useApiUrl()
+  const apiBaseUrl = getBaseUrl()
   const subscribedQuestions = ref<Question[]>([])
   const isSubscribed = ref(false)
   const subscriptionMessage = ref('')
@@ -14,7 +17,7 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
 
     try {
       const subscribedResponse = await axios.get(
-        `http://localhost:5000/users/${currentUser.value.id}/subscriptions`,
+        `${apiBaseUrl}/users/${currentUser.value.id}/subscriptions`,
       )
       subscribedQuestions.value = subscribedResponse.data
     } catch (error) {
@@ -27,7 +30,7 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
 
     try {
       const response = await axios.get<boolean>(
-        `http://localhost:5000/subscriptions/${currentUser.value.id}/${questionId}`,
+        `${apiBaseUrl}/subscriptions/${currentUser.value.id}/${questionId}`,
       )
       isSubscribed.value = response.data
       return response.data
@@ -41,7 +44,7 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
     try {
       if (!currentUser.value) throw new Error('User not logged in.')
 
-      await axios.post(`http://localhost:5000/subscriptions`, {
+      await axios.post(`${apiBaseUrl}/subscriptions`, {
         user_id: currentUser.value.id,
         question_id: questionId,
       })
@@ -64,7 +67,7 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
     try {
       if (!currentUser.value) throw new Error('User not logged in.')
 
-      await axios.delete(`http://localhost:5000/subscriptions`, {
+      await axios.delete(`${apiBaseUrl}/subscriptions`, {
         data: {
           user_id: currentUser.value.id,
           question_id: questionId,

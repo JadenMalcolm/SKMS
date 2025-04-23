@@ -2,6 +2,7 @@ import { ref, computed } from 'vue'
 import type { Ref } from 'vue'
 import axios from 'axios'
 import type { User } from './useUsers'
+import useApiUrl from './useApiUrl'
 
 export interface Question {
   id: number
@@ -15,6 +16,8 @@ export interface Question {
 }
 
 export default function useQuestions(currentUser: Ref<User | null>) {
+  const { getBaseUrl } = useApiUrl()
+  const apiBaseUrl = getBaseUrl()
   const searchQuery = ref('')
   const allQuestions = ref<Question[]>([])
   const searchResults = ref<Question[]>([])
@@ -38,7 +41,7 @@ export default function useQuestions(currentUser: Ref<User | null>) {
     if (!currentUser.value) return
 
     try {
-      const response = await axios.get(`http://localhost:5000/questions`)
+      const response = await axios.get(`${apiBaseUrl}/questions`)
       allQuestions.value = response.data
 
       userQuestions.value = allQuestions.value
@@ -53,7 +56,7 @@ export default function useQuestions(currentUser: Ref<User | null>) {
   // Fetch details for a specific question
   const fetchQuestionDetails = async (questionId: string | number) => {
     try {
-      const response = await axios.get<Question>(`http://localhost:5000/questions/${questionId}`)
+      const response = await axios.get<Question>(`${apiBaseUrl}/questions/${questionId}`)
       questionDetails.value = response.data
       editText.value = questionDetails.value.question
       return questionDetails.value
@@ -66,7 +69,7 @@ export default function useQuestions(currentUser: Ref<User | null>) {
 
   const searchQuestions = async (category?: string) => {
     try {
-      const response = await axios.post(`http://localhost:5000/questions/search`, {
+      const response = await axios.post(`${apiBaseUrl}/questions/search`, {
         query: searchQuery.value,
       })
 
@@ -89,7 +92,7 @@ export default function useQuestions(currentUser: Ref<User | null>) {
           return
         }
 
-        const response = await axios.post('http://localhost:5000/questions', {
+        const response = await axios.post(`${apiBaseUrl}/questions`, {
           userId: currentUser.value.id,
           question: newQuestionText.value,
           category: category,
@@ -120,7 +123,7 @@ export default function useQuestions(currentUser: Ref<User | null>) {
   // Function to delete a question
   const deleteQuestion = async (questionId: string | number) => {
     try {
-      await axios.delete(`http://localhost:5000/questions/${questionId}`)
+      await axios.delete(`${apiBaseUrl}/questions/${questionId}`)
       feedbackMessage.value = 'Question deleted successfully!'
       return true
     } catch (error) {
@@ -147,7 +150,7 @@ export default function useQuestions(currentUser: Ref<User | null>) {
         // Use the provided questionId or fall back to the value in questionDetails
         const id = questionId || questionDetails.value.id
 
-        await axios.put(`http://localhost:5000/questions/${id}`, {
+        await axios.put(`${apiBaseUrl}/questions/${id}`, {
           question: editText.value,
           category: questionDetails.value.category,
           user_id: currentUser.value.id,

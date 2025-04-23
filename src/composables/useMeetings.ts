@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import type { Ref } from 'vue'
 import axios from 'axios'
 import type { User } from './useUsers'
+import useApiUrl from './useApiUrl'
 
 export interface Meeting {
   id?: number
@@ -26,6 +27,8 @@ export interface MeetingRequest {
 }
 
 export default function useMeetings(currentUser: Ref<User | null>) {
+  const { getBaseUrl } = useApiUrl()
+  const apiBaseUrl = getBaseUrl()
   // State
   const myMeetings = ref<Meeting[]>([])
   const meetingRequests = ref<MeetingRequest[]>([])
@@ -39,7 +42,7 @@ export default function useMeetings(currentUser: Ref<User | null>) {
     if (!currentUser.value) return
 
     try {
-      const endpoint = `http://localhost:5000/meetings/${currentUser.value.id}`
+      const endpoint = `${apiBaseUrl}/meetings/${currentUser.value.id}`
       const response = await axios.get(endpoint)
       myMeetings.value = response.data
     } catch (error) {
@@ -53,9 +56,7 @@ export default function useMeetings(currentUser: Ref<User | null>) {
     if (!currentUser.value) return
 
     try {
-      const response = await axios.get(
-        `http://localhost:5000/meeting-requests/${currentUser.value.id}`,
-      )
+      const response = await axios.get(`${apiBaseUrl}/meeting-requests/${currentUser.value.id}`)
       meetingRequests.value = response.data
     } catch (error) {
       console.error('Error fetching meeting requests:', error)
@@ -70,7 +71,7 @@ export default function useMeetings(currentUser: Ref<User | null>) {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/schedule-meeting', {
+      const response = await axios.post(`${apiBaseUrl}/schedule-meeting`, {
         user_id: currentUser.value?.id,
         target_user_id: targetUserId,
         date: selectedDate.value,
@@ -88,7 +89,7 @@ export default function useMeetings(currentUser: Ref<User | null>) {
   // Accept a meeting request
   const acceptMeeting = async (meetingId: number) => {
     try {
-      const response = await axios.post('http://localhost:5000/accept-meeting', {
+      const response = await axios.post(`${apiBaseUrl}/accept-meeting`, {
         meeting_id: meetingId,
       })
       feedbackMessage.value = response.data.message
@@ -102,7 +103,7 @@ export default function useMeetings(currentUser: Ref<User | null>) {
   // Reject a meeting request
   const rejectMeeting = async (meetingId: number) => {
     try {
-      const response = await axios.post('http://localhost:5000/reject-meeting', {
+      const response = await axios.post(`${apiBaseUrl}/reject-meeting`, {
         meeting_id: meetingId,
       })
       feedbackMessage.value = response.data.message
@@ -117,7 +118,7 @@ export default function useMeetings(currentUser: Ref<User | null>) {
   const rescheduleMeeting = async (request: MeetingRequest) => {
     try {
       // Delete the original meeting request
-      await axios.post('http://localhost:5000/delete-meeting', { meeting_id: request.id })
+      await axios.post(`${apiBaseUrl}/delete-meeting`, { meeting_id: request.id })
       feedbackMessage.value = `Please select ${request.user_email} to reschedule the meeting and set a new date and time.`
       await fetchMeetingRequests()
       await fetchMeetings()
@@ -131,7 +132,7 @@ export default function useMeetings(currentUser: Ref<User | null>) {
   // Delete or cancel a meeting
   const deleteMeeting = async (meetingId: number) => {
     try {
-      const response = await axios.post('http://localhost:5000/delete-meeting', {
+      const response = await axios.post(`${apiBaseUrl}/delete-meeting`, {
         meeting_id: meetingId,
       })
       feedbackMessage.value = response.data.message

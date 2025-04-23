@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import useApiUrl from './useApiUrl'
 
 export interface FeedbackItem {
   id: number
@@ -18,6 +19,9 @@ export interface CategorizedFeedback {
 }
 
 export default function useFeedback(closePopup?: () => void) {
+  const { getBaseUrl } = useApiUrl()
+  const apiBaseUrl = getBaseUrl()
+
   // User feedback submission state
   const feedbackType = ref('voice')
   const feedbackText = ref('')
@@ -45,7 +49,7 @@ export default function useFeedback(closePopup?: () => void) {
       const currentUser = JSON.parse(sessionStorage.getItem('user') || 'null')
       const userId = currentUser?.id || null
 
-      await axios.post('http://localhost:5000/feedback', {
+      await axios.post(`${apiBaseUrl}/feedback`, {
         type: feedbackType.value,
         text: feedbackText.value,
         anonymous: isAnonymous.value,
@@ -72,7 +76,7 @@ export default function useFeedback(closePopup?: () => void) {
   const fetchFeedbackData = async () => {
     try {
       loading.value = true
-      const response = await axios.get('http://localhost:5000/feedback/categorized')
+      const response = await axios.get(`${apiBaseUrl}/feedback/categorized`)
       categorizedFeedback.value = response.data
     } catch (error) {
       console.error('Error fetching feedback data:', error)
@@ -104,7 +108,7 @@ export default function useFeedback(closePopup?: () => void) {
   // Admin function: Delete feedback
   const deleteFeedback = async (item: FeedbackItem) => {
     try {
-      await axios.delete(`http://localhost:5000/feedback/${item.id}`)
+      await axios.delete(`${apiBaseUrl}/feedback/${item.id}`)
 
       // Remove the deleted feedback from the list
       const categories = [
