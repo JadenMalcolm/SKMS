@@ -1,5 +1,15 @@
 # SKMS
 
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Node.js** (v14 or higher) and **npm** (v6 or higher)
+- **Python** (v3.8 or higher)
+- **pip** (Python package installer)
+- Git (recommended for version control)
+- A modern web browser (Chrome, Firefox, Edge, or Safari)
+
 ## API Configuration
 
 To configure the API endpoint security and connection:
@@ -60,11 +70,6 @@ npx serve dist
 ```
 
 ## Backend Setup
-
-### Prerequisites
-
-- Python 3.8 or higher
-- pip (Python package installer)
 
 ### Installation and Setup
 
