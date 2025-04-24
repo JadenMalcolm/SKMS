@@ -7,13 +7,7 @@ import sqlite3
 from cryptography.fernet import Fernet
 from generate_key import generate_or_load_key
 # Make sure this import works correctly
-try:
-    from api_routes import require_api_key
-except ImportError as e:
-    print(f"Error importing auth_helper: {e}")
-    # Create a dummy decorator for fallback
-    def require_api_key(f):
-        return f
+
 
 dm_routes = Blueprint('dm_routes', __name__)
 
@@ -27,7 +21,7 @@ key = generate_or_load_key()
 cipher_suite = Fernet(key)
 
 @dm_routes.route('/users/<int:current_user_id>', methods=['GET'])
-@require_api_key
+
 def get_users(current_user_id):
     # Get users with whom the current user has had conversations
     try:
@@ -52,7 +46,7 @@ def get_users(current_user_id):
 
 # Route to send a message
 @dm_routes.route('/messages', methods=['POST'])
-@require_api_key
+
 def send_message():
     # Send an encrypted direct message to another user
     data = request.get_json()
@@ -90,7 +84,7 @@ def send_message():
         return jsonify({'error': f'Database error: {e}'}), 500
     
 @dm_routes.route('/messages/<int:sender_id>/<int:receiver_id>', methods=['GET'])
-@require_api_key
+
 def get_messages(sender_id, receiver_id):
     # Get conversation history between two users, decrypting messages
     try:
@@ -122,7 +116,7 @@ def get_messages(sender_id, receiver_id):
         return jsonify({'error': f'Database error: {e}'}), 500
 
 @dm_routes.route('/experts/<string:category>', methods=['GET'])
-@require_api_key
+
 def get_expert_by_category(category):
     # Find an expert in a specific category
     try:

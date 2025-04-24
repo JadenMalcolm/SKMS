@@ -4,7 +4,6 @@
 ###############################################################################
 from flask import Blueprint, request, jsonify
 import sqlite3
-from api_routes import require_api_key
 
 subscription_routes = Blueprint('subscription_routes', __name__)
 
@@ -14,7 +13,7 @@ cursor = conn.cursor()
 
 
 @subscription_routes.route('/subscriptions', methods=['POST'])
-@require_api_key
+
 def subscribe_to_question():
     # Subscribe a user to a question to receive notifications for new responses
     data = request.get_json()
@@ -40,7 +39,7 @@ def subscribe_to_question():
 
 
 @subscription_routes.route('/subscriptions', methods=['DELETE'])
-@require_api_key
+
 def unsubscribe_from_question():
     # Remove a user's subscription from a question
     data = request.get_json()
@@ -59,7 +58,7 @@ def unsubscribe_from_question():
 
 
 @subscription_routes.route('/users/<int:user_id>/subscriptions', methods=['GET'])
-@require_api_key
+
 def get_subscribed_questions(user_id):
     # Get all questions that a user has subscribed to
     cursor.execute('''
@@ -78,7 +77,7 @@ def get_subscribed_questions(user_id):
 
 
 @subscription_routes.route('/subscriptions/<int:user_id>/<int:question_id>', methods=['GET'])
-@require_api_key
+
 def check_subscription(user_id, question_id):
     # Check if a user is subscribed to a specific question
     cursor.execute(

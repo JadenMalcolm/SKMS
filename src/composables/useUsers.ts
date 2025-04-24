@@ -29,14 +29,11 @@ export interface CategorizedUsers {
  * @returns User management methods and reactive state variables
  */
 export default function useUsers(currentUser: Ref<User | null>) {
-  const { getBaseUrl, getSecretKey } = useApiUrl()
+  const { getBaseUrl } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
-  const apiKey = getSecretKey()
 
-  // Create request headers with API key
-  const authHeaders = {
-    'X-API-Key': apiKey,
-  }
+
+
 
   const users = ref<User[]>([])
   const allUsers = ref<User[]>([])
@@ -51,9 +48,7 @@ export default function useUsers(currentUser: Ref<User | null>) {
   const fetchMessagedUsers = async () => {
     if (currentUser.value) {
       try {
-        const response = await axios.get(`${apiBaseUrl}/users/${currentUser.value.id}`, {
-          headers: authHeaders,
-        })
+        const response = await axios.get(`${apiBaseUrl}/users/${currentUser.value.id}`)
         users.value = response.data
       } catch (error) {
         console.error('Error fetching users:', error)
@@ -67,7 +62,7 @@ export default function useUsers(currentUser: Ref<User | null>) {
    */
   const fetchAllUsers = async () => {
     try {
-      const response = await axios.get(`${apiBaseUrl}/users/all`, { headers: authHeaders })
+      const response = await axios.get(`${apiBaseUrl}/users/all`)
       // Filter out the current user from the list
       if (currentUser.value) {
         allUsers.value = response.data.filter((user: User) => user.id !== currentUser.value?.id)
@@ -138,9 +133,9 @@ export default function useUsers(currentUser: Ref<User | null>) {
       isLoadingStaff.value = true
 
       const [adminsResponse, expertsResponse, employeesResponse] = await Promise.all([
-        axios.get(`${apiBaseUrl}/users/admins`, { headers: authHeaders }),
-        axios.get(`${apiBaseUrl}/users/experts`, { headers: authHeaders }),
-        axios.get(`${apiBaseUrl}/users/employees`, { headers: authHeaders }),
+        axios.get(`${apiBaseUrl}/users/admins`),
+        axios.get(`${apiBaseUrl}/users/experts`),
+        axios.get(`${apiBaseUrl}/users/employees`),
       ])
 
       categorizedUsers.value = {

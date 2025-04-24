@@ -25,14 +25,11 @@ export interface Message {
  * @returns Message management methods and reactive state variables
  */
 export default function useMessages(currentUser: Ref<User | null>, selectedUser: Ref<User | null>) {
-  const { getBaseUrl, getSecretKey } = useApiUrl()
+  const { getBaseUrl } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
-  const apiKey = getSecretKey()
 
-  // Create request headers with API key
-  const authHeaders = {
-    'X-API-Key': apiKey
-  }
+
+
 
   const messages = ref<Message[]>([])
   const newMessage = ref('')
@@ -64,8 +61,7 @@ export default function useMessages(currentUser: Ref<User | null>, selectedUser:
       pollingInterval.value = window.setInterval(async () => {
         try {
           const response = await axios.get(
-            `${apiBaseUrl}/messages/${currentUser.value?.id}/${selectedUser.value?.id}`,
-            { headers: authHeaders }
+            `${apiBaseUrl}/messages/${currentUser.value?.id}/${selectedUser.value?.id}`
           )
 
           // Only update if there are new messages
@@ -89,8 +85,7 @@ export default function useMessages(currentUser: Ref<User | null>, selectedUser:
       selectedUser.value = user
       try {
         const response = await axios.get(
-          `${apiBaseUrl}/messages/${currentUser.value?.id}/${user.id}`,
-          { headers: authHeaders }
+          `${apiBaseUrl}/messages/${currentUser.value?.id}/${user.id}`
         )
         messages.value = response.data
 
@@ -116,8 +111,7 @@ export default function useMessages(currentUser: Ref<User | null>, selectedUser:
             sender_id: currentUser.value.id,
             receiver_id: selectedUser.value.id,
             message: newMessage.value,
-          },
-          { headers: authHeaders }
+          }
         )
         messages.value.push(response.data)
         newMessage.value = ''

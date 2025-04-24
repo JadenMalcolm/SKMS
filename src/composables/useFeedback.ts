@@ -32,15 +32,11 @@ export interface CategorizedFeedback {
  * @returns Feedback management methods and reactive state variables
  */
 export default function useFeedback(closePopup?: () => void) {
-  const { getBaseUrl, getSecretKey } = useApiUrl()
+  const { getBaseUrl} = useApiUrl()
   const apiBaseUrl = getBaseUrl()
-  const apiKey = getSecretKey()
+
 
   // Create request headers with API key
-  const authHeaders = {
-    'X-API-Key': apiKey,
-  }
-
   // User feedback submission state
   const feedbackType = ref('voice')
   const feedbackText = ref('')
@@ -79,7 +75,6 @@ export default function useFeedback(closePopup?: () => void) {
           anonymous: isAnonymous.value,
           userId: isAnonymous.value ? null : userId,
         },
-        { headers: authHeaders },
       )
 
       feedbackMessage.value = 'Thank you for your feedback!'
@@ -104,7 +99,7 @@ export default function useFeedback(closePopup?: () => void) {
   const fetchFeedbackData = async () => {
     try {
       loading.value = true
-      const response = await axios.get(`${apiBaseUrl}/feedback/categorized`, { headers: authHeaders })
+      const response = await axios.get(`${apiBaseUrl}/feedback/categorized`)
       categorizedFeedback.value = response.data
     } catch (error) {
       console.error('Error fetching feedback data:', error)
@@ -142,7 +137,7 @@ export default function useFeedback(closePopup?: () => void) {
    */
   const deleteFeedback = async (item: FeedbackItem) => {
     try {
-      await axios.delete(`${apiBaseUrl}/feedback/${item.id}`, { headers: authHeaders })
+      await axios.delete(`${apiBaseUrl}/feedback/${item.id}`)
 
       // Remove the deleted feedback from the list
       const categories = [

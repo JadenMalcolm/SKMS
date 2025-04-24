@@ -4,7 +4,7 @@
 ###############################################################################
 from flask import Blueprint, request, jsonify
 import sqlite3
-from api_routes import require_api_key
+
 
 question_routes = Blueprint('question_routes', __name__)
 
@@ -13,7 +13,7 @@ conn = sqlite3.connect('users.db', check_same_thread=False)
 cursor = conn.cursor()
 
 @question_routes.route('/questions', methods=['POST'])
-@require_api_key
+
 def save_question():
     # Create a new question
     data = request.get_json()
@@ -31,7 +31,7 @@ def save_question():
     return jsonify({'message': 'Question saved successfully!', 'id': cursor.lastrowid}), 201
 
 @question_routes.route('/questions', methods=['GET'])
-@require_api_key
+
 def get_all_questions():
     # Retrieve all questions
     cursor.execute('''
@@ -47,7 +47,7 @@ def get_all_questions():
     ]), 200
 
 @question_routes.route('/questions/search', methods=['POST'])
-@require_api_key
+
 def search_questions():
     # Search questions by keywords
     data = request.get_json()
@@ -72,7 +72,7 @@ def search_questions():
     ]), 200
 
 @question_routes.route('/questions/<int:id>', methods=['GET', 'PUT', 'DELETE'])
-@require_api_key
+
 def question(id):
     if request.method == 'GET':
         # Get a specific question

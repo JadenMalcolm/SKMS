@@ -26,14 +26,12 @@ export interface Question {
  * @returns Question management methods and reactive state variables
  */
 export default function useQuestions(currentUser: Ref<User | null>) {
-  const { getBaseUrl, getSecretKey } = useApiUrl()
+  const { getBaseUrl } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
-  const apiKey = getSecretKey()
 
-  // Create request headers with API key
-  const authHeaders = {
-    'X-API-Key': apiKey
-  }
+
+
+
 
   const searchQuery = ref('')
   const allQuestions = ref<Question[]>([])
@@ -66,8 +64,7 @@ export default function useQuestions(currentUser: Ref<User | null>) {
     if (!currentUser.value) return
 
     try {
-      const response = await axios.get(`${apiBaseUrl}/questions`,
-        { headers: authHeaders }
+      const response = await axios.get(`${apiBaseUrl}/questions`
       )
       allQuestions.value = response.data
 
@@ -88,8 +85,7 @@ export default function useQuestions(currentUser: Ref<User | null>) {
   const fetchQuestionDetails = async (questionId: string | number) => {
     try {
       const response = await axios.get<Question>(
-        `${apiBaseUrl}/questions/${questionId}`,
-        { headers: authHeaders }
+        `${apiBaseUrl}/questions/${questionId}`
       )
       questionDetails.value = response.data
       editText.value = questionDetails.value.question
@@ -111,8 +107,7 @@ export default function useQuestions(currentUser: Ref<User | null>) {
       const response = await axios.post(`${apiBaseUrl}/questions/search`,
         {
           query: searchQuery.value,
-        },
-        { headers: authHeaders }
+        }
       )
 
       if (category) {
@@ -143,8 +138,7 @@ export default function useQuestions(currentUser: Ref<User | null>) {
             userId: currentUser.value.id,
             question: newQuestionText.value,
             category: category,
-          },
-          { headers: authHeaders }
+          }
         )
 
         const newQuestion = {
@@ -176,8 +170,7 @@ export default function useQuestions(currentUser: Ref<User | null>) {
    */
   const deleteQuestion = async (questionId: string | number) => {
     try {
-      await axios.delete(`${apiBaseUrl}/questions/${questionId}`,
-        { headers: authHeaders }
+      await axios.delete(`${apiBaseUrl}/questions/${questionId}`
       )
       feedbackMessage.value = 'Question deleted successfully!'
       return true
@@ -214,8 +207,7 @@ export default function useQuestions(currentUser: Ref<User | null>) {
             question: editText.value,
             category: questionDetails.value.category,
             user_id: currentUser.value.id,
-          },
-          { headers: authHeaders }
+          }
         )
 
         questionDetails.value.question = editText.value

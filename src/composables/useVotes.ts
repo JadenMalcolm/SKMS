@@ -12,14 +12,11 @@ import useApiUrl from './useApiUrl'
  * @returns Vote management methods and reactive state variables
  */
 export default function useVotes(currentUser: Ref<User | null>) {
-  const { getBaseUrl, getSecretKey } = useApiUrl()
+  const { getBaseUrl } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
-  const apiKey = getSecretKey()
 
-  // Create request headers with API key
-  const authHeaders = {
-    'X-API-Key': apiKey
-  }
+
+
 
   const upvoteCount = ref(0)
   const downvoteCount = ref(0)
@@ -36,8 +33,7 @@ export default function useVotes(currentUser: Ref<User | null>) {
     isLoading.value = true
     try {
       const countsResponse = await axios.get(
-        `${apiBaseUrl}/questions/${questionId}/counts`,
-        { headers: authHeaders }
+        `${apiBaseUrl}/questions/${questionId}/counts`
       )
       upvoteCount.value = countsResponse.data.upvotes
       downvoteCount.value = countsResponse.data.downvotes
@@ -76,8 +72,7 @@ export default function useVotes(currentUser: Ref<User | null>) {
       await axios.post(`${apiBaseUrl}/questions/${questionId}/${type}`,
         {
           user_id: currentUser.value.id,
-        },
-        { headers: authHeaders }
+        }
       )
 
       // Refresh vote counts after voting

@@ -14,14 +14,12 @@ import useApiUrl from './useApiUrl'
  * @returns Subscription management methods and reactive state variables
  */
 export default function useSubscriptions(currentUser: Ref<User | null>) {
-  const { getBaseUrl, getSecretKey } = useApiUrl()
+  const { getBaseUrl } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
-  const apiKey = getSecretKey()
 
-  // Create request headers with API key
-  const authHeaders = {
-    'X-API-Key': apiKey,
-  }
+
+
+
 
   const subscribedQuestions = ref<Question[]>([])
   const isSubscribed = ref(false)
@@ -35,8 +33,7 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
 
     try {
       const subscribedResponse = await axios.get(
-        `${apiBaseUrl}/users/${currentUser.value.id}/subscriptions`,
-        { headers: authHeaders }
+        `${apiBaseUrl}/users/${currentUser.value.id}/subscriptions`
       )
       subscribedQuestions.value = subscribedResponse.data
     } catch (error) {
@@ -54,8 +51,7 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
 
     try {
       const response = await axios.get<boolean>(
-        `${apiBaseUrl}/subscriptions/${currentUser.value.id}/${questionId}`,
-        { headers: authHeaders }
+        `${apiBaseUrl}/subscriptions/${currentUser.value.id}/${questionId}`
       )
       isSubscribed.value = response.data
       return response.data
@@ -79,8 +75,7 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
         {
           user_id: currentUser.value.id,
           question_id: questionId,
-        },
-        { headers: authHeaders }
+        }
       )
 
       isSubscribed.value = true
@@ -107,7 +102,6 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
       if (!currentUser.value) throw new Error('User not logged in.')
 
       await axios.delete(`${apiBaseUrl}/subscriptions`, {
-        headers: authHeaders,
         data: {
           user_id: currentUser.value.id,
           question_id: questionId,

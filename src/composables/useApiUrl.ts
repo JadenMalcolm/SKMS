@@ -12,20 +12,12 @@ export default function useApiUrl() {
    * @returns The API base URL
    */
   const getBaseUrl = (): string => {
-    return import.meta.env.VITE_API_URL
+    return "http://localhost:5000/api"
   }
 
-  /**
-   * Gets the API security key from environment variables
-   * Used for authentication with the backend
-   * @returns The API security key
-   */
-  const getSecretKey = (): string => {
-    return import.meta.env.VITE_SECRET_KEY
-  }
+
 
   return {
     getBaseUrl,
-    getSecretKey
   }
 }

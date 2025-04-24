@@ -21,17 +21,6 @@ touch .env  # On Unix-based systems
 # Or manually create the file on Windows
 ```
 
-2. Configure the API URL and security key:
-
-```properties
-VITE_API_URL=http://localhost:5000/api
-VITE_SECRET_KEY=your_secret_key_here
-```
-
-3. Replace `your_secret_key_here` with a strong, secure key of your choice.
-
-4. If you deploy your backend to a different server, update the `VITE_API_URL` to point to your production API endpoint.
-
 ## Frontend Setup
 
 ### Project Installation

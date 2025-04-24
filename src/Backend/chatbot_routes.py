@@ -4,7 +4,7 @@
 ###############################################################################
 from flask import Blueprint, request, jsonify
 from rapidfuzz import process, fuzz
-from api_routes import require_api_key
+
 
 chatbot_routes = Blueprint('chatbot_routes', __name__)
 
@@ -31,7 +31,7 @@ intents = {
 }
 
 @chatbot_routes.route('/chat', methods=['POST'])
-@require_api_key
+
 def chat():
     # Process user chat message and return appropriate response
     data = request.get_json()

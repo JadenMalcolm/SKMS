@@ -6,7 +6,6 @@
 
 from flask import Blueprint, request, jsonify
 import sqlite3
-from api_routes import require_api_key
 
 # Create a Blueprint for organizing vote-related routes
 vote_routes = Blueprint('vote_report_routes', __name__)
@@ -73,7 +72,6 @@ def execute_vote_action(user_id, question_id, vote_types):
 
 # Upvote Route
 @vote_routes.route('/questions/<int:id>/upvote', methods=['POST'])
-@require_api_key
 def upvote_question(id):
     # Extract user ID from request JSON
     data = request.get_json()
@@ -89,7 +87,6 @@ def upvote_question(id):
 
 # Downvote Route
 @vote_routes.route('/questions/<int:id>/downvote', methods=['POST'])
-@require_api_key
 def downvote_question(id):
     # Extract user ID from request JSON
     data = request.get_json()
@@ -105,7 +102,6 @@ def downvote_question(id):
 
 # Report Route
 @vote_routes.route('/questions/<int:id>/report', methods=['POST'])
-@require_api_key
 def report_question(id):
     # Extract user ID from request JSON
     data = request.get_json()
@@ -121,7 +117,6 @@ def report_question(id):
 
 # Downvote and Report together Route
 @vote_routes.route('/questions/<int:id>/downvote_report', methods=['POST'])
-@require_api_key
 def downvote_report_question(id):
     # Extract user ID from request JSON
     data = request.get_json()
@@ -137,7 +132,6 @@ def downvote_report_question(id):
 
 # New route to get all counts (upvotes, downvotes, reports)
 @vote_routes.route('/questions/<int:question_id>/counts', methods=['GET'])
-@require_api_key
 def get_all_counts(question_id):
     try:
         # Query to get all vote counts for a specific question

@@ -12,14 +12,10 @@ import useApiUrl from './useApiUrl'
 export default function useAuth() {
   const router = useRouter()
   const { usePasswordVisibility } = usePeakPassword()
-  const { getBaseUrl, getSecretKey } = useApiUrl()
+  const { getBaseUrl } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
-  const apiKey = getSecretKey()
 
-  // Create request headers with API key
-  const authHeaders = {
-    'X-API-Key': apiKey,
-  }
+
 
   // Form inputs
   const email = ref('')
@@ -51,7 +47,6 @@ export default function useAuth() {
           email: email.value.toLowerCase(), // Convert email to lowercase
           password: password.value,
         },
-        { headers: authHeaders }
       )
 
       const user = response.data.user
@@ -91,7 +86,6 @@ export default function useAuth() {
           securityQuestion: securityChoice.value,
           securityQuestionAnswer: securityQuestionAnswer.value,
         },
-        { headers: authHeaders }
       )
 
       signupMessage.value = 'New Account Created!'

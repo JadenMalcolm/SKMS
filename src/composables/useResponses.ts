@@ -29,14 +29,11 @@ export default function useResponses(
   currentUser: Ref<User | null>,
   responseList: Ref<Response[]> = ref([]),
 ) {
-  const { getBaseUrl, getSecretKey } = useApiUrl()
+  const { getBaseUrl } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
-  const apiKey = getSecretKey()
 
-  // Create request headers with API key
-  const authHeaders = {
-    'X-API-Key': apiKey,
-  }
+
+
 
   const newResponseText = ref('')
   const responseMessage = ref('')
@@ -52,7 +49,6 @@ export default function useResponses(
     try {
       const response = await axios.get<Response[]>(
         `${apiBaseUrl}/questions/${questionId}/responses`,
-        { headers: authHeaders },
       )
       responseList.value = response.data.map((item) => ({
         ...item,
@@ -91,7 +87,6 @@ export default function useResponses(
           user_id: currentUser.value.id,
           response: newResponseText.value,
         },
-        { headers: authHeaders },
       )
 
       responseList.value.unshift({
@@ -135,7 +130,6 @@ export default function useResponses(
           {
             response: response.editText,
           },
-          { headers: authHeaders },
         )
 
         response.response = response.editText || response.response
@@ -163,7 +157,7 @@ export default function useResponses(
   const deleteResponse = async (responseId: number) => {
     isLoading.value = true
     try {
-      await axios.delete(`${apiBaseUrl}/responses/${responseId}`, { headers: authHeaders })
+      await axios.delete(`${apiBaseUrl}/responses/${responseId}`)
       responseList.value = responseList.value.filter((response) => response.id !== responseId)
       responseMessage.value = 'Response deleted successfully!'
       return true
