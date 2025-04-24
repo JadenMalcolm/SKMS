@@ -4,6 +4,11 @@ import axios from 'axios'
 import usePeakPassword from './usePeakPassword'
 import useApiUrl from './useApiUrl'
 
+/**
+ * Authentication composable that handles user login, signup, and authentication state.
+ * Provides functions for login, signup, password management, and session verification.
+ * @returns Authentication related methods and reactive state variables
+ */
 export default function useAuth() {
   const router = useRouter()
   const { usePasswordVisibility } = usePeakPassword()
@@ -33,7 +38,11 @@ export default function useAuth() {
   const signupMessage = ref('')
   const isError = ref(false)
 
-  // Handle login
+  /**
+   * Handles user login submission.
+   * Validates credentials with the backend, stores user session upon success,
+   * and redirects to dashboard.
+   */
   const handleLogin = async () => {
     try {
       const response = await axios.post(
@@ -63,7 +72,11 @@ export default function useAuth() {
     }
   }
 
-  // Handle signup
+  /**
+   * Handles user signup submission.
+   * Validates that passwords match, sends signup data to backend,
+   * and redirects to login page on success.
+   */
   const handleSignUp = async () => {
     if (password.value !== confirmPassword.value) {
       signupMessage.value = 'Passwords do not match!'
@@ -97,16 +110,24 @@ export default function useAuth() {
     }
   }
 
-  // Navigation functions
+  /**
+   * Navigates to the signup page
+   */
   const navigateToSignup = () => {
     router.push('/signup')
   }
 
+  /**
+   * Navigates to the password recovery page
+   */
   const navigateToRecover = () => {
     router.push('/recover')
   }
 
-  // Check if user is already logged in
+  /**
+   * Checks if user is already logged in by verifying session storage
+   * @returns User object if logged in, null otherwise
+   */
   const checkAuth = () => {
     const user = sessionStorage.getItem('user')
     if (user) {

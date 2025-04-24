@@ -3,18 +3,31 @@ import type { Ref } from 'vue'
 import axios from 'axios'
 import useApiUrl from './useApiUrl'
 
+/**
+ * Interface representing a user in the system
+ */
 export interface User {
   id: number
   email: string
   role?: string
 }
 
+/**
+ * Interface for users categorized by role
+ */
 export interface CategorizedUsers {
   admins: User[]
   experts: User[]
   employees: User[]
 }
 
+/**
+ * Composable for managing users and user-related functionality.
+ * Provides functions for fetching users, searching users, and staff management.
+ *
+ * @param currentUser - Reference to the current user object
+ * @returns User management methods and reactive state variables
+ */
 export default function useUsers(currentUser: Ref<User | null>) {
   const { getBaseUrl, getSecretKey } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
@@ -31,7 +44,10 @@ export default function useUsers(currentUser: Ref<User | null>) {
   const searchQuery = ref('')
   const newChatSearchQuery = ref('')
 
-  // Fetch users who have messaged the current user
+  /**
+   * Fetches users who have messaged with the current user
+   * Used in messaging interfaces to show recent contacts
+   */
   const fetchMessagedUsers = async () => {
     if (currentUser.value) {
       try {
@@ -45,7 +61,10 @@ export default function useUsers(currentUser: Ref<User | null>) {
     }
   }
 
-  // Fetch all users
+  /**
+   * Fetches all users in the system
+   * Excludes the current user from the returned list
+   */
   const fetchAllUsers = async () => {
     try {
       const response = await axios.get(`${apiBaseUrl}/users/all`, { headers: authHeaders })
@@ -60,12 +79,17 @@ export default function useUsers(currentUser: Ref<User | null>) {
     }
   }
 
-  // Select a user
+  /**
+   * Selects a user for operations that require a target user
+   * @param user - User to select or null to clear selection
+   */
   const selectUser = (user: User | null) => {
     selectedUser.value = user
   }
 
-  // Computed property to filter users based on search query
+  /**
+   * Computed property to filter messaged users based on search query
+   */
   const filteredUsers = computed(() => {
     return users.value.filter(
       (user) =>
@@ -74,8 +98,9 @@ export default function useUsers(currentUser: Ref<User | null>) {
     )
   })
 
-  // Computed property to filter ALL users based on search query
-  // This is needed for components like Meetings that need to search all users
+  /**
+   * Computed property to filter all users based on search query
+   */
   const filteredAllUsers = computed(() => {
     return allUsers.value.filter(
       (user) =>
@@ -84,7 +109,10 @@ export default function useUsers(currentUser: Ref<User | null>) {
     )
   })
 
-  // Computed property to filter all users based on new chat search query
+  /**
+   * Computed property to filter all users based on new chat search query
+   * Used specifically for starting new conversations
+   */
   const newChatFilteredUsers = computed(() => {
     return allUsers.value.filter(
       (user) =>
@@ -101,7 +129,10 @@ export default function useUsers(currentUser: Ref<User | null>) {
   })
   const isLoadingStaff = ref(false)
 
-  // Fetch users by role categories (for Staff.vue)
+  /**
+   * Fetches users categorized by their roles
+   * Used in staff management interfaces
+   */
   const fetchUsersByRole = async () => {
     try {
       isLoadingStaff.value = true
@@ -124,7 +155,12 @@ export default function useUsers(currentUser: Ref<User | null>) {
     }
   }
 
-  // Format expert role for display (remove prefix and capitalize)
+  /**
+   * Formats expert role for display
+   * Removes the 'expert-' prefix and capitalizes the domain
+   * @param role - Role string to format
+   * @returns Formatted role string
+   */
   const formatExpertRole = (role: string): string => {
     if (!role.startsWith('expert-')) return role
 

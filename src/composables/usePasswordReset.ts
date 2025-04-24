@@ -4,6 +4,13 @@ import axios from 'axios'
 import usePeakPassword from './usePeakPassword'
 import useApiUrl from './useApiUrl'
 
+/**
+ * Composable for handling password reset and recovery flows.
+ * Provides functions for password recovery, security question verification,
+ * and password reset functionality.
+ *
+ * @returns Password reset methods and reactive state variables
+ */
 export default function usePasswordReset() {
   const router = useRouter()
   const { usePasswordVisibility } = usePeakPassword()
@@ -37,7 +44,10 @@ export default function usePasswordReset() {
   const { visible: peakConfirmPassword, toggle: togglePeakConfirmPassword } =
     usePasswordVisibility()
 
-  // Function to reset password (for password recovery)
+  /**
+   * Resets the password for a user during the recovery flow
+   * Validates matching passwords and sends reset request to the server
+   */
   const resetPassword = async () => {
     if (newPassword.value !== confirmPassword.value) {
       message.value = 'Passwords do not match!'
@@ -73,7 +83,11 @@ export default function usePasswordReset() {
     }
   }
 
-  // Function to change password (for logged-in users)
+  /**
+   * Changes password for a logged-in user
+   * Validates current password and ensures new passwords match
+   * @param userId - ID of the user changing their password
+   */
   const changePassword = async (userId: number) => {
     // Reset message
     message.value = ''
@@ -111,7 +125,10 @@ export default function usePasswordReset() {
     }
   }
 
-  // Function to log out user
+  /**
+   * Logs out the current user by clearing session storage
+   * Redirects to login page after a short delay
+   */
   const logout = () => {
     sessionStorage.removeItem('user')
     message.value = 'Session expired. Please log in again.'
@@ -122,7 +139,10 @@ export default function usePasswordReset() {
     }, 1500)
   }
 
-  // Check authentication on mount
+  /**
+   * Checks if the user is authenticated
+   * Logs out if not authenticated
+   */
   const checkAuth = () => {
     const storedUser = sessionStorage.getItem('user')
     if (!storedUser) {
@@ -130,7 +150,11 @@ export default function usePasswordReset() {
     }
   }
 
-  // Function to handle password recovery request
+  /**
+   * Initiates the password recovery process
+   * Sends recovery request to server and redirects to reset page if successful
+   * @param emailValue - Email address for recovery
+   */
   const handleRecover = async (emailValue: string) => {
     try {
       const response = await axios.post(
@@ -161,7 +185,9 @@ export default function usePasswordReset() {
     }
   }
 
-  // Function to fetch security question
+  /**
+   * Fetches the security question associated with the user's email
+   */
   const fetchSecurityQuestion = async () => {
     try {
       const response = await axios.post(
@@ -186,7 +212,10 @@ export default function usePasswordReset() {
     }
   }
 
-  // Function to check answer of security question
+  /**
+   * Verifies the answer to the security question
+   * Redirects to password reset page if answer is correct
+   */
   const checkAnswer = async () => {
     try {
       // Check if the answer is correct
@@ -229,7 +258,7 @@ export default function usePasswordReset() {
     logout,
     checkAuth,
     handleRecover,
-    // Add security question related fields and functions
+    // Security question related fields and functions
     securityQuestion,
     answer,
     errorMessage,

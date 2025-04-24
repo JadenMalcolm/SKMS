@@ -155,16 +155,20 @@ const {
   changePassword
 } = usePasswordReset()
 
-// Handle password change with user ID check
+// Helper function to change password - only executes if a valid user ID exists
 const handleChangePassword = () => currentUser.value?.id && changePassword(currentUser.value.id)
 
+// Load user data when component is mounted
 onMounted(loadCurrentUser)
 </script>
 
 <style scoped>
+/* Main container with centered layout and maximum width */
 .profile-container { max-width: 800px; margin: 20px auto; padding: 20px; }
+/* Column layout with vertical spacing between sections */
 .profile-content { display: flex; flex-direction: column; gap: 30px; }
 
+/* Card-like styling for each profile section */
 .profile-section {
   background-color: #fff;
   border-radius: 10px;
@@ -174,31 +178,40 @@ onMounted(loadCurrentUser)
 
 /* User information styling */
 .user-info { margin-top: 20px; }
+/* Row layout for label-value pairs with bottom border separation */
 .info-item {
   display: flex;
   margin-bottom: 15px;
   padding-bottom: 10px;
   border-bottom: 1px solid #f0f0f0;
 }
+/* Fixed-width labels with visual emphasis */
 .info-item label { width: 100px; font-weight: 600; color: #555; }
+/* Value styling with flexible width */
 .info-item span { flex: 1; color: #333; }
 
-/* Form styling */
+/* Password change form styling */
 .password-form { margin-top: 20px; }
+/* Spacing between form input groups */
 .form-group { margin-bottom: 20px; }
+/* Label styling for form fields */
 .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #555; }
 
-/* Message styling */
+/* Feedback message styling for user notifications */
 .feedback-message {
   margin-top: 20px;
   padding: 12px 15px;
   border-radius: 8px;
   text-align: center;
 }
+/* Success message styling with green color scheme */
 .success-message { background-color: #e8f5e9; color: #2e7d32; }
+/* Error message styling with red color scheme */
 .error-message { background-color: #ffebee; color: #c62828; }
 
+/* Responsive design adjustments for small screens */
 @media (max-width: 600px) {
+  /* Stack labels above values on narrow screens */
   .info-item { flex-direction: column; gap: 5px; }
   .info-item label { width: 100%; }
 }

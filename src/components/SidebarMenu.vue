@@ -1,7 +1,10 @@
 <template>
+  <!-- Semi-transparent overlay that appears behind the sidebar -->
   <div class="sidebar-overlay" v-if="isVisible" @click="toggleVisibility"></div>
+
+  <!-- Main sidebar container - only visible when isVisible is true -->
   <div class="sidebar-menu" v-if="isVisible">
-    <!-- Add sidebar header with close button -->
+    <!-- Sidebar header with title and close button -->
     <div class="sidebar-header">
       <h2>Menu</h2>
       <button @click="toggleVisibility" class="sidebar-close-x">
@@ -9,25 +12,39 @@
       </button>
     </div>
 
+    <!-- Menu navigation items -->
     <div class="menu-items">
+      <!-- User profile link -->
       <button @click="navigateToProfile" class="menu-button">
         <i class="menu-icon-user"></i> View Profile
       </button>
+
+      <!-- Dashboard link -->
       <button @click="navigateToDashboard" class="menu-button">
         <i class="menu-icon-dashboard"></i> Dashboard
       </button>
+
+      <!-- Meetings link -->
       <button @click="navigateToMeetings" class="menu-button">
         <i class="menu-icon-calendar"></i> Meetings
       </button>
+
+      <!-- Direct messages link -->
       <button @click="navigateToDirectMessages" class="menu-button">
         <i class="menu-icon-messages"></i> Direct Messages
       </button>
+
+      <!-- Learning resources link -->
       <button @click="navigateToLearn" class="menu-button">
         <i class="menu-icon-learn"></i> Learn
       </button>
+
+      <!-- Security policies link -->
       <button @click="navigateToPolicies" class="menu-button">
         <i class="menu-icon-policies"></i> Security Policies
       </button>
+
+      <!-- Contact expert button - only for employees -->
       <button
         @click="isContactExpertVisible = true"
         class="menu-button"
@@ -35,6 +52,8 @@
       >
         <i class="menu-icon-expert"></i> Contact Expert
       </button>
+
+      <!-- Give feedback button - for all users except admins -->
       <button
         @click="isFeedbackVisible = true"
         class="menu-button"
@@ -42,6 +61,8 @@
       >
         <i class="menu-icon-feedback"></i> Give Feedback
       </button>
+
+      <!-- Admin panel link - only for administrators -->
       <button
         @click="navigateToAdminPanel"
         class="menu-button"
@@ -49,22 +70,27 @@
       >
         <i class="menu-icon-admin"></i> Admin Panel
       </button>
+
+      <!-- Staff directory link -->
       <button @click="navigateToStaff" class="menu-button">
         <i class="menu-icon-staff"></i> Staff
       </button>
     </div>
 
-    <!-- Push logout to bottom with spacer -->
+    <!-- Flexible spacer to push logout button to bottom -->
     <div class="menu-spacer"></div>
 
-    <!-- Logout button at bottom -->
+    <!-- Logout button -->
     <button @click="logout" class="menu-button menu-logout-button">
       <i class="menu-icon-logout"></i> Logout
     </button>
 
+    <!-- Modal components -->
     <ContactExpert :showPopup="isContactExpertVisible" @close="isContactExpertVisible = false" />
     <Feedback :showPopup="isFeedbackVisible" @close="isFeedbackVisible = false" />
   </div>
+
+  <!-- Hamburger menu button - shown when sidebar is closed -->
   <button v-else @click="toggleVisibility" class="menu-open-button">
     <span class="menu-icon">
       <span class="menu-line"></span>
@@ -78,17 +104,23 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+// Control sidebar visibility state
 const isVisible = ref(false)
 const router = useRouter()
+
+// Control visibility of modal popups
 const isContactExpertVisible = ref(false)
 const isFeedbackVisible = ref(false)
 
+// Get current user from session storage
 const currentUser = JSON.parse(sessionStorage.getItem('user') || 'null')
 
+// Toggle sidebar visibility
 const toggleVisibility = () => {
   isVisible.value = !isVisible.value
 }
 
+// Navigation functions
 const navigateToDashboard = () => {
   router.push('/dashboard')
 }
@@ -125,6 +157,7 @@ const navigateToPolicies = () => {
   router.push('/policies')
 }
 
+// Logout function - clear session and redirect to login
 const logout = () => {
   sessionStorage.removeItem('user')
   router.push('/')
@@ -132,6 +165,7 @@ const logout = () => {
 </script>
 
 <style scoped>
+/* Semi-transparent overlay behind sidebar */
 .sidebar-overlay {
   position: fixed;
   top: 0;
@@ -142,6 +176,7 @@ const logout = () => {
   z-index: 900;
 }
 
+/* Main sidebar container styling */
 .sidebar-menu {
   position: fixed;
   top: 0;
@@ -158,7 +193,7 @@ const logout = () => {
   overflow-y: auto;
 }
 
-/* New sidebar header styles */
+/* Sidebar header with title and close button */
 .sidebar-header {
   display: flex;
   justify-content: space-between;
@@ -174,6 +209,7 @@ const logout = () => {
   font-size: 1.5rem;
 }
 
+/* Close button styling with hover effects */
 .sidebar-close-x {
   background: transparent;
   border: none;
@@ -197,18 +233,20 @@ const logout = () => {
   color: #d32f2f;
 }
 
-/* Create structure for menu with spacer */
+/* Menu items container */
 .menu-items {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
+/* Flexible spacer to push logout to bottom */
 .menu-spacer {
   flex-grow: 1;
   min-height: 20px;
 }
 
+/* Standard menu button styling */
 .menu-button {
   display: flex;
   align-items: center;
@@ -229,6 +267,7 @@ const logout = () => {
   text-align: left;
 }
 
+/* Icon container styling within buttons */
 .menu-button i {
   margin-right: 10px;
   width: 24px;
@@ -238,7 +277,7 @@ const logout = () => {
   justify-content: center;
 }
 
-/* Icon styles using CSS backgrounds */
+/* SVG icon definitions using data URIs */
 .menu-icon-user {
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E")
     no-repeat center;
@@ -326,11 +365,13 @@ const logout = () => {
   display: inline-block;
 }
 
+/* Button hover effect */
 .menu-button:hover {
   background: linear-gradient(90deg, #1976d2, #1565c0);
   transform: scale(1.02);
 }
 
+/* Hamburger menu button when sidebar is closed */
 .menu-open-button {
   position: fixed;
   top: 20px;
@@ -350,11 +391,13 @@ const logout = () => {
   z-index: 900;
 }
 
+/* Hamburger button hover effect */
 .menu-open-button:hover {
   background: linear-gradient(90deg, #0056b3, #003f7f);
   transform: scale(1.05);
 }
 
+/* Hamburger icon styling */
 .menu-icon {
   display: flex;
   flex-direction: column;
@@ -363,6 +406,7 @@ const logout = () => {
   gap: 4px;
 }
 
+/* Individual line in hamburger icon */
 .menu-line {
   width: 20px;
   height: 2px;
@@ -370,9 +414,10 @@ const logout = () => {
   border-radius: 1px;
 }
 
+/* Special styling for logout button */
 .menu-logout-button {
   background: linear-gradient(90deg, #f44336, #d32f2f);
-  margin-top: 10px; /* Add some space above logout */
+  margin-top: 10px; /* Add space above logout button */
 }
 
 .menu-logout-button:hover {

@@ -5,7 +5,7 @@
 from flask import Blueprint, request, jsonify
 import sqlite3
 from cryptography.fernet import Fernet
-from setup_db import key
+from generate_key import generate_or_load_key
 # Make sure this import works correctly
 try:
     from api_routes import require_api_key
@@ -20,10 +20,8 @@ dm_routes = Blueprint('dm_routes', __name__)
 # Initialize SQLite database connection - but not cursor
 conn = sqlite3.connect('users.db', check_same_thread=False)
 
-# Load the encryption key from the file
-key_file = 'secret.key'
-with open(key_file, 'rb') as f:
-    key = f.read()
+# Load the encryption key using the generate_key module
+key = generate_or_load_key()
 
 # Initialize encryption engine
 cipher_suite = Fernet(key)

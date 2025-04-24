@@ -8,7 +8,7 @@ from flask import request, jsonify
 from functools import wraps
 
 # Get the API key from environment variable or use the value from the .env file
-VITE_SECRET_KEY = os.environ.get('VITE_SECRET_KEY', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+VITE_SECRET_KEY = os.environ.get('VITE_SECRET_KEY')
 
 def require_api_key(f):
 

@@ -4,6 +4,9 @@ import axios from 'axios'
 import type { User } from './useUsers'
 import useApiUrl from './useApiUrl'
 
+/**
+ * Interface representing a meeting between users
+ */
 export interface Meeting {
   id?: number
   user_id: number
@@ -17,6 +20,9 @@ export interface Meeting {
   category?: string
 }
 
+/**
+ * Interface representing a meeting request
+ */
 export interface MeetingRequest {
   id: number
   user_email: string
@@ -26,6 +32,13 @@ export interface MeetingRequest {
   meeting_type: string
 }
 
+/**
+ * Composable for managing meetings between users.
+ * Provides functionality to schedule, accept, reject, and manage meetings.
+ *
+ * @param currentUser - Reference to the current user object
+ * @returns Meeting management methods and reactive state variables
+ */
 export default function useMeetings(currentUser: Ref<User | null>) {
   const { getBaseUrl, getSecretKey } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
@@ -44,7 +57,9 @@ export default function useMeetings(currentUser: Ref<User | null>) {
   const selectedMeetingType = ref('in-person')
   const feedbackMessage = ref('')
 
-  // Fetch user meetings
+  /**
+   * Fetches all meetings for the current user
+   */
   const fetchMeetings = async () => {
     if (!currentUser.value) return
 
@@ -58,7 +73,9 @@ export default function useMeetings(currentUser: Ref<User | null>) {
     }
   }
 
-  // Fetch meeting requests
+  /**
+   * Fetches all meeting requests for the current user
+   */
   const fetchMeetingRequests = async () => {
     if (!currentUser.value) return
 
@@ -70,7 +87,10 @@ export default function useMeetings(currentUser: Ref<User | null>) {
     }
   }
 
-  // Schedule a new meeting
+  /**
+   * Schedules a new meeting with another user
+   * @param targetUserId - ID of the user to schedule meeting with
+   */
   const scheduleMeeting = async (targetUserId: number) => {
     if (!selectedDate.value || !selectedTime.value || !selectedMeetingType.value) {
       feedbackMessage.value = 'Please fill out all fields.'
@@ -93,7 +113,10 @@ export default function useMeetings(currentUser: Ref<User | null>) {
     }
   }
 
-  // Accept a meeting request
+  /**
+   * Accepts a meeting request
+   * @param meetingId - ID of the meeting to accept
+   */
   const acceptMeeting = async (meetingId: number) => {
     try {
       const response = await axios.post(`${apiBaseUrl}/accept-meeting`, {
@@ -107,7 +130,10 @@ export default function useMeetings(currentUser: Ref<User | null>) {
     }
   }
 
-  // Reject a meeting request
+  /**
+   * Rejects a meeting request
+   * @param meetingId - ID of the meeting to reject
+   */
   const rejectMeeting = async (meetingId: number) => {
     try {
       const response = await axios.post(`${apiBaseUrl}/reject-meeting`, {
@@ -121,7 +147,11 @@ export default function useMeetings(currentUser: Ref<User | null>) {
     }
   }
 
-  // Reschedule a meeting
+  /**
+   * Initiates the rescheduling process for a meeting
+   * @param request - Meeting request to reschedule
+   * @returns Boolean indicating success or failure
+   */
   const rescheduleMeeting = async (request: MeetingRequest) => {
     try {
       // Delete the original meeting request
@@ -136,7 +166,10 @@ export default function useMeetings(currentUser: Ref<User | null>) {
     }
   }
 
-  // Delete or cancel a meeting
+  /**
+   * Deletes or cancels a meeting
+   * @param meetingId - ID of the meeting to delete
+   */
   const deleteMeeting = async (meetingId: number) => {
     try {
       const response = await axios.post(`${apiBaseUrl}/delete-meeting`, {

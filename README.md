@@ -1,61 +1,101 @@
-#  Vuep
+# SKMS
 
-This template should help get you started developing with Vue 3 in Vite.
+## API Configuration
 
-## Recommended IDE Setup
+To configure the API endpoint security and connection:
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+1. Locate the `.env` file in the project root directory or create it if it doesn't exist:
 
-## Type Support for `.vue` Imports in TS
+```sh
+touch .env  # On Unix-based systems
+# Or manually create the file on Windows
+```
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+2. Configure the API URL and security key:
 
-## Customize configuration
+```properties
+VITE_API_URL=http://localhost:5000/api
+VITE_SECRET_KEY=your_secret_key_here
+```
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+3. Replace `your_secret_key_here` with a strong, secure key of your choice.
 
-## Project Setup
+4. If you deploy your backend to a different server, update the `VITE_API_URL` to point to your production API endpoint.
+
+## Frontend Setup
+
+### Project Installation
 
 ```sh
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+### Development Server
 
 ```sh
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+### Build for Production
 
 ```sh
 npm run build
 ```
 
-### Run Headed Component Tests with [Cypress Component Testing](https://on.cypress.io/component)
+### Serve Production Build
+
+After building the application, you can serve it with:
 
 ```sh
-npm run test:unit:dev # or `npm run test:unit` for headless testing
+# Install serve globally if not already installed
+npm install -g serve
+# Serve the built application
+serve dist
 ```
 
-### Run End-to-End Tests with [Cypress](https://www.cypress.io/)
+Alternatively, you can use:
 
 ```sh
-npm run test:e2e:dev
+npx serve dist
 ```
 
-This runs the end-to-end tests against the Vite development server.
-It is much faster than the production build.
+## Backend Setup
 
-But it's still recommended to test the production build with `test:e2e` before deploying (e.g. in CI environments):
+### Prerequisites
+
+- Python 3.8 or higher
+- pip (Python package installer)
+
+### Installation and Setup
+
+1. Navigate to the Backend directory:
 
 ```sh
-npm run build
-npm run test:e2e
+cd src/Backend
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+2. Install required Python packages:
 
 ```sh
-npm run lint
+pip install -r requirements.txt
 ```
+
+3. Generate encryption key:
+
+```sh
+python generate_key.py
+```
+
+4. Set up the database:
+
+```sh
+python setup_db.py
+```
+
+5. Run the backend server:
+
+```sh
+python app.py
+```
+
+The backend server will start running on http://localhost:5000/api

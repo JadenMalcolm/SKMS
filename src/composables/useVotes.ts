@@ -4,6 +4,13 @@ import axios from 'axios'
 import type { User } from './useUsers'
 import useApiUrl from './useApiUrl'
 
+/**
+ * Composable for managing votes and reports on questions.
+ * Provides functionality for upvoting, downvoting, and reporting questions.
+ *
+ * @param currentUser - Reference to the current user object
+ * @returns Vote management methods and reactive state variables
+ */
 export default function useVotes(currentUser: Ref<User | null>) {
   const { getBaseUrl, getSecretKey } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
@@ -20,7 +27,11 @@ export default function useVotes(currentUser: Ref<User | null>) {
   const voteMessage = ref('')
   const isLoading = ref(false)
 
-  // Fetch vote counts for a question
+  /**
+   * Fetches vote counts for a specific question
+   * @param questionId - ID of the question to fetch votes for
+   * @returns Object containing upvotes, downvotes, and reports counts
+   */
   const fetchVoteCounts = async (questionId: string | number) => {
     isLoading.value = true
     try {
@@ -45,7 +56,12 @@ export default function useVotes(currentUser: Ref<User | null>) {
     }
   }
 
-  // Handle voting (upvote, downvote, report)
+  /**
+   * Handles voting (upvote, downvote, or report) on a question
+   * @param questionId - ID of the question to vote on
+   * @param type - Type of vote (upvote, downvote, report)
+   * @returns Boolean indicating success or failure
+   */
   const handleVote = async (
     questionId: string | number,
     type: 'upvote' | 'downvote' | 'report',

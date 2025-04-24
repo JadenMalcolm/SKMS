@@ -4,6 +4,9 @@ import axios from 'axios'
 import type { User } from './useUsers'
 import useApiUrl from './useApiUrl'
 
+/**
+ * Interface representing a response to a question
+ */
 export interface Response {
   id: number
   response: string
@@ -14,6 +17,14 @@ export interface Response {
   editText?: string
 }
 
+/**
+ * Composable for managing responses to questions.
+ * Provides functionality to create, read, update, and delete responses.
+ *
+ * @param currentUser - Reference to the current user object
+ * @param responseList - Optional reference to store response list
+ * @returns Response management methods and reactive state variables
+ */
 export default function useResponses(
   currentUser: Ref<User | null>,
   responseList: Ref<Response[]> = ref([]),
@@ -31,7 +42,11 @@ export default function useResponses(
   const responseMessage = ref('')
   const isLoading = ref(false)
 
-  // Fetch responses for a question
+  /**
+   * Fetches all responses for a given question
+   * @param questionId - ID of the question to fetch responses for
+   * @returns Array of response objects
+   */
   const fetchResponses = async (questionId: string | number) => {
     isLoading.value = true
     try {
@@ -54,7 +69,11 @@ export default function useResponses(
     }
   }
 
-  // Post a new response
+  /**
+   * Posts a new response to a question
+   * @param questionId - ID of the question to respond to
+   * @returns Boolean indicating success or failure
+   */
   const postResponse = async (questionId: string | number) => {
     if (!newResponseText.value.trim() || newResponseText.value.length > 500) {
       responseMessage.value = 'Response must be between 1 and 500 characters.'
@@ -97,7 +116,11 @@ export default function useResponses(
     }
   }
 
-  // Edit a response
+  /**
+   * Edits an existing response or toggles edit mode
+   * @param response - Response object to edit
+   * @returns Boolean indicating success or failure
+   */
   const editResponse = async (response: Response) => {
     if (response.isEditing) {
       if (response.editText && response.editText.length > 500) {
@@ -132,7 +155,11 @@ export default function useResponses(
     }
   }
 
-  // Delete a response
+  /**
+   * Deletes a response
+   * @param responseId - ID of the response to delete
+   * @returns Boolean indicating success or failure
+   */
   const deleteResponse = async (responseId: number) => {
     isLoading.value = true
     try {

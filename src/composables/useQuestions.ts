@@ -4,6 +4,9 @@ import axios from 'axios'
 import type { User } from './useUsers'
 import useApiUrl from './useApiUrl'
 
+/**
+ * Interface representing a question in the knowledge management system
+ */
 export interface Question {
   id: number
   question: string
@@ -15,6 +18,13 @@ export interface Question {
   report_count?: number
 }
 
+/**
+ * Composable for managing questions in the knowledge management system.
+ * Provides functionality to create, read, update, delete, and search questions.
+ *
+ * @param currentUser - Reference to the current user object
+ * @returns Question management methods and reactive state variables
+ */
 export default function useQuestions(currentUser: Ref<User | null>) {
   const { getBaseUrl, getSecretKey } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
@@ -37,13 +47,21 @@ export default function useQuestions(currentUser: Ref<User | null>) {
   const isEditing = ref(false)
   const editText = ref('')
 
-  // Get questions filtered by category
+  /**
+   * Returns a computed property with questions filtered by category
+   * @param category - Category to filter by
+   * @returns Computed array of questions in the specified category
+   */
   const getCategoryQuestions = (category: string) => {
     return computed(() => {
       return allQuestions.value.filter((q) => q.category === category)
     })
   }
 
+  /**
+   * Fetches all questions from the server
+   * Also populates the userQuestions array with questions created by the current user
+   */
   const fetchAllQuestions = async () => {
     if (!currentUser.value) return
 
@@ -62,7 +80,11 @@ export default function useQuestions(currentUser: Ref<User | null>) {
     }
   }
 
-  // Fetch details for a specific question
+  /**
+   * Fetches details for a specific question
+   * @param questionId - ID of the question to fetch
+   * @returns The question details or null if not found
+   */
   const fetchQuestionDetails = async (questionId: string | number) => {
     try {
       const response = await axios.get<Question>(
@@ -79,6 +101,11 @@ export default function useQuestions(currentUser: Ref<User | null>) {
     }
   }
 
+  /**
+   * Searches for questions based on the search query
+   * Optionally filters results by category
+   * @param category - Optional category to filter search results
+   */
   const searchQuestions = async (category?: string) => {
     try {
       const response = await axios.post(`${apiBaseUrl}/questions/search`,
@@ -99,6 +126,10 @@ export default function useQuestions(currentUser: Ref<User | null>) {
     }
   }
 
+  /**
+   * Submits a new question
+   * @param category - Category for the new question
+   */
   const submitQuestion = async (category: string) => {
     if (newQuestionText.value.trim()) {
       try {
@@ -138,7 +169,11 @@ export default function useQuestions(currentUser: Ref<User | null>) {
     }
   }
 
-  // Function to delete a question
+  /**
+   * Deletes a question
+   * @param questionId - ID of the question to delete
+   * @returns Boolean indicating success or failure
+   */
   const deleteQuestion = async (questionId: string | number) => {
     try {
       await axios.delete(`${apiBaseUrl}/questions/${questionId}`,
@@ -153,7 +188,11 @@ export default function useQuestions(currentUser: Ref<User | null>) {
     }
   }
 
-  // Function to toggle edit mode for the question
+  /**
+   * Toggles edit mode for a question or saves the edited question
+   * @param questionId - Optional ID of the question to edit (uses questionDetails.id if not provided)
+   * @returns Boolean indicating success or failure
+   */
   const toggleEdit = async (questionId?: string | number) => {
     if (isEditing.value) {
       if (!questionDetails.value || !currentUser.value) {

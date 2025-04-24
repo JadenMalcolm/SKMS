@@ -1,8 +1,11 @@
 <template>
+  <!-- Modal popup container - only visible when showPopup prop is true -->
   <div v-if="showPopup" class="popup-container">
     <div class="popup container">
+      <!-- Feedback form header -->
       <div class="section-header"><h2>Give Feedback</h2></div>
 
+      <!-- Feedback type selection (voice or report) -->
       <div class="form-group">
         <label>Feedback Type:</label>
         <div class="radio-group">
@@ -11,6 +14,7 @@
         </div>
       </div>
 
+      <!-- Feedback content text area -->
       <div class="form-group">
         <label for="feedbackText">Your Feedback:</label>
         <textarea
@@ -22,6 +26,7 @@
         ></textarea>
       </div>
 
+      <!-- Anonymous/identified submission selection -->
       <div class="form-group">
         <label>Submission Type:</label>
         <div class="radio-group">
@@ -30,26 +35,32 @@
         </div>
       </div>
 
+      <!-- Form action buttons -->
       <div class="popup-actions">
         <button @click="submitFeedback" class="button button-success">Submit</button>
         <button @click="emit('close')" class="button button-danger">Cancel</button>
       </div>
 
+      <!-- Feedback message display (success/error messages) -->
       <p v-if="feedbackMessage" class="feedback-message">{{ feedbackMessage }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import useFeedback from '../composables/useFeedback'
+import useFeedback from '../composables/useFeedback'  // Import custom feedback composable
 
-const props = defineProps({ showPopup: Boolean })
-const emit = defineEmits(['close'])
+// Component props and emits
+const props = defineProps({ showPopup: Boolean })  // Controls visibility of popup
+const emit = defineEmits(['close'])  // Event to close the popup
+
+// Use the feedback composable with a callback that closes the popup on successful submission
 const { feedbackType, feedbackText, isAnonymous, feedbackMessage, submitFeedback } =
   useFeedback(() => emit('close'))
 </script>
 
 <style scoped>
+/* Full-screen semi-transparent overlay for modal popup */
 .popup-container {
   position: fixed;
   top: 0;
@@ -63,16 +74,19 @@ const { feedbackType, feedbackText, isAnonymous, feedbackMessage, submitFeedback
   z-index: 1000;
 }
 
+/* Modal popup box styling */
 .popup {
   width: 500px;
   padding: 25px;
 }
 
+/* Form group container styling */
 .form-group {
   margin: 1rem 0 1.5rem;
   text-align: left;
 }
 
+/* Form label styling */
 .form-group label {
   display: block;
   margin-bottom: 8px;
@@ -80,22 +94,26 @@ const { feedbackType, feedbackText, isAnonymous, feedbackMessage, submitFeedback
   color: #444;
 }
 
+/* Radio button group layout */
 .radio-group {
   display: flex;
   gap: 20px;
   margin-top: 8px;
 }
 
+/* Individual radio button label styling */
 .radio-group label {
   display: flex;
   align-items: center;
   cursor: pointer;
 }
 
+/* Radio button input spacing */
 .radio-group input {
   margin-right: 8px;
 }
 
+/* Button container layout */
 .popup-actions {
   display: flex;
   gap: 10px;
@@ -103,6 +121,7 @@ const { feedbackType, feedbackText, isAnonymous, feedbackMessage, submitFeedback
   margin-top: 20px;
 }
 
+/* Feedback message styling for success/error notifications */
 .feedback-message {
   margin-top: 15px;
   padding: 10px;

@@ -190,22 +190,25 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* Main container with constrained width for readability */
 .question-details-container {
   max-width: 900px;
   margin: 20px auto;
   padding: 20px;
 }
 
+/* Vertical layouts with spacing between sections */
 .question-content { display: flex; flex-direction: column; gap: 20px; }
 .question-main { display: flex; flex-direction: column; gap: 15px; }
 
+/* Question text formatting for better readability */
 .question-text {
   font-size: 1.1rem;
   line-height: 1.6;
   margin-bottom: 12px;
 }
 
-/* Meta information and actions */
+/* Metadata for questions and responses with flexible wrapping */
 .question-meta, .response-meta {
   display: flex;
   flex-wrap: wrap;
@@ -213,6 +216,7 @@ onMounted(async () => {
   margin-top: 10px;
 }
 
+/* Button groups for actions with flexible wrapping */
 .action-buttons, .response-actions {
   display: flex;
   flex-wrap: wrap;
@@ -220,9 +224,10 @@ onMounted(async () => {
   margin: 10px 0;
 }
 
+/* Right-align response action buttons */
 .response-actions { justify-content: flex-end; }
 
-/* Response section styling */
+/* Response input section with visual distinction */
 .response-section {
   margin-top: 20px;
   padding: 15px;
@@ -231,9 +236,11 @@ onMounted(async () => {
   border: 1px solid rgba(76, 149, 232, 0.2);
 }
 
+/* Container for response list and individual response styling */
 .responses-container { margin-top: 15px; }
 .response-item { margin-bottom: 15px; background-color: #f9fbff; }
 
+/* Empty state styling when no responses exist */
 .no-responses {
   text-align: center;
   padding: 20px;
@@ -244,6 +251,7 @@ onMounted(async () => {
   border: 1px dashed #ccc;
 }
 
+/* Feedback message box for user notifications */
 .feedback-box {
   margin-top: 20px;
   padding: 10px 15px;
@@ -253,10 +261,13 @@ onMounted(async () => {
   text-align: center;
 }
 
+/* Loading state styling */
 .loading-container { text-align: center; padding: 40px; }
 .loading { font-size: 1.2rem; color: #666; }
 
+/* Responsive layout for mobile devices */
 @media (max-width: 600px) {
+  /* Stack buttons vertically on small screens */
   .action-buttons { flex-direction: column; width: 100%; }
   .action-buttons .button { width: 100%; }
 }

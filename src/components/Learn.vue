@@ -1,16 +1,21 @@
 <template>
+  <!-- Main learn page container -->
   <div class="learn-page">
+    <!-- Page title header -->
     <div class="page-header">
       <h1>Cybersecurity Learning Resources</h1>
     </div>
 
+    <!-- Main content container for learning materials -->
     <div class="container learn-container">
-      <!-- Statistics Section -->
+      <!-- Key Statistics Section - Displays important cybersecurity metrics -->
       <div class="section-header">
         <h2>Key Cybersecurity Statistics</h2>
       </div>
 
+      <!-- Grid layout for statistics cards -->
       <div class="stats-grid">
+        <!-- Individual statistic cards with data points and sources -->
         <div class="stat-card">
           <div class="stat-number">83%</div>
           <div class="stat-description">
@@ -49,15 +54,18 @@
         </div>
       </div>
 
-      <!-- Data Breach Trends Visualization -->
+      <!-- Data Breach Visualization Section - Visual representation of industry breach data -->
       <div class="section-header">
         <h2>Data Breach Trends</h2>
       </div>
 
       <div class="visualization-container">
-
+          <!-- Chart title -->
           <h3 class="chart-title">Top Industries Affected by Data Breaches</h3>
+
+          <!-- Horizontal bar chart implementation with industry labels and data bars -->
           <div class="horizontal-chart">
+            <!-- Left axis labels for industries -->
             <div class="chart-label-axis">
               <div class="chart-label">Healthcare</div>
               <div class="chart-label">Finance</div>
@@ -67,6 +75,8 @@
               <div class="chart-label">Retail</div>
               <div class="chart-label">Education</div>
             </div>
+
+            <!-- Bar chart containers with dynamic styling for percentage widths -->
             <div class="chart-bars">
               <div class="chart-bar-container">
                 <div class="chart-bar healthcare" :style="{ width: '85%' }">
@@ -105,6 +115,8 @@
               </div>
             </div>
           </div>
+
+          <!-- Citation for chart data -->
           <div class="chart-source">
             <a href="https://www.verizon.com/business/resources/reports/dbir/" target="_blank">
               Source: Verizon Data Breach Investigation Report 2023
@@ -112,11 +124,12 @@
           </div>
       </div>
 
-      <!-- Industry Regulations Section -->
+      <!-- Industry Regulations Section - Information on key compliance frameworks -->
       <div class="section-header">
         <h2>Industry Regulations</h2>
       </div>
       <div class="regulations-grid">
+        <!-- HIPAA regulation card -->
         <div class="regulation-card">
           <div class="regulation-header">
             <h3>HIPAA</h3>
@@ -151,12 +164,13 @@
         </div>
       </div>
 
-      <!-- External Resources Section -->
+      <!-- External Resources Section - Links to authoritative cybersecurity organizations -->
       <div class="section-header">
         <h2>External Resources</h2>
       </div>
 
       <div class="resources-list">
+        <!-- SANS Institute resource -->
         <div class="resource-item">
           <div class="resource-icon sans-icon"></div>
           <div class="resource-content">
@@ -165,7 +179,6 @@
             <a href="https://www.sans.org/" target="_blank" class="button button-primary">Visit Website</a>
           </div>
         </div>
-
         <div class="resource-item">
           <div class="resource-icon nist-icon"></div>
           <div class="resource-content">
@@ -174,7 +187,6 @@
             <a href="https://www.nist.gov/cyberframework" target="_blank" class="button button-primary">Visit Website</a>
           </div>
         </div>
-
         <div class="resource-item">
           <div class="resource-icon nsa-icon"></div>
           <div class="resource-content">
@@ -183,7 +195,6 @@
             <a href="https://www.nsa.gov/cybersecurity/" target="_blank" class="button button-primary">Visit Website</a>
           </div>
         </div>
-
         <div class="resource-item">
           <div class="resource-icon privacy-icon"></div>
           <div class="resource-content">
@@ -194,11 +205,12 @@
         </div>
       </div>
 
-      <!-- Best Practices Section -->
+      <!-- Best Practices Section - Security recommendations for users -->
       <div class="section-header">
         <h2>Cybersecurity Best Practices</h2>
       </div>
       <div class="practices-list">
+        <!-- Password management practice -->
         <div class="practice-item">
           <div class="practice-number">01</div>
           <div class="practice-content">
@@ -230,15 +242,18 @@
       </div>
     </div>
   </div>
+  <!-- Global navigation components -->
   <floating-chat />
   <sidebar-menu />
 </template>
 
 <script setup lang="ts">
-// Component logic can be added here if needed
+// This component is primarily informational and doesn't require client-side logic
+// Future enhancements could include dynamic data fetching or interactive visualizations
 </script>
 
 <style scoped>
+/* Main container styling */
 .learn-page {
   max-width: 1200px;
   margin: 0 auto;
@@ -249,7 +264,7 @@
   margin-bottom: 40px;
 }
 
-/* Statistics Grid */
+/* Statistics Section Styling */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -257,6 +272,7 @@
   margin-bottom: 30px;
 }
 
+/* Individual statistic card styling with hover effects */
 .stat-card {
   background: linear-gradient(135deg, var(--vt-c-white), #f0f6ff);
   border-radius: 12px;
@@ -273,6 +289,7 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
+/* Statistic number formatting - large, prominent display */
 .stat-number {
   font-size: 2.5rem;
   font-weight: 700;
@@ -280,12 +297,14 @@
   margin-bottom: 10px;
 }
 
+/* Description text styling */
 .stat-description {
   color: #444;
   font-size: 0.95rem;
   line-height: 1.4;
 }
 
+/* Source citation styling */
 .stat-source {
   font-size: 0.75rem;
   color: #666;
@@ -305,26 +324,26 @@
   border-bottom-color: #1976d2;
 }
 
-/* Visualization Container */
+/* Data Visualization Styling */
 .visualization-container {
   margin-bottom: 30px;
 }
 
-/* Chart Styling Updates */
-
-
+/* Chart title styling */
 .chart-title {
   font-size: 1.2rem;
   color: #1976d2;
   margin-bottom: 15px;
 }
 
+/* Horizontal bar chart layout structure */
 .horizontal-chart {
   display: flex;
   gap: 15px;
   margin-top: 20px;
 }
 
+/* Chart labels column styling */
 .chart-label-axis {
   display: flex;
   flex-direction: column;
@@ -345,6 +364,7 @@
   justify-content: flex-end;
 }
 
+/* Chart bars column styling */
 .chart-bars {
   flex-grow: 1;
   display: flex;
@@ -356,6 +376,7 @@
   height: 30px;
 }
 
+/* Individual bar styling with hover animation */
 .chart-bar {
   height: 30px;
   border-radius: 5px;
@@ -373,10 +394,12 @@
   transform: scaleX(1.01);
 }
 
+/* Value label styling inside bars */
 .chart-value {
   text-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
 }
 
+/* Color-coding for different industry bars */
 .chart-bar.healthcare {
   background-color: #4caf50;
 }
@@ -423,7 +446,7 @@
   border-bottom-color: #0056b3;
 }
 
-/* Using existing container styles and modifying just what's needed */
+/* Industry Regulations Section Styling */
 .regulations-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -431,6 +454,7 @@
   margin-bottom: 30px;
 }
 
+/* Regulation card styling with hover effects */
 .regulation-card {
   background-color: var(--vt-c-white);
   border-radius: 10px;
@@ -462,10 +486,9 @@
 .regulation-card .button {
   margin-top: auto;
   align-self: flex-start;
-  /* Button styles from base.css will be applied */
 }
 
-/* Resources List */
+/* External Resources Styling */
 .resources-list {
   display: flex;
   flex-direction: column;
@@ -473,6 +496,7 @@
   margin-bottom: 30px;
 }
 
+/* Resource item card with icon and content areas */
 .resource-item {
   display: flex;
   background-color: #fff;
@@ -487,6 +511,7 @@
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 }
 
+/* Icon styling using SVG data URLs for resource items */
 .resource-icon {
   width: 80px;
   min-height: 100%;
@@ -530,13 +555,14 @@
   color: #555;
 }
 
-/* Best Practices */
+/* Best Practices Section Styling */
 .practices-list {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
+/* Practice item with numbered icon and content */
 .practice-item {
   display: flex;
   background-color: #fff;
@@ -550,6 +576,7 @@
   transform: translateX(5px);
 }
 
+/* Large numbered icon for best practices */
 .practice-number {
   display: flex;
   align-items: center;
@@ -577,6 +604,7 @@
   color: #666;
 }
 
+/* Responsive design adjustments */
 @media (max-width: 768px) {
   .stats-grid,
   .regulations-grid {

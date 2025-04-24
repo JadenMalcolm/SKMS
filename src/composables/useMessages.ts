@@ -4,6 +4,9 @@ import axios from 'axios'
 import type { User } from './useUsers'
 import useApiUrl from './useApiUrl'
 
+/**
+ * Interface representing a message between users
+ */
 export interface Message {
   id: number
   sender_id: number
@@ -12,6 +15,15 @@ export interface Message {
   timestamp: string
 }
 
+/**
+ * Composable for managing direct messages between users.
+ * Provides functionality to send messages, fetch conversation history,
+ * and real-time polling for new messages.
+ *
+ * @param currentUser - Reference to the current user object
+ * @param selectedUser - Reference to the selected conversation partner
+ * @returns Message management methods and reactive state variables
+ */
 export default function useMessages(currentUser: Ref<User | null>, selectedUser: Ref<User | null>) {
   const { getBaseUrl, getSecretKey } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
@@ -28,14 +40,19 @@ export default function useMessages(currentUser: Ref<User | null>, selectedUser:
   const pollingInterval = ref<number | null>(null)
   const POLLING_FREQUENCY = 3000 // Check for new messages every 3 seconds
 
-  // Scroll to the bottom of the messages container
+  /**
+   * Scrolls the messages container to the bottom to show the latest messages
+   */
   const scrollToBottom = () => {
     if (messagesContainer.value) {
       messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
     }
   }
 
-  // Start polling for new messages
+  /**
+   * Starts polling for new messages in the current conversation
+   * Clears any existing polling interval before starting a new one
+   */
   const startPolling = () => {
     // Clear any existing polling
     if (pollingInterval.value !== null) {
@@ -63,7 +80,10 @@ export default function useMessages(currentUser: Ref<User | null>, selectedUser:
     }
   }
 
-  // Select a user to chat with and fetch messages
+  /**
+   * Selects a user to chat with and fetches the conversation history
+   * @param user - User to select for conversation
+   */
   const selectUser = async (user: User) => {
     if (user.id !== currentUser.value?.id) {
       selectedUser.value = user
@@ -83,7 +103,10 @@ export default function useMessages(currentUser: Ref<User | null>, selectedUser:
     }
   }
 
-  // Send a new message
+  /**
+   * Sends a new message to the selected user
+   * @param fetchUsers - Function to refresh the users list after sending
+   */
   const sendMessage = async (fetchUsers: () => Promise<void>) => {
     if (newMessage.value.trim() && selectedUser.value && currentUser.value) {
       try {
@@ -116,7 +139,9 @@ export default function useMessages(currentUser: Ref<User | null>, selectedUser:
     }
   })
 
-  // Cleanup function to clear polling interval
+  /**
+   * Cleans up the polling interval when component is unmounted
+   */
   const cleanup = () => {
     if (pollingInterval.value !== null) {
       clearInterval(pollingInterval.value)

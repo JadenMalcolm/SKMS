@@ -5,6 +5,14 @@ import type { User } from './useUsers'
 import type { Question } from './useQuestions'
 import useApiUrl from './useApiUrl'
 
+/**
+ * Composable for managing question subscriptions.
+ * Allows users to subscribe to questions they are interested in
+ * to receive updates.
+ *
+ * @param currentUser - Reference to the current user object
+ * @returns Subscription management methods and reactive state variables
+ */
 export default function useSubscriptions(currentUser: Ref<User | null>) {
   const { getBaseUrl, getSecretKey } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
@@ -19,6 +27,9 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
   const isSubscribed = ref(false)
   const subscriptionMessage = ref('')
 
+  /**
+   * Fetches all questions the current user has subscribed to
+   */
   const fetchSubscribedQuestions = async () => {
     if (!currentUser.value) return
 
@@ -33,6 +44,11 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
     }
   }
 
+  /**
+   * Checks if the current user is subscribed to a specific question
+   * @param questionId - ID of the question to check
+   * @returns Boolean indicating subscription status
+   */
   const checkSubscriptionStatus = async (questionId: number | string) => {
     if (!currentUser.value) return false
 
@@ -49,6 +65,11 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
     }
   }
 
+  /**
+   * Subscribes the current user to a question
+   * @param questionId - ID of the question to subscribe to
+   * @returns Boolean indicating success or failure
+   */
   const subscribeToQuestion = async (questionId: number | string) => {
     try {
       if (!currentUser.value) throw new Error('User not logged in.')
@@ -76,6 +97,11 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
     }
   }
 
+  /**
+   * Unsubscribes the current user from a question
+   * @param questionId - ID of the question to unsubscribe from
+   * @returns Boolean indicating success or failure
+   */
   const unsubscribeFromQuestion = async (questionId: number | string) => {
     try {
       if (!currentUser.value) throw new Error('User not logged in.')

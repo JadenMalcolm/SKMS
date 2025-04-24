@@ -1,9 +1,11 @@
 <template>
+  <!-- Main container for security policies page -->
   <div class="policy-container">
     <header class="page-header">
       <h1>Security Policies</h1>
     </header>
 
+    <!-- Navigation tabs for different policy sections -->
     <div class="policy-navigation container">
       <button
         v-for="section in sections"
@@ -15,6 +17,7 @@
       </button>
     </div>
 
+    <!-- Policy content area - displays the selected policy section -->
     <div class="policy-content container">
       <!-- Enterprise Information Security Program Policy -->
       <div v-if="activeSection === 'enterprise'" class="policy-section">
@@ -101,6 +104,7 @@
       </div>
     </div>
   </div>
+  <!-- Global navigation components -->
   <floating-chat />
   <sidebar-menu />
 </template>
@@ -108,8 +112,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+// Track which policy section is currently active/visible
 const activeSection = ref('enterprise')
 
+// Define the available policy sections with their IDs and display titles
 const sections = [
   { id: 'enterprise', title: 'Enterprise Information Security Program Policy' },
   { id: 'issue', title: 'Issue-Specific Information Security Policies' },
@@ -119,12 +125,14 @@ const sections = [
 </script>
 
 <style scoped>
+/* Main container styling with responsive width constraints */
 .policy-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
 
+/* Navigation buttons layout with flex wrapping for responsiveness */
 .policy-navigation {
   display: flex;
   flex-wrap: wrap;
@@ -133,6 +141,7 @@ const sections = [
   justify-content: center;
 }
 
+/* Policy definition block styling with left accent border */
 .policy-definition {
   background-color: rgba(76, 149, 232, 0.05);
   padding: 15px;
@@ -141,14 +150,17 @@ const sections = [
   border-radius: 4px;
 }
 
+/* Container for policy item lists */
 .policy-items {
   margin-top: 20px;
 }
 
+/* Inactive tab button styling with gray gradient */
 .button-secondary {
   background: linear-gradient(90deg, #9e9e9e, #757575);
 }
 
+/* Hover effect for inactive tab buttons */
 .button-secondary:hover {
   background: linear-gradient(90deg, #757575, #616161);
   transform: scale(1.05);

@@ -1,16 +1,20 @@
 <template>
+  <!-- Page header -->
   <header class="page-header">
     <h1>Create Account</h1>
   </header>
+
+  <!-- Main signup container -->
   <div class="login-container">
     <div class="container">
+      <!-- Signup form with email, password, and security questions -->
       <form @submit.prevent="handleSignUp">
-        <!-- Email field -->
+        <!-- Email input field -->
         <div class="form-group">
           <input type="email" v-model="email" placeholder="Enter your email" class="input" required />
         </div>
 
-        <!-- Password fields -->
+        <!-- Password input with visibility toggle -->
         <div class="form-group">
           <div class="password-wrapper">
             <input
@@ -26,6 +30,8 @@
             </span>
           </div>
         </div>
+
+        <!-- Password confirmation with visibility toggle -->
         <div class="form-group">
           <div class="password-wrapper">
             <input
@@ -42,7 +48,7 @@
           </div>
         </div>
 
-        <!-- Security question selection -->
+        <!-- Security question dropdown selector -->
         <div class="form-group">
           <select v-model="securityChoice" class="input" required>
             <option value="" disabled>Select a Security Question</option>
@@ -52,7 +58,7 @@
           </select>
         </div>
 
-        <!-- Security answer field -->
+        <!-- Security question answer field - only visible when question is selected -->
         <div class="form-group" v-if="securityChoice">
           <input
             type="text"
@@ -64,20 +70,23 @@
         </div>
         <button type="submit" class="button button-success full-width">Create Account</button>
       </form>
+
+      <!-- Error message display -->
       <div v-if="signupMessage" class="error-message">{{ signupMessage }}</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import useAuth from '../composables/useAuth'
+import useAuth from '../composables/useAuth' // Import authentication composable
 
+// Extract required methods and state from auth composable
 const {
   email, password, confirmPassword, securityChoice, securityQuestionAnswer, signupMessage,
   peakPassword, peakConfirmPassword, togglePeakPassword, togglePeakConfirmPassword, handleSignUp
 } = useAuth()
 
-// Define security questions as a constant
+// Define security questions list for account recovery
 const securityQuestions = [
   'What was the name of your childhood pet?',
   'What is your mother\'s maiden name?',
@@ -98,10 +107,12 @@ const securityQuestions = [
 </script>
 
 <style scoped>
+/* Form container styling */
 .container {
   padding: 40px;
 }
 
+/* Layout container for centering the form */
 .login-container {
   display: flex;
   justify-content: center;
@@ -109,11 +120,13 @@ const securityQuestions = [
   padding: 30px;
 }
 
+/* Full width button styling with top margin */
 .full-width {
   width: 100%;
   margin-top: 15px;
 }
 
+/* Form field group spacing */
 .form-group {
   margin-bottom: 15px;
 }

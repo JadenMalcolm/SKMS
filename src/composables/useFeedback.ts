@@ -3,6 +3,9 @@ import axios from 'axios'
 import { useRouter } from 'vue-router'
 import useApiUrl from './useApiUrl'
 
+/**
+ * Interface representing a feedback item
+ */
 export interface FeedbackItem {
   id: number
   user_email?: string // Optional for anonymous feedback
@@ -11,6 +14,9 @@ export interface FeedbackItem {
   user_id?: number // For directing messages
 }
 
+/**
+ * Interface for categorized feedback items
+ */
 export interface CategorizedFeedback {
   identifiedVoice: FeedbackItem[]
   anonymousVoice: FeedbackItem[]
@@ -18,6 +24,13 @@ export interface CategorizedFeedback {
   anonymousReport: FeedbackItem[]
 }
 
+/**
+ * Composable for managing user feedback.
+ * Provides functionality for submitting feedback and administrator management.
+ *
+ * @param closePopup - Optional function to close the feedback popup after submission
+ * @returns Feedback management methods and reactive state variables
+ */
 export default function useFeedback(closePopup?: () => void) {
   const { getBaseUrl, getSecretKey } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
@@ -44,7 +57,10 @@ export default function useFeedback(closePopup?: () => void) {
   })
   const router = useRouter()
 
-  // User function: Submit new feedback
+  /**
+   * User function: Submit new feedback
+   * Validates input and sends feedback to the server
+   */
   const submitFeedback = async () => {
     if (!feedbackText.value) {
       feedbackMessage.value = 'Please enter your feedback before submitting.'
@@ -82,7 +98,9 @@ export default function useFeedback(closePopup?: () => void) {
     }
   }
 
-  // Admin function: Fetch all feedback data
+  /**
+   * Admin function: Fetch all feedback data categorized by type
+   */
   const fetchFeedbackData = async () => {
     try {
       loading.value = true
@@ -95,7 +113,10 @@ export default function useFeedback(closePopup?: () => void) {
     }
   }
 
-  // Admin function: Reply to feedback
+  /**
+   * Admin function: Reply to identified feedback by opening a direct message
+   * @param feedbackItem - Feedback item to reply to
+   */
   const replyToFeedback = async (feedbackItem: FeedbackItem) => {
     if (!feedbackItem.user_id) {
       console.error('No user ID available for this feedback')
@@ -115,7 +136,10 @@ export default function useFeedback(closePopup?: () => void) {
     }
   }
 
-  // Admin function: Delete feedback
+  /**
+   * Admin function: Delete a feedback item
+   * @param item - Feedback item to delete
+   */
   const deleteFeedback = async (item: FeedbackItem) => {
     try {
       await axios.delete(`${apiBaseUrl}/feedback/${item.id}`, { headers: authHeaders })
