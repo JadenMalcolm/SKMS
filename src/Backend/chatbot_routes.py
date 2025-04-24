@@ -4,7 +4,7 @@
 ###############################################################################
 from flask import Blueprint, request, jsonify
 from rapidfuzz import process, fuzz
-from auth_helper import require_api_key
+from api_routes import require_api_key
 
 chatbot_routes = Blueprint('chatbot_routes', __name__)
 

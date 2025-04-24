@@ -6,7 +6,7 @@
 
 from flask import Blueprint, request, jsonify
 import sqlite3
-from auth_helper import require_api_key
+from api_routes import require_api_key
 
 # Create a Blueprint for organizing vote-related routes
 vote_routes = Blueprint('vote_report_routes', __name__)

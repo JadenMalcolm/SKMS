@@ -4,7 +4,7 @@
 ###############################################################################
 from flask import Blueprint, jsonify
 import sqlite3
-from auth_helper import require_api_key
+from api_routes import require_api_key
 
 users_routes = Blueprint('users_routes', __name__)
 

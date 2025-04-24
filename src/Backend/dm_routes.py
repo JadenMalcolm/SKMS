@@ -8,7 +8,7 @@ from cryptography.fernet import Fernet
 from setup_db import key
 # Make sure this import works correctly
 try:
-    from auth_helper import require_api_key
+    from api_routes import require_api_key
 except ImportError as e:
     print(f"Error importing auth_helper: {e}")
     # Create a dummy decorator for fallback

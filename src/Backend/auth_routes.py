@@ -6,7 +6,7 @@ from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import re
-from auth_helper import require_api_key
+from api_routes import require_api_key
 
 auth_routes = Blueprint('auth_routes', __name__)
 
