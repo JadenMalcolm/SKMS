@@ -8,9 +8,8 @@ from auth_helper import require_api_key
 
 meeting_routes = Blueprint('meeting_routes', __name__)
 
-# Initialize SQLite database
+# Initialize SQLite database connection - but not cursor
 conn = sqlite3.connect('users.db', check_same_thread=False)
-cursor = conn.cursor()
 
 @meeting_routes.route('/schedule-meeting', methods=['POST'])
 @require_api_key
@@ -29,6 +28,9 @@ def schedule_meeting():
         return jsonify({'error': 'All fields are required.'}), 400
 
     try:
+        # Create a new cursor for this operation
+        cursor = conn.cursor()
+        
         # Check if target user exists
         cursor.execute('''
             SELECT email FROM users WHERE id = ?
@@ -36,6 +38,7 @@ def schedule_meeting():
         target_user_email = cursor.fetchone()
 
         if not target_user_email:
+            cursor.close()
             return jsonify({'error': 'Target user not found.'}), 404
 
         # Create meeting entry
@@ -44,6 +47,7 @@ def schedule_meeting():
             VALUES (?, ?, ?, ?, ?)
         ''', (user_id, target_user_id, date, time, meeting_type))
         conn.commit()
+        cursor.close()
         return jsonify({'message': f'Meeting scheduled with {target_user_email[0]} on {date} at {time} ({meeting_type}).'})
     except sqlite3.OperationalError as e:
         return jsonify({'error': f'Database error: {e}'}), 500
@@ -53,6 +57,9 @@ def schedule_meeting():
 def get_meetings(user_id):
     # Get all meetings for a specific user
     try:
+        # Create a new cursor for this operation
+        cursor = conn.cursor()
+        
         cursor.execute('''
             SELECT m.id,
                    strftime('%m/%d/%Y', m.date) as formatted_date,
@@ -69,14 +76,16 @@ def get_meetings(user_id):
             ORDER BY m.date, m.time
         ''', (user_id, user_id, user_id))
         meetings = cursor.fetchall()
-        return jsonify([{
+        result = [{
             'id': meeting[0],
             'date': meeting[1],
             'time': meeting[2],
             'meeting_type': meeting[3],
             'target_user_email': meeting[4],
             'status': meeting[5]
-        } for meeting in meetings])
+        } for meeting in meetings]
+        cursor.close()
+        return jsonify(result)
     except sqlite3.OperationalError as e:
         return jsonify({'error': f'Database error: {e}'}), 500
 
@@ -85,6 +94,9 @@ def get_meetings(user_id):
 def get_meeting_requests(target_user_id):
     # Get pending meeting requests sent to a user
     try:
+        # Create a new cursor for this operation
+        cursor = conn.cursor()
+        
         cursor.execute('''
             SELECT m.id,
                    strftime('%m/%d/%Y', m.date) as formatted_date,
@@ -97,13 +109,15 @@ def get_meeting_requests(target_user_id):
             ORDER BY m.date, m.time
         ''', (target_user_id,))
         meetings = cursor.fetchall()
-        return jsonify([{
+        result = [{
             'id': meeting[0],
-            'date': meeting[1],  # Use formatted_date for consistency
-            'time': meeting[2],  # Use formatted_time for 12-hour format
+            'date': meeting[1],
+            'time': meeting[2],
             'user_email': meeting[3],
             'meeting_type': meeting[4]
-        } for meeting in meetings])
+        } for meeting in meetings]
+        cursor.close()
+        return jsonify(result)
     except sqlite3.OperationalError as e:
         return jsonify({'error': f'Database error: {e}'}), 500
 
@@ -119,6 +133,9 @@ def accept_meeting():
         return jsonify({'error': 'Meeting ID is required.'}), 400
 
     try:
+        # Create a new cursor for this operation
+        cursor = conn.cursor()
+        
         # Update meeting status
         cursor.execute('''
             UPDATE meetings
@@ -126,6 +143,7 @@ def accept_meeting():
             WHERE id = ?
         ''', (meeting_id,))
         conn.commit()
+        cursor.close()
         return jsonify({'message': 'Meeting accepted successfully.'})
     except sqlite3.OperationalError as e:
         return jsonify({'error': f'Database error: {e}'}), 500
@@ -142,6 +160,9 @@ def reject_meeting():
         return jsonify({'error': 'Meeting ID is required.'}), 400
 
     try:
+        # Create a new cursor for this operation
+        cursor = conn.cursor()
+        
         # Update meeting status
         cursor.execute('''
             UPDATE meetings
@@ -149,6 +170,7 @@ def reject_meeting():
             WHERE id = ?
         ''', (meeting_id,))
         conn.commit()
+        cursor.close()
         return jsonify({'message': 'Meeting rejected successfully.'})
     except sqlite3.OperationalError as e:
         return jsonify({'error': f'Database error: {e}'}), 500
@@ -165,12 +187,16 @@ def delete_meeting():
         return jsonify({'error': 'Meeting ID is required.'}), 400
 
     try:
+        # Create a new cursor for this operation
+        cursor = conn.cursor()
+        
         # Delete meeting
         cursor.execute('''
             DELETE FROM meetings
             WHERE id = ?
         ''', (meeting_id,))
         conn.commit()
+        cursor.close()
         return jsonify({'message': 'Meeting deleted successfully.'})
     except sqlite3.OperationalError as e:
         return jsonify({'error': f'Database error: {e}'}), 500

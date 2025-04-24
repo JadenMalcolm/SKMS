@@ -113,9 +113,3 @@ def question(id):
         cursor.execute("DELETE FROM questions WHERE id = ?", (id,))
         conn.commit()
         return jsonify({'message': 'Question deleted successfully!'}), 200
-
-    questions = cursor.fetchall()
-    return jsonify([
-        {'id': q[0], 'question': q[1], 'category': q[2], 'timestamp': q[3], 'user_email': q[4], 'report_count': q[5]}
-        for q in questions
-    ]), 200

@@ -6,6 +6,12 @@ import ContactExpert from './components/ContactExpert.vue'
 import SidebarMenu from './components/SidebarMenu.vue'
 import Feedback from './components/Feedback.vue'
 
+console.log = () => {}
+console.error = () => {}
+console.warn = () => {}
+console.info = () => {}
+console.debug = () => {}
+
 const app = createApp(App)
 app.component('FloatingChat', FloatingChat)
 app.component('ContactExpert', ContactExpert)

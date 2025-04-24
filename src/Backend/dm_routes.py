@@ -17,9 +17,8 @@ except ImportError as e:
 
 dm_routes = Blueprint('dm_routes', __name__)
 
-# Initialize SQLite database
+# Initialize SQLite database connection - but not cursor
 conn = sqlite3.connect('users.db', check_same_thread=False)
-cursor = conn.cursor()
 
 # Load the encryption key from the file
 key_file = 'secret.key'
@@ -34,6 +33,9 @@ cipher_suite = Fernet(key)
 def get_users(current_user_id):
     # Get users with whom the current user has had conversations
     try:
+        # Create a new cursor for this operation
+        cursor = conn.cursor()
+        
         cursor.execute('''
             SELECT u.id, u.email, MAX(dm.timestamp) as last_message
             FROM users u
@@ -44,7 +46,9 @@ def get_users(current_user_id):
             ORDER BY last_message DESC
         ''', (current_user_id, current_user_id))
         users = cursor.fetchall()
-        return jsonify([{'id': user[0], 'email': user[1]} for user in users])
+        result = [{'id': user[0], 'email': user[1]} for user in users]
+        cursor.close()
+        return jsonify(result)
     except sqlite3.OperationalError as e:
         return jsonify({'error': f'Database error: {e}'}), 500
 
@@ -63,6 +67,9 @@ def send_message():
         return jsonify({'error': 'All fields are required.'}), 400
 
     try:
+        # Create a new cursor for this operation
+        cursor = conn.cursor()
+        
         # Encrypt the message for security
         encrypted_message = cipher_suite.encrypt(message.encode('utf-8'))
 
@@ -73,6 +80,7 @@ def send_message():
         ''', (sender_id, receiver_id, encrypted_message))
         conn.commit()
         message_id = cursor.lastrowid
+        cursor.close()
         return jsonify({
             'id': message_id,
             'sender_id': sender_id,
@@ -88,6 +96,9 @@ def send_message():
 def get_messages(sender_id, receiver_id):
     # Get conversation history between two users, decrypting messages
     try:
+        # Create a new cursor for this operation
+        cursor = conn.cursor()
+        
         # Fetch messages between the users in both directions
         cursor.execute('''
             SELECT * FROM direct_messages
@@ -107,6 +118,7 @@ def get_messages(sender_id, receiver_id):
                 'message': decrypted_message,
                 'timestamp': message[4]
             })
+        cursor.close()
         return jsonify(decrypted_messages)
     except sqlite3.OperationalError as e:
         return jsonify({'error': f'Database error: {e}'}), 500
@@ -116,6 +128,9 @@ def get_messages(sender_id, receiver_id):
 def get_expert_by_category(category):
     # Find an expert in a specific category
     try:
+        # Create a new cursor for this operation
+        cursor = conn.cursor()
+        
         # Get random expert in the specified category
         cursor.execute('''
             SELECT id, email FROM users
@@ -124,9 +139,13 @@ def get_expert_by_category(category):
             LIMIT 1
         ''', (f'expert-{category.lower()}',))
         expert = cursor.fetchone()
+        
         if expert:
-            return jsonify({'id': expert[0], 'email': expert[1]})
+            result = {'id': expert[0], 'email': expert[1]}
+            cursor.close()
+            return jsonify(result)
         else:
+            cursor.close()
             return jsonify({'error': 'No expert found for the selected category.'}), 404
     except sqlite3.OperationalError as e:
         return jsonify({'error': f'Database error: {e}'}), 500
