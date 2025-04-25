@@ -47,11 +47,6 @@ export default function useAuth() {
       const user = response.data.user
       const token = response.data.token
 
-      console.log(
-        'Login successful - Token received:',
-        token ? `${token.substring(0, 10)}...` : 'No token returned',
-      )
-
       // Storing user session and token
       sessionStorage.setItem('user', JSON.stringify(user))
       sessionStorage.setItem('token', token)
@@ -70,7 +65,6 @@ export default function useAuth() {
       // Show error message
       loginMessage.value = 'Login failed. Please check your credentials.'
       isError.value = true
-      console.error('Login failed:', error)
     }
   }
 

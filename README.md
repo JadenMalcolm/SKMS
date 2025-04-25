@@ -12,13 +12,17 @@ Before you begin, ensure you have the following installed:
 
 ## API Configuration
 
-To configure the API endpoint security and connection:
+1. For security purposes, update the JWT secret key in `src/Backend/auth_routes.py`:
 
-1. Locate the `.env` file in the project root directory or create it if it doesn't exist:
+```python
+# Replace the hardcoded key with a new secure random string or load from environment variables
+SECRET_KEY = '7c45e9a1f8b06509d39b9d93c5bc5829e51670d2d869794dfb0ac92f5bed68a2'  # Change this!
+```
+
+You can generate a secure key using Python:
 
 ```sh
-touch .env  # On Unix-based systems
-# Or manually create the file on Windows
+python -c "import secrets; print(secrets.token_hex(32))"
 ```
 
 ## Frontend Setup

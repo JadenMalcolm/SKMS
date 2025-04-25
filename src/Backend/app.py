@@ -28,7 +28,7 @@ sys.dont_write_bytecode = True
 
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
+CORS(app)
 
 # Initialize SQLite database
 conn = sqlite3.connect('users.db', check_same_thread=False)

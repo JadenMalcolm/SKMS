@@ -9,20 +9,19 @@ import re
 import jwt
 import datetime
 from functools import wraps
-import logging
 
 
 auth_routes = Blueprint('auth_routes', __name__)
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Initialize SQLite database
 conn = sqlite3.connect('users.db', check_same_thread=False)
 cursor = conn.cursor()
 
 # Secret key for JWT
-SECRET_KEY = 'your_secret_key_here'
+# Generate a secure secret key for JWT token signing
+# In production, store this in environment variables instead of hardcoding
+SECRET_KEY = '7c45e9a1f8b06509d39b9d93c5bc5829e51670d2d869794dfb0ac92f5bed68a2'
 
 def is_strong_password(password):
     # Validate password strength
@@ -43,7 +42,6 @@ def token_required(f):
     def decorated(*args, **kwargs):
         token = request.headers.get('Authorization')
         if not token:
-            logging.debug('Token is missing in the request headers.')
             return jsonify({'error': 'Token is missing!'}), 401
             
         # Remove 'Bearer ' prefix if it exists
