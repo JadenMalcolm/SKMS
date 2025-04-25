@@ -15,8 +15,6 @@ export default function useAuth() {
   const { getBaseUrl } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
 
-
-
   // Form inputs
   const email = ref('')
   const password = ref('')
@@ -36,22 +34,30 @@ export default function useAuth() {
 
   /**
    * Handles user login submission.
-   * Validates credentials with the backend, stores user session upon success,
+   * Validates credentials with the backend, stores user session and token upon success,
    * and redirects to dashboard.
    */
   const handleLogin = async () => {
     try {
-      const response = await axios.post(
-        `${apiBaseUrl}/login`,
-        {
-          email: email.value.toLowerCase(), // Convert email to lowercase
-          password: password.value,
-        },
-      )
+      const response = await axios.post(`${apiBaseUrl}/login`, {
+        email: email.value.toLowerCase(), // Convert email to lowercase
+        password: password.value,
+      })
 
       const user = response.data.user
-      // storing user session
+      const token = response.data.token
+
+      console.log(
+        'Login successful - Token received:',
+        token ? `${token.substring(0, 10)}...` : 'No token returned',
+      )
+
+      // Storing user session and token
       sessionStorage.setItem('user', JSON.stringify(user))
+      sessionStorage.setItem('token', token)
+
+      // Set default Authorization header for axios
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
       // Show success message
       loginMessage.value = 'Login successful! Redirecting...'
@@ -64,6 +70,7 @@ export default function useAuth() {
       // Show error message
       loginMessage.value = 'Login failed. Please check your credentials.'
       isError.value = true
+      console.error('Login failed:', error)
     }
   }
 
@@ -78,15 +85,12 @@ export default function useAuth() {
       return
     }
     try {
-      await axios.post(
-        `${apiBaseUrl}/signup`,
-        {
-          email: email.value.toLowerCase(), // Convert email to lowercase
-          password: password.value,
-          securityQuestion: securityChoice.value,
-          securityQuestionAnswer: securityQuestionAnswer.value,
-        },
-      )
+      await axios.post(`${apiBaseUrl}/signup`, {
+        email: email.value.toLowerCase(), // Convert email to lowercase
+        password: password.value,
+        securityQuestion: securityChoice.value,
+        securityQuestionAnswer: securityQuestionAnswer.value,
+      })
 
       signupMessage.value = 'New Account Created!'
       router.push('/')
@@ -120,11 +124,16 @@ export default function useAuth() {
 
   /**
    * Checks if user is already logged in by verifying session storage
+   * and sets the Authorization header if token exists.
    * @returns User object if logged in, null otherwise
    */
   const checkAuth = () => {
     const user = sessionStorage.getItem('user')
-    if (user) {
+    const token = sessionStorage.getItem('token')
+
+    if (user && token) {
+      // Set default Authorization header for axios
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
       return JSON.parse(user)
     }
     return null

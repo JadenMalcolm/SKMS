@@ -4,6 +4,7 @@
 ###############################################################################
 from flask import Blueprint, request, jsonify
 import sqlite3
+from auth_routes import token_required
 
 
 response_routes = Blueprint('response_routes', __name__)
@@ -13,7 +14,7 @@ conn = sqlite3.connect('users.db', check_same_thread=False)
 cursor = conn.cursor()
 
 @response_routes.route('/responses', methods=['POST'])
-
+@token_required
 def save_response():
     # Save a new response to a question
     data = request.get_json()
@@ -31,10 +32,11 @@ def save_response():
     return jsonify({'message': 'Response saved successfully!', 'id': cursor.lastrowid}), 201
 
 @response_routes.route('/questions/<int:id>/responses', methods=['GET'])
-
+@token_required
 def get_responses(id):
     # Get all responses for a specific question
     cursor.execute('''
+
         SELECT r.id, r.response, r.timestamp, u.email
         FROM responses r
         JOIN users u ON r.user_id = u.id
@@ -48,6 +50,7 @@ def get_responses(id):
     ]), 200
 
 @response_routes.route('/responses/<int:response_id>', methods=['PUT', 'DELETE'])
+@token_required
 def manage_response(response_id):
     # Update or delete a specific response
     if request.method == 'PUT':

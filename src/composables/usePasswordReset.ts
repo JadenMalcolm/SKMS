@@ -17,9 +17,6 @@ export default function usePasswordReset() {
   const { getBaseUrl } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
 
-
-
-
   // State variables
   const email = ref(sessionStorage.getItem('recoverEmail') || '')
   const currentPassword = ref('')
@@ -53,12 +50,16 @@ export default function usePasswordReset() {
     }
 
     try {
+      const token = sessionStorage.getItem('token')
       await axios.post(
         `${apiBaseUrl}/reset_password`,
         {
           email: email.value,
           newPassword: newPassword.value,
-        }
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
       )
 
       // Show success message
@@ -97,13 +98,17 @@ export default function usePasswordReset() {
     }
 
     try {
+      const token = sessionStorage.getItem('token')
       const response = await axios.post(
         `${apiBaseUrl}/change-password`,
         {
           userId: userId,
           currentPassword: currentPassword.value,
           newPassword: newPassword.value,
-        }
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
       )
 
       message.value = response.data.message || 'Password changed successfully'
@@ -152,12 +157,9 @@ export default function usePasswordReset() {
    */
   const handleRecover = async (emailValue: string) => {
     try {
-      const response = await axios.post(
-        `${apiBaseUrl}/recover`,
-        {
-          email: emailValue.toLowerCase(), // Convert email to lowercase
-        }
-      )
+      const response = await axios.post(`${apiBaseUrl}/recover`, {
+        email: emailValue.toLowerCase(), // Convert email to lowercase
+      })
 
       if (response.data.securityQuestion) {
         sessionStorage.setItem('recoverEmail', emailValue)
@@ -184,12 +186,9 @@ export default function usePasswordReset() {
    */
   const fetchSecurityQuestion = async () => {
     try {
-      const response = await axios.post(
-        `${apiBaseUrl}/recover`,
-        {
-          email: email.value,
-        }
-      )
+      const response = await axios.post(`${apiBaseUrl}/recover`, {
+        email: email.value,
+      })
       // Check if the response contains a security question
       securityQuestion.value = response.data.securityQuestion
     } catch (error) {
@@ -212,13 +211,10 @@ export default function usePasswordReset() {
   const checkAnswer = async () => {
     try {
       // Check if the answer is correct
-      const response = await axios.post(
-        `${apiBaseUrl}/verify_answer`,
-        {
-          email: email.value,
-          securityQuestionAnswer: answer.value,
-        }
-      )
+      const response = await axios.post(`${apiBaseUrl}/verify_answer`, {
+        email: email.value,
+        securityQuestionAnswer: answer.value,
+      })
       // Push user to password reset if answer is correct
       if (response.data.message === 'Answer is correct') {
         successMessage.value = 'Answer is correct. You can reset your password.'

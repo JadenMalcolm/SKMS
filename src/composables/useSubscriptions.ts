@@ -17,10 +17,6 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
   const { getBaseUrl } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
 
-
-
-
-
   const subscribedQuestions = ref<Question[]>([])
   const isSubscribed = ref(false)
   const subscriptionMessage = ref('')
@@ -32,8 +28,17 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
     if (!currentUser.value) return
 
     try {
+      const token = sessionStorage.getItem('token')
+
+      if (!token) {
+        return
+      }
+
       const subscribedResponse = await axios.get(
-        `${apiBaseUrl}/users/${currentUser.value.id}/subscriptions`
+        `${apiBaseUrl}/users/${currentUser.value.id}/subscriptions`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
       )
       subscribedQuestions.value = subscribedResponse.data
     } catch (error) {
@@ -50,8 +55,13 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
     if (!currentUser.value) return false
 
     try {
+      const token = sessionStorage.getItem('token')
+      console.log('Token being sent:', token)
       const response = await axios.get<boolean>(
-        `${apiBaseUrl}/subscriptions/${currentUser.value.id}/${questionId}`
+        `${apiBaseUrl}/subscriptions/${currentUser.value.id}/${questionId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
       )
       isSubscribed.value = response.data
       return response.data
@@ -70,12 +80,16 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
     try {
       if (!currentUser.value) throw new Error('User not logged in.')
 
+      const token = sessionStorage.getItem('token')
       await axios.post(
         `${apiBaseUrl}/subscriptions`,
         {
           user_id: currentUser.value.id,
           question_id: questionId,
-        }
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
       )
 
       isSubscribed.value = true
@@ -101,11 +115,13 @@ export default function useSubscriptions(currentUser: Ref<User | null>) {
     try {
       if (!currentUser.value) throw new Error('User not logged in.')
 
+      const token = sessionStorage.getItem('token')
       await axios.delete(`${apiBaseUrl}/subscriptions`, {
         data: {
           user_id: currentUser.value.id,
           question_id: questionId,
         },
+        headers: { Authorization: `Bearer ${token}` },
       })
 
       isSubscribed.value = false

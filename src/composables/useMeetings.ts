@@ -43,8 +43,6 @@ export default function useMeetings(currentUser: Ref<User | null>) {
   const { getBaseUrl } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
 
-
-
   // State
   const myMeetings = ref<Meeting[]>([])
   const meetingRequests = ref<MeetingRequest[]>([])
@@ -60,8 +58,11 @@ export default function useMeetings(currentUser: Ref<User | null>) {
     if (!currentUser.value) return
 
     try {
+      const token = sessionStorage.getItem('token')
       const endpoint = `${apiBaseUrl}/meetings/${currentUser.value.id}`
-      const response = await axios.get(endpoint)
+      const response = await axios.get(endpoint, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       myMeetings.value = response.data
     } catch (error) {
       console.error('Error fetching meetings:', error)
@@ -76,7 +77,10 @@ export default function useMeetings(currentUser: Ref<User | null>) {
     if (!currentUser.value) return
 
     try {
-      const response = await axios.get(`${apiBaseUrl}/meeting-requests/${currentUser.value.id}`)
+      const token = sessionStorage.getItem('token')
+      const response = await axios.get(`${apiBaseUrl}/meeting-requests/${currentUser.value.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       meetingRequests.value = response.data
     } catch (error) {
       console.error('Error fetching meeting requests:', error)
@@ -94,13 +98,20 @@ export default function useMeetings(currentUser: Ref<User | null>) {
     }
 
     try {
-      const response = await axios.post(`${apiBaseUrl}/schedule-meeting`, {
-        user_id: currentUser.value?.id,
-        target_user_id: targetUserId,
-        date: selectedDate.value,
-        time: selectedTime.value,
-        meeting_type: selectedMeetingType.value,
-      })
+      const token = sessionStorage.getItem('token')
+      const response = await axios.post(
+        `${apiBaseUrl}/schedule-meeting`,
+        {
+          user_id: currentUser.value?.id,
+          target_user_id: targetUserId,
+          date: selectedDate.value,
+          time: selectedTime.value,
+          meeting_type: selectedMeetingType.value,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      )
       feedbackMessage.value = response.data.message
       await fetchMeetingRequests()
       await fetchMeetings()
@@ -115,9 +126,16 @@ export default function useMeetings(currentUser: Ref<User | null>) {
    */
   const acceptMeeting = async (meetingId: number) => {
     try {
-      const response = await axios.post(`${apiBaseUrl}/accept-meeting`, {
-        meeting_id: meetingId,
-      })
+      const token = sessionStorage.getItem('token')
+      const response = await axios.post(
+        `${apiBaseUrl}/accept-meeting`,
+        {
+          meeting_id: meetingId,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      )
       feedbackMessage.value = response.data.message
       await fetchMeetingRequests()
       await fetchMeetings()
@@ -132,9 +150,16 @@ export default function useMeetings(currentUser: Ref<User | null>) {
    */
   const rejectMeeting = async (meetingId: number) => {
     try {
-      const response = await axios.post(`${apiBaseUrl}/reject-meeting`, {
-        meeting_id: meetingId,
-      })
+      const token = sessionStorage.getItem('token')
+      const response = await axios.post(
+        `${apiBaseUrl}/reject-meeting`,
+        {
+          meeting_id: meetingId,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      )
       feedbackMessage.value = response.data.message
       await fetchMeetingRequests()
       await fetchMeetings()
@@ -150,8 +175,15 @@ export default function useMeetings(currentUser: Ref<User | null>) {
    */
   const rescheduleMeeting = async (request: MeetingRequest) => {
     try {
+      const token = sessionStorage.getItem('token')
       // Delete the original meeting request
-      await axios.post(`${apiBaseUrl}/delete-meeting`, { meeting_id: request.id })
+      await axios.post(
+        `${apiBaseUrl}/delete-meeting`,
+        { meeting_id: request.id },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      )
       feedbackMessage.value = `Please select ${request.user_email} to reschedule the meeting and set a new date and time.`
       await fetchMeetingRequests()
       await fetchMeetings()
@@ -168,9 +200,16 @@ export default function useMeetings(currentUser: Ref<User | null>) {
    */
   const deleteMeeting = async (meetingId: number) => {
     try {
-      const response = await axios.post(`${apiBaseUrl}/delete-meeting`, {
-        meeting_id: meetingId,
-      })
+      const token = sessionStorage.getItem('token')
+      const response = await axios.post(
+        `${apiBaseUrl}/delete-meeting`,
+        {
+          meeting_id: meetingId,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      )
       feedbackMessage.value = response.data.message
       await fetchMeetingRequests()
       await fetchMeetings()

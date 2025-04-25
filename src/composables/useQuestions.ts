@@ -29,10 +29,6 @@ export default function useQuestions(currentUser: Ref<User | null>) {
   const { getBaseUrl } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
 
-
-
-
-
   const searchQuery = ref('')
   const allQuestions = ref<Question[]>([])
   const searchResults = ref<Question[]>([])
@@ -64,8 +60,10 @@ export default function useQuestions(currentUser: Ref<User | null>) {
     if (!currentUser.value) return
 
     try {
-      const response = await axios.get(`${apiBaseUrl}/questions`
-      )
+      const token = sessionStorage.getItem('token')
+      const response = await axios.get(`${apiBaseUrl}/questions`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       allQuestions.value = response.data
 
       userQuestions.value = allQuestions.value
@@ -84,9 +82,10 @@ export default function useQuestions(currentUser: Ref<User | null>) {
    */
   const fetchQuestionDetails = async (questionId: string | number) => {
     try {
-      const response = await axios.get<Question>(
-        `${apiBaseUrl}/questions/${questionId}`
-      )
+      const token = sessionStorage.getItem('token')
+      const response = await axios.get<Question>(`${apiBaseUrl}/questions/${questionId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       questionDetails.value = response.data
       editText.value = questionDetails.value.question
       return questionDetails.value
@@ -104,10 +103,15 @@ export default function useQuestions(currentUser: Ref<User | null>) {
    */
   const searchQuestions = async (category?: string) => {
     try {
-      const response = await axios.post(`${apiBaseUrl}/questions/search`,
+      const token = sessionStorage.getItem('token')
+      const response = await axios.post(
+        `${apiBaseUrl}/questions/search`,
         {
           query: searchQuery.value,
-        }
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
       )
 
       if (category) {
@@ -133,12 +137,17 @@ export default function useQuestions(currentUser: Ref<User | null>) {
           return
         }
 
-        const response = await axios.post(`${apiBaseUrl}/questions`,
+        const token = sessionStorage.getItem('token')
+        const response = await axios.post(
+          `${apiBaseUrl}/questions`,
           {
             userId: currentUser.value.id,
             question: newQuestionText.value,
             category: category,
-          }
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
         )
 
         const newQuestion = {
@@ -170,8 +179,10 @@ export default function useQuestions(currentUser: Ref<User | null>) {
    */
   const deleteQuestion = async (questionId: string | number) => {
     try {
-      await axios.delete(`${apiBaseUrl}/questions/${questionId}`
-      )
+      const token = sessionStorage.getItem('token')
+      await axios.delete(`${apiBaseUrl}/questions/${questionId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       feedbackMessage.value = 'Question deleted successfully!'
       return true
     } catch (error) {
@@ -202,12 +213,17 @@ export default function useQuestions(currentUser: Ref<User | null>) {
         // Use the provided questionId or fall back to the value in questionDetails
         const id = questionId || questionDetails.value.id
 
-        await axios.put(`${apiBaseUrl}/questions/${id}`,
+        const token = sessionStorage.getItem('token')
+        await axios.put(
+          `${apiBaseUrl}/questions/${id}`,
           {
             question: editText.value,
             category: questionDetails.value.category,
             user_id: currentUser.value.id,
-          }
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
         )
 
         questionDetails.value.question = editText.value

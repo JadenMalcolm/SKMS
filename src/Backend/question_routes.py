@@ -4,6 +4,7 @@
 ###############################################################################
 from flask import Blueprint, request, jsonify
 import sqlite3
+from auth_routes import token_required
 
 
 question_routes = Blueprint('question_routes', __name__)
@@ -13,7 +14,7 @@ conn = sqlite3.connect('users.db', check_same_thread=False)
 cursor = conn.cursor()
 
 @question_routes.route('/questions', methods=['POST'])
-
+@token_required
 def save_question():
     # Create a new question
     data = request.get_json()
@@ -31,7 +32,7 @@ def save_question():
     return jsonify({'message': 'Question saved successfully!', 'id': cursor.lastrowid}), 201
 
 @question_routes.route('/questions', methods=['GET'])
-
+@token_required
 def get_all_questions():
     # Retrieve all questions
     cursor.execute('''
@@ -47,7 +48,7 @@ def get_all_questions():
     ]), 200
 
 @question_routes.route('/questions/search', methods=['POST'])
-
+@token_required
 def search_questions():
     # Search questions by keywords
     data = request.get_json()
@@ -72,7 +73,7 @@ def search_questions():
     ]), 200
 
 @question_routes.route('/questions/<int:id>', methods=['GET', 'PUT', 'DELETE'])
-
+@token_required
 def question(id):
     if request.method == 'GET':
         # Get a specific question

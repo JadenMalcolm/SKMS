@@ -32,9 +32,6 @@ export default function useResponses(
   const { getBaseUrl } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
 
-
-
-
   const newResponseText = ref('')
   const responseMessage = ref('')
   const isLoading = ref(false)
@@ -47,8 +44,12 @@ export default function useResponses(
   const fetchResponses = async (questionId: string | number) => {
     isLoading.value = true
     try {
+      const token = sessionStorage.getItem('token')
       const response = await axios.get<Response[]>(
         `${apiBaseUrl}/questions/${questionId}/responses`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
       )
       responseList.value = response.data.map((item) => ({
         ...item,
@@ -80,12 +81,16 @@ export default function useResponses(
     try {
       if (!currentUser.value) throw new Error('User not logged in.')
 
+      const token = sessionStorage.getItem('token')
       const response = await axios.post(
         `${apiBaseUrl}/responses`,
         {
           question_id: questionId,
           user_id: currentUser.value.id,
           response: newResponseText.value,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
         },
       )
 
@@ -125,10 +130,14 @@ export default function useResponses(
 
       isLoading.value = true
       try {
+        const token = sessionStorage.getItem('token')
         await axios.put(
           `${apiBaseUrl}/responses/${response.id}`,
           {
             response: response.editText,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
           },
         )
 
@@ -157,7 +166,10 @@ export default function useResponses(
   const deleteResponse = async (responseId: number) => {
     isLoading.value = true
     try {
-      await axios.delete(`${apiBaseUrl}/responses/${responseId}`)
+      const token = sessionStorage.getItem('token')
+      await axios.delete(`${apiBaseUrl}/responses/${responseId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       responseList.value = responseList.value.filter((response) => response.id !== responseId)
       responseMessage.value = 'Response deleted successfully!'
       return true

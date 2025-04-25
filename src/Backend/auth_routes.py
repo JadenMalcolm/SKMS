@@ -6,13 +6,23 @@ from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import re
+import jwt
+import datetime
+from functools import wraps
+import logging
 
 
 auth_routes = Blueprint('auth_routes', __name__)
 
+# Configure logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 # Initialize SQLite database
 conn = sqlite3.connect('users.db', check_same_thread=False)
 cursor = conn.cursor()
+
+# Secret key for JWT
+SECRET_KEY = 'your_secret_key_here'
 
 def is_strong_password(password):
     # Validate password strength
@@ -26,6 +36,29 @@ def is_strong_password(password):
     long = len(password) >= 8
 
     return has_upper and has_lower and has_digit and long
+
+# Middleware to validate token
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get('Authorization')
+        if not token:
+            logging.debug('Token is missing in the request headers.')
+            return jsonify({'error': 'Token is missing!'}), 401
+            
+        # Remove 'Bearer ' prefix if it exists
+        if token.startswith('Bearer '):
+            token = token[7:]
+            
+        try:
+            
+            jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token has expired!'}), 401
+        except jwt.InvalidTokenError as e:
+            return jsonify({'error': 'Invalid token!'}), 401
+        return f(*args, **kwargs)
+    return decorated
 
 @auth_routes.route('/signup', methods=['POST'])
 
@@ -53,7 +86,6 @@ def signup():
         return jsonify({'error': 'Email already exists'}), 400
 
 @auth_routes.route('/login', methods=['POST'])
-
 def login():
     # Authenticate user login
     data = request.get_json()
@@ -64,7 +96,12 @@ def login():
     cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
     if user and check_password_hash(user[2], password):
-        return jsonify({'message': 'Login successful', 'user': {'id': user[0], 'email': user[1], 'role': user[3]}}), 200
+        # Generate JWT token
+        token = jwt.encode({
+            'user_id': user[0],
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        }, SECRET_KEY, algorithm='HS256')
+        return jsonify({'message': 'Login successful', 'token': token, 'user': {'id': user[0], 'email': user[1], 'role': user[3]}}), 200
     return jsonify({'error': 'Invalid email or password'}), 401
 
 @auth_routes.route('/recover', methods=['POST'])
@@ -158,3 +195,21 @@ def change_password():
     conn.commit()
     
     return jsonify({'message': 'Password updated successfully'}), 200
+
+@auth_routes.route('/debug-token', methods=['POST'])
+def debug_token():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'error': 'Token is missing!'}), 401
+        
+    # Remove 'Bearer ' prefix if it exists
+    if token.startswith('Bearer '):
+        token = token[7:]
+        
+    try:
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        return jsonify({'decoded_token': decoded_token}), 200
+    except jwt.ExpiredSignatureError:
+        return jsonify({'error': 'Token has expired!'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'error': 'Invalid token!'}), 401

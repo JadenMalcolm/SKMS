@@ -15,9 +15,6 @@ export default function useVotes(currentUser: Ref<User | null>) {
   const { getBaseUrl } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
 
-
-
-
   const upvoteCount = ref(0)
   const downvoteCount = ref(0)
   const reportCount = ref(0)
@@ -32,9 +29,10 @@ export default function useVotes(currentUser: Ref<User | null>) {
   const fetchVoteCounts = async (questionId: string | number) => {
     isLoading.value = true
     try {
-      const countsResponse = await axios.get(
-        `${apiBaseUrl}/questions/${questionId}/counts`
-      )
+      const token = sessionStorage.getItem('token')
+      const countsResponse = await axios.get(`${apiBaseUrl}/questions/${questionId}/counts`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       upvoteCount.value = countsResponse.data.upvotes
       downvoteCount.value = countsResponse.data.downvotes
       reportCount.value = countsResponse.data.reports
@@ -69,10 +67,15 @@ export default function useVotes(currentUser: Ref<User | null>) {
 
     isLoading.value = true
     try {
-      await axios.post(`${apiBaseUrl}/questions/${questionId}/${type}`,
+      const token = sessionStorage.getItem('token')
+      await axios.post(
+        `${apiBaseUrl}/questions/${questionId}/${type}`,
         {
           user_id: currentUser.value.id,
-        }
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
       )
 
       // Refresh vote counts after voting

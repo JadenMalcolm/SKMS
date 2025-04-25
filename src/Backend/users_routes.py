@@ -4,6 +4,7 @@
 ###############################################################################
 from flask import Blueprint, jsonify
 import sqlite3
+from auth_routes import token_required
 
 
 users_routes = Blueprint('users_routes', __name__)
@@ -16,7 +17,7 @@ def get_db_connection():
     return conn
 
 @users_routes.route('/users/all', methods=['GET'])
-
+@token_required
 def get_all_users():
     # Retrieve all users from the system with their roles
     try:
@@ -35,7 +36,7 @@ def get_all_users():
     
 
 @users_routes.route('/users/admins', methods=['GET'])
-
+@token_required
 def get_admins():
     # Retrieve all users with admin role
     try:
@@ -53,6 +54,7 @@ def get_admins():
         return jsonify({"error": str(e)}), 500
 
 @users_routes.route('/users/experts', methods=['GET'])
+@token_required
 def get_experts():
     # Retrieve all users with expert roles across different domains
     try:
@@ -70,6 +72,7 @@ def get_experts():
         return jsonify({"error": str(e)}), 500
 
 @users_routes.route('/users/employees', methods=['GET'])
+@token_required
 def get_employees():
     # Retrieve all users with employee role
     try:

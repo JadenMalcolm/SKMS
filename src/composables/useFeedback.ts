@@ -32,9 +32,8 @@ export interface CategorizedFeedback {
  * @returns Feedback management methods and reactive state variables
  */
 export default function useFeedback(closePopup?: () => void) {
-  const { getBaseUrl} = useApiUrl()
+  const { getBaseUrl } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
-
 
   // Create request headers with API key
   // User feedback submission state
@@ -66,6 +65,7 @@ export default function useFeedback(closePopup?: () => void) {
     try {
       const currentUser = JSON.parse(sessionStorage.getItem('user') || 'null')
       const userId = currentUser?.id || null
+      const token = sessionStorage.getItem('token')
 
       await axios.post(
         `${apiBaseUrl}/feedback`,
@@ -74,6 +74,9 @@ export default function useFeedback(closePopup?: () => void) {
           text: feedbackText.value,
           anonymous: isAnonymous.value,
           userId: isAnonymous.value ? null : userId,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
         },
       )
 
@@ -99,7 +102,10 @@ export default function useFeedback(closePopup?: () => void) {
   const fetchFeedbackData = async () => {
     try {
       loading.value = true
-      const response = await axios.get(`${apiBaseUrl}/feedback/categorized`)
+      const token = sessionStorage.getItem('token')
+      const response = await axios.get(`${apiBaseUrl}/feedback/categorized`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       categorizedFeedback.value = response.data
     } catch (error) {
       console.error('Error fetching feedback data:', error)
@@ -137,7 +143,10 @@ export default function useFeedback(closePopup?: () => void) {
    */
   const deleteFeedback = async (item: FeedbackItem) => {
     try {
-      await axios.delete(`${apiBaseUrl}/feedback/${item.id}`)
+      const token = sessionStorage.getItem('token')
+      await axios.delete(`${apiBaseUrl}/feedback/${item.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
       // Remove the deleted feedback from the list
       const categories = [

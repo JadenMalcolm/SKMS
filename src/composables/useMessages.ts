@@ -28,9 +28,6 @@ export default function useMessages(currentUser: Ref<User | null>, selectedUser:
   const { getBaseUrl } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
 
-
-
-
   const messages = ref<Message[]>([])
   const newMessage = ref('')
   const messagesContainer = ref<HTMLElement | null>(null)
@@ -60,8 +57,12 @@ export default function useMessages(currentUser: Ref<User | null>, selectedUser:
     if (currentUser.value && selectedUser.value) {
       pollingInterval.value = window.setInterval(async () => {
         try {
+          const token = sessionStorage.getItem('token')
           const response = await axios.get(
-            `${apiBaseUrl}/messages/${currentUser.value?.id}/${selectedUser.value?.id}`
+            `${apiBaseUrl}/messages/${currentUser.value?.id}/${selectedUser.value?.id}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
           )
 
           // Only update if there are new messages
@@ -84,8 +85,12 @@ export default function useMessages(currentUser: Ref<User | null>, selectedUser:
     if (user.id !== currentUser.value?.id) {
       selectedUser.value = user
       try {
+        const token = sessionStorage.getItem('token')
         const response = await axios.get(
-          `${apiBaseUrl}/messages/${currentUser.value?.id}/${user.id}`
+          `${apiBaseUrl}/messages/${currentUser.value?.id}/${user.id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
         )
         messages.value = response.data
 
@@ -105,13 +110,17 @@ export default function useMessages(currentUser: Ref<User | null>, selectedUser:
   const sendMessage = async (fetchUsers: () => Promise<void>) => {
     if (newMessage.value.trim() && selectedUser.value && currentUser.value) {
       try {
+        const token = sessionStorage.getItem('token')
         const response = await axios.post(
           `${apiBaseUrl}/messages`,
           {
             sender_id: currentUser.value.id,
             receiver_id: selectedUser.value.id,
             message: newMessage.value,
-          }
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
         )
         messages.value.push(response.data)
         newMessage.value = ''

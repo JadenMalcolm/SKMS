@@ -32,9 +32,6 @@ export default function useUsers(currentUser: Ref<User | null>) {
   const { getBaseUrl } = useApiUrl()
   const apiBaseUrl = getBaseUrl()
 
-
-
-
   const users = ref<User[]>([])
   const allUsers = ref<User[]>([])
   const selectedUser = ref<User | null>(null)
@@ -48,7 +45,10 @@ export default function useUsers(currentUser: Ref<User | null>) {
   const fetchMessagedUsers = async () => {
     if (currentUser.value) {
       try {
-        const response = await axios.get(`${apiBaseUrl}/users/${currentUser.value.id}`)
+        const token = sessionStorage.getItem('token')
+        const response = await axios.get(`${apiBaseUrl}/users/${currentUser.value.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
         users.value = response.data
       } catch (error) {
         console.error('Error fetching users:', error)
@@ -62,7 +62,10 @@ export default function useUsers(currentUser: Ref<User | null>) {
    */
   const fetchAllUsers = async () => {
     try {
-      const response = await axios.get(`${apiBaseUrl}/users/all`)
+      const token = sessionStorage.getItem('token')
+      const response = await axios.get(`${apiBaseUrl}/users/all`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       // Filter out the current user from the list
       if (currentUser.value) {
         allUsers.value = response.data.filter((user: User) => user.id !== currentUser.value?.id)
@@ -131,11 +134,18 @@ export default function useUsers(currentUser: Ref<User | null>) {
   const fetchUsersByRole = async () => {
     try {
       isLoadingStaff.value = true
+      const token = sessionStorage.getItem('token')
 
       const [adminsResponse, expertsResponse, employeesResponse] = await Promise.all([
-        axios.get(`${apiBaseUrl}/users/admins`),
-        axios.get(`${apiBaseUrl}/users/experts`),
-        axios.get(`${apiBaseUrl}/users/employees`),
+        axios.get(`${apiBaseUrl}/users/admins`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`${apiBaseUrl}/users/experts`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`${apiBaseUrl}/users/employees`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
       ])
 
       categorizedUsers.value = {
