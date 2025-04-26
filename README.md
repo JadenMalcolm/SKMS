@@ -10,6 +10,90 @@ Before you begin, ensure you have the following installed:
 - Git (recommended for version control)
 - A modern web browser (Chrome, Firefox, Edge, or Safari)
 
+## Project Setup (Complete Installation)
+
+For a quick setup of both backend and frontend, follow these steps:
+
+```sh
+# 1. Clone the repository (if not already done)
+git clone <repository-url>
+cd SKMS
+
+# 2. Set up the backend with a virtual environment
+cd src/Backend
+python -m venv venv
+
+# 3. Activate the virtual environment
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+# source venv/bin/activate
+
+# 4. Install backend dependencies
+pip install -r requirements.txt
+python generate_key.py
+python setup_db.py
+
+# 5. Start the backend server (in a separate terminal)
+python app.py
+
+# 6. Return to project root and set up the frontend
+cd ../..
+npm install
+
+# 7. Start the frontend development server
+npm run dev
+```
+
+## Backend Setup
+
+### Installation and Setup
+
+1. Navigate to the Backend directory:
+
+```sh
+cd src/Backend
+```
+
+2. Create a virtual environment (recommended):
+
+```sh
+# Create a virtual environment
+python -m venv venv
+
+# Activate the virtual environment
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+# source venv/bin/activate
+```
+
+3. Install required Python packages:
+
+```sh
+pip install -r requirements.txt
+```
+
+4. Generate encryption key:
+
+```sh
+python generate_key.py
+```
+
+5. Set up the database:
+
+```sh
+python setup_db.py
+```
+
+6. Run the backend server:
+
+```sh
+python app.py
+```
+
+The backend server will start running on http://localhost:5000/api
+
 ## API Configuration
 
 1. For security purposes, update the JWT secret key in `src/Backend/auth_routes.py`:
@@ -31,7 +115,6 @@ python -c "import secrets; print(secrets.token_hex(32))"
 
 ```sh
 npm install
-npm install vite
 ```
 
 ### Development Server
@@ -39,6 +122,8 @@ npm install vite
 ```sh
 npm run dev
 ```
+
+This will start the development server, typically at http://localhost:5173/
 
 ### Build for Production
 
@@ -63,38 +148,24 @@ Alternatively, you can use:
 npx serve dist
 ```
 
-## Backend Setup
+## Development Workflow
 
-### Installation and Setup
-
-1. Navigate to the Backend directory:
+1. Start the backend server first:
 
 ```sh
 cd src/Backend
-```
-
-2. Install required Python packages:
-
-```sh
-pip install -r requirements.txt
-```
-
-3. Generate encryption key:
-
-```sh
-python generate_key.py
-```
-
-4. Set up the database:
-
-```sh
-python setup_db.py
-```
-
-5. Run the backend server:
-
-```sh
+# Activate virtual environment if not already activated
+venv\Scripts\activate  # On Windows
+# source venv/bin/activate  # On macOS/Linux
 python app.py
 ```
 
-The backend server will start running on http://localhost:5000/api
+2. In a separate terminal, start the frontend development server:
+
+```sh
+npm run dev
+```
+
+3. Access the application in your browser at http://localhost:5173/
+
+## Troubleshooting
