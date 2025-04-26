@@ -31,6 +31,7 @@ python -c "import secrets; print(secrets.token_hex(32))"
 
 ```sh
 npm install
+npm install vite
 ```
 
 ### Development Server
