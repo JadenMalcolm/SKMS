@@ -133,20 +133,12 @@ npm run build
 
 ### Serve Production Build
 
-After building the application, you can serve it with:
+After building the application, you can start it with:
 
 ```sh
-# Install serve globally if not already installed
-npm install -g serve
-# Serve the built application
-serve dist
+npm run start
 ```
-
-Alternatively, you can use:
-
-```sh
-npx serve dist
-```
+The server will now be running on http://localhost:3000/
 
 ## Development Workflow
 
