@@ -1,4 +1,18 @@
-# SKMS
+# Security Knowledge Management System (SKMS)
+
+A secure platform for knowledge sharing, expert assistance, and service-related communications. Built for employers and organizations looking to collaborate on and teach security best practices across their teams.
+
+## Purpose
+
+The SKMS provides a centralized hub where team members can:
+
+- Share security knowledge and best practices
+- Get expert assistance on security-related questions
+- Schedule training and consultation sessions
+- Communicate securely about sensitive topics
+- Build a searchable knowledge base of security information
+
+This platform helps organizations maintain consistent security practices, train new employees, and facilitate knowledge transfer between security experts and other staff members.
 
 ## Prerequisites
 
@@ -138,6 +152,7 @@ After building the application, you can start it with:
 ```sh
 npm run start
 ```
+
 The server will now be running on http://localhost:3000/
 
 ## Development Workflow
@@ -160,4 +175,144 @@ npm run dev
 
 3. Access the application in your browser at http://localhost:5173/
 
+## Features
+
+### User Management
+
+- **Authentication**: Complete user authentication system with login, registration, and password reset functionality
+- **Profile Management**: Users can view and update their profiles, change passwords, and manage account settings
+
+### Core Interface
+
+- **Dashboard**: Central hub displaying security topics, trending concerns, and quick access to all system features
+- **Navigation**: Intuitive sidebar menu for easy navigation throughout the application
+- **Responsive Design**: Works seamlessly across desktop and mobile devices
+
+### Knowledge Sharing
+
+- **Question & Answer System**: Users can submit security-based questions and respond to queries from others
+- **Knowledge Base**: Searchable repository of security information organized by categories
+- **Learn Center**: Dedicated page providing static information and links to external resources for security training
+- **Keyword Search**: Powerful search functionality to quickly locate relevant information
+
+### Communication Tools
+
+- **Direct Messaging**: Private, secure chat functionality between individual users
+- **Group Chat Rooms**: Topic-based discussion areas for team collaboration
+- **Messaging Widget**: Real-time communication using secure socket or request-based messaging
+- **Expert Assistance**: Connect directly with security knowledge experts
+
+### Administrative Features
+
+- **Staff Directory**: Page dedicated to viewing staff members with their expertise and contact information
+- **Company Policies**: Centralized access to important security policies with detailed descriptions
+- **Admin Panel**: Administrative controls for user management and system configuration
+
+### Productivity Tools
+
+- **Meeting Scheduler**: Calendar-based system to book appointments with security experts
+- **Feedback System**: Mechanism for employees to provide both identified and anonymous feedback
+- **Virtual Assistant**: Intelligent chatbot to help users navigate security topics and find information quickly
+
+### Security Features
+
+- **Role-Based Access Control**: Different permission levels based on user roles
+- **Secure Communications**: Encrypted messaging and data transfer
+- **Audit Logging**: Tracking of system activities for security compliance
+
+## System Architecture
+
+- **Frontend**: Vue.js with Vue Router for navigation
+- **Backend**: Flask API with JWT authentication
+- **Database**: SQLite for data storage
+- **Security**: Role-based access control and encrypted communications
+
 ## Troubleshooting
+
+- **Backend Connection Issues**: Ensure the Flask server is running on port 5000
+- **Frontend Build Errors**: Make sure you're using compatible Node.js version
+- **Login Problems**: Check the database setup and JWT configuration
+- **Missing Dependencies**: Run `npm install` and `pip install -r requirements.txt` again
+
+### Common Node.js Issues
+
+- **Node_modules Issues**: If you encounter dependency problems, try removing the node_modules folder and reinstalling:
+
+  ```sh
+  # On Windows
+  rmdir /s /q node_modules
+  # On macOS/Linux
+  rm -rf node_modules
+
+  # Then reinstall
+  npm install
+  ```
+
+- **NPM Cache Issues**: If installing packages consistently fails, try clearing the npm cache:
+
+  ```sh
+  npm cache clean --force
+  ```
+
+- **Module Not Found Errors**: If you see "Cannot find module" errors:
+
+  ```sh
+  # Delete package-lock.json
+  del package-lock.json  # Windows
+  # rm package-lock.json  # macOS/Linux
+
+  # Clear cache and reinstall
+  npm cache clean --force
+  npm install
+  ```
+
+### Backend Troubleshooting
+
+- **Database Errors**: If you encounter SQLite errors, try regenerating the database:
+
+  ```sh
+  # Navigate to backend directory
+  cd src/Backend
+
+  # Remove the existing database file
+  del users.db  # Windows
+  # rm users.db  # macOS/Linux
+
+  # Set up the database again
+  python setup_db.py
+  ```
+
+- **Virtual Environment Issues**: If your virtual environment becomes corrupted:
+
+  ```sh
+  # Remove existing venv
+  rmdir /s /q venv  # Windows
+  # rm -rf venv  # macOS/Linux
+
+  # Create a new one
+  python -m venv venv
+
+  # Activate and reinstall dependencies
+  venv\Scripts\activate  # Windows
+  # source venv/bin/activate  # macOS/Linux
+  pip install -r requirements.txt
+  ```
+
+## Resources & Inspiration
+
+This project was inspired by and built upon concepts from:
+
+- **NIST Cybersecurity Framework**: For core security principles and knowledge categorization
+- **OWASP Knowledge Base**: For security best practices and common vulnerability information
+- **Herzog's Security Classification Model**: For organizing security knowledge into meaningful categories
+
+## Acknowledgments
+
+https://feathericons.com/?query=eye
+https://fonts.google.com/icons?icon.size=24&icon.color=%23e3e3e3
+https://pictogrammers.com/library/mdi/
+https://curity.io/resources/learn/oauth-filter-for-python-flask/
+https://pyjwt.readthedocs.io/en/stable/
+https://stackoverflow.com/questions/56076269/how-to-set-authorization-header-in-vue-js
+https://vite.dev/guide/build
+https://router.vuejs.org/guide/essentials/route-matching-syntax.html
